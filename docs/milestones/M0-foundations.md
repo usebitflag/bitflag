@@ -401,7 +401,7 @@ Deferred to the milestone that first needs them: drawer (M5 audit), chip input a
 | `bitflag-js` | `package.json` (no runtime dependencies), `tsconfig.json` (strict), `src/evaluation`, `src/protocol` with a placeholder module, Vitest, ESLint | `ci.yml`: matrix of supported Node versions; `tsc --noEmit`, ESLint, Vitest; an arch check that `src/evaluation` imports nothing outside the package |
 | `bitflag` | Everything in this plan | `ci.yml`, `security.yml`, `e2e` inside `ci.yml` (below) |
 
-All four: private until D13, `main` protected (pull request required, required status checks, linear history, no force push, stale review dismissal), `CODEOWNERS` naming Shei, pull request template with a "contracts touched" checklist, Dependabot for Composer, npm and GitHub Actions (weekly, grouped), Gitleaks on every pull request.
+All four: private until D13, `CODEOWNERS` naming Shei, pull request template with a "contracts touched" checklist, Dependabot for GitHub Actions now and for Composer and npm once their manifests exist (weekly, grouped), Gitleaks (CLI, not the paid action) on every pull request, and a `CLAUDE.md` that makes pull requests mandatory. `main` is meant to be protected (pull request required, required status checks, linear history, no force push, stale review dismissal), but the organization is on the GitHub Free plan, where private repositories cannot use branch protection or rulesets (R19). Until the Team upgrade, a `main-guard` workflow fails when a commit reaches `main` without a pull request, a `.githooks/pre-push` hook blocks pushes to `main` locally, and repository settings allow squash merge only.
 
 `bitflag` `ci.yml` jobs:
 
@@ -417,7 +417,7 @@ All four: private until D13, `main` protected (pull request required, required s
 
 Each step is one pull request. Main files are listed.
 
-1. **Create repositories.** Four private repos, branch protection, `CODEOWNERS`, PR template, Dependabot, Gitleaks workflow, `.editorconfig`, README with the purpose from repository-structure.md.
+1. **Create repositories.** Four private repos, branch protection (deferred, see 3.8), `main-guard` workflow, `pre-push` hook, `CLAUDE.md`, `CODEOWNERS`, PR template, Dependabot, Gitleaks workflow, `.editorconfig`, README with the purpose from repository-structure.md.
 2. **`bitflag-protocol` skeleton.** `package.json`, `tools/validate.mjs`, `tools/manifest.mjs`, empty `schemas/v1/` with `common.schema.json`, `spec/00-overview.md`, `.github/workflows/ci.yml`.
 3. **`bitflag-php` and `bitflag-js` skeletons.** `bitflag-php`: `composer.json` (`BitFlag\` PSR-4, require only `php`), `phpstan.neon`, `pint.json`, `tests/Pest.php`, `tests/Arch/StdlibOnlyTest.php`, `ci.yml`. `bitflag-js`: `package.json`, `tsconfig.json`, `vitest.config.ts`, ESLint config, `ci.yml`.
 4. **Scaffold `bitflag`.** `laravel new` (no starter kit), pin PHP, Laravel, Node and MySQL versions (D01), `config/bitflag.php` (hosts), `.env.example`, `.env.e2e`, Sail with `mysql`, `redis`, `mailpit`, plus `horizon` and `outbox` services in `docker-compose.yml`, `bootstrap/app.php` route registration (web, api, sdk, admin, testing).
@@ -509,13 +509,14 @@ Canaries (`tests/Arch/Canaries`): controller using `DB`; Billing using a Flags m
 | R07 org roles | Org Owner and Member only. Billing Admin (Organization mockup 1b, Leo Ramos) is not built; it would plug in as an `OrgRole` mapped to `org.billing.manage` |
 | R11 sign-in | Email and password only; no GitHub or Google buttons on the M0 login screen even though the Auth mockup shows them |
 | R12 support | Admin console on its own host and guard; no impersonation path exists in the shell |
+| R19 branch protection (9 October 2026) | The `usebitflag` organization is on GitHub Free, so private repos cannot use branch protection. Protection is deferred until the Team upgrade, which happens before M1 starts or before anyone else gets write access. Interim controls: `main-guard`, `pre-push` hook, squash-only merges, `CLAUDE.md` |
 | R18 front-end choices (9 October 2026) | Portal ships dark and light themes; Inter for headings and body, IBM Plex Mono for code, keys, IDs and monospace numbers; Reka UI, Wayfinder and self-hosted fonts accepted; nav shows only built pages; no semantic red or green |
 
 Portal URLs led by the organization slug are decided (R17). The front-end choices above are decided (R18). Still for Shei to confirm: the `outbox_receipts` table and the `aud_` and `req_` prefixes.
 
 ## 7. Done criteria
 
-- CI is green on `main` in all four repositories, with branch protection requiring the checks.
+- CI is green on `main` in all four repositories. Branch protection requires the checks once the organization is on GitHub Team (R19); until then `main-guard` is green on every commit on `main`.
 - `./vendor/bin/sail up` starts app, MySQL, Redis, Mailpit, Horizon and the outbox worker; `sail artisan migrate:fresh --seed --seeder=DemoSeeder` succeeds.
 - A seeded user signs in and sees the blank Overview page inside the Nocturne shell, with working environment and project switching, and the Viewer banner for Ana.
 - The `arch-canary` job proves each architecture rule, the PHPStan write rule and the tenant-table test fail on a deliberate violation.
@@ -537,3 +538,4 @@ Portal URLs led by the organization slug are decided (R17). The front-end choice
 6. **Error envelope casing.** api-and-integrations.md shows `requestId` and `DRAFT_VERSION_CONFLICT`; the conventions use `request_id` and `VERSION_CONFLICT`. This plan follows the conventions; the API doc example should be updated.
 7. **Nav entries for unbuilt pages: resolved (R18).** Items appear only once their module registers a route, so the M0 shell shows Overview alone.
 8. **Sail in CI** makes the e2e job slow. If it becomes a bottleneck, a services-based runner using the same images is the fallback, but Sail stays the documented path.
+9. **Branch protection on Free.** Required status checks, enforced CODEOWNERS review and no-force-push cannot be enforced on private repositories on the Free plan. The interim controls are detective or client-side only, so a direct push to `main` is possible. Upgrade to GitHub Team before M1 starts or before anyone else gets write access, then apply protection to all four repositories. Free also includes 2,000 Actions minutes a month, which the Sail-based e2e job may use up.

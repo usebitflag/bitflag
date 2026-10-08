@@ -42,7 +42,7 @@ Each milestone lists what it delivers, the mockups it implements, and what must 
 
 ### M0. Foundations
 
-- Create the four repositories with CI, branch protection and the quality tools above.
+- Create the four repositories with CI, branch protection (applied once the organization is on GitHub Team; interim controls in M0 §3.8) and the quality tools above.
 - Scaffold `bitflag`: Sail, Fortify, Inertia, Vue/TS, Tailwind with Nocturne tokens, Filament on its own host, Horizon, and the module folders from [repository structure](repository-structure.md).
 - Pest architecture tests that enforce the boundaries: modules write only through their own actions, controllers hold no business rules, and nothing in the app imports evaluator internals.
 - Portal shell: sidebar with the organization / project switcher and environment picker, top bar with breadcrumbs and search, empty states (Sidebar and Design System mockups).

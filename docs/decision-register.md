@@ -308,6 +308,16 @@ Never gated: rollback, key rotation and revocation, MFA. SDK requests have a gen
 
 **Affects:** M0 (§3.5, §5, §6), the Design System mockup (add a theme switch), and every later milestone's UI, which must work in both themes. The choice is stored per browser until M2 adds an account setting.
 
+### R19 — Branch protection deferred
+
+**Decision (9 October 2026, Shei):** the `usebitflag` organization stays on the GitHub Free plan for now. Private repositories on that plan cannot use branch protection or rulesets, so protection is deferred. Every change still goes through a pull request, enforced by a `main-guard` workflow (detective), a `pre-push` hook (client side), squash-only merges and a `CLAUDE.md` rule. The repositories stay private (D13).
+
+**Alternatives:** upgrade to GitHub Team now; make the repositories public (conflicts with D13).
+
+**Rationale:** M0 is a solo scaffold, so the risk is low; the upgrade is a small cost that must happen before M1 or before anyone else gets write access.
+
+**Affects:** M0 §3.8, §7 and §8; all four repositories.
+
 ## 4. Recording a decision
 
 For each resolved item, record: date, decision owner, chosen behavior, alternatives considered, rationale, affected documents/repositories, migration/compatibility implications, and acceptance tests. Move the item to a resolved section without deleting its history.
