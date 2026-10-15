@@ -1,6 +1,6 @@
 # Publishing and security
 
-[Documentation index](README.md) · Status: proposed implementation design
+[Documentation index](README.md)
 
 ## 1. The safety boundary
 
@@ -10,7 +10,7 @@ The portal must show these as different facts: draft saved, change approved, rev
 
 ## 2. Change sets and approvals
 
-The proposed initial publication unit is an entire environment draft. A preview and approval must cover every included flag, segment version, override, prerequisite, and experiment allocation change. The UI must not imply that a single flag is being published if other changes are included.
+The publication unit is an entire environment draft. A preview and approval must cover every included flag, segment version, override, prerequisite, and experiment allocation change. The UI must not imply that a single flag is being published if other changes are included.
 
 | State | Meaning | Allowed next steps |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ The proposed initial publication unit is an entire environment draft. A preview 
 
 Approval policy belongs to the environment and is checked at submission and publication. Changes to contributor content, the base revision, reviewer eligibility, or relevant policy require revalidation. Store the submitted diff, authors, reviewers, reasons, timestamps, policy version, and candidate hash.
 
-Owners and Publishers may approve reviews (decision register R01). Self-approval, separation of duties, approval expiry, and minimum reviewers remain **D02** decisions. Multiple contributors make “author cannot approve” more complicated than comparing the last editor with the reviewer; use the candidate's contributor set.
+Owners and Publishers may approve reviews. Approval is checked against the candidate's full contributor set, not just the last editor, so an author cannot approve their own candidate. Approvals expire, and the required number of approvals is part of the environment's policy.
 
 ## 3. Publication transaction
 
@@ -31,7 +31,7 @@ Owners and Publishers may approve reviews (decision register R01). Self-approval
 2. Authorize publication in that environment, including current approval policy and any required reason.
 3. Validate the submitted expected draft version, expected published revision, and frozen candidate hash. Build and validate the proposed snapshot from immutable inputs; mutable inputs must be frozen or rechecked before commit.
 4. Start a database transaction and lock the environment publication record. Reserve or verify the operation's scoped idempotency key under a unique constraint.
-5. Recheck the versions, authorization-sensitive state, approval eligibility, and candidate identity inside the transaction. Concurrent permission and policy changes must follow a documented locking/versioning convention; a preliminary policy check alone is insufficient.
+5. Recheck the versions, authorization-sensitive state, approval eligibility, and candidate identity inside the transaction. Concurrent permission and policy changes follow a locking and versioning convention; a preliminary policy check alone is insufficient.
 6. Allocate the next environment revision. Insert the immutable snapshot and its metadata, update the published pointer, record the change-set transition, and insert the audit event and outbox records atomically.
 7. Commit. Return the revision, publication ID, and current delivery status. A retry of the same authorized operation returns the recorded result without creating another revision.
 8. Workers process outbox effects: update delivery caches, notify streams, dispatch integration events, and update read models. Retries must be safe.
@@ -48,7 +48,7 @@ Outbox processing is at-least-once. Consumers deduplicate by event/operation ide
 
 Pending drafts must not be silently discarded. Preserve them and mark their base as stale, then require an explicit rebase or discard decision. Experiment analysis must retain which allocation/configuration revisions were active over time; restoring configuration cannot undo exposures already recorded.
 
-**Emergency disable is a separate proposed operation, not a shortcut that publishes all drafts.** Construct a minimal change from the current published revision, turn off the chosen flag, check dependency impact, and commit a new revision. Require explicit authorization, reason, audit event, and visible confirmation of the affected environment. Whether this can bypass normal approvals, who can do it, and whether rollback uses the same exception are **D05** decisions.
+**Emergency disable is a separate operation, not a shortcut that publishes all drafts.** It constructs a minimal change from the current published revision, turns off the chosen flag, checks dependency impact, and commits a new revision. It requires explicit authorization, a reason, an audit event, and visible confirmation of the affected environment.
 
 Neither operation can promise immediate effect in offline SDKs. The interface should distinguish publication time from last observed delivery and document the cache/revocation policy.
 
@@ -59,7 +59,7 @@ Neither operation can promise immediate effect in offline SDKs. The interface sh
 - Commands, jobs, CLI/MCP requests, and API endpoints use the same application actions and policy rules. Inertia controllers do not become the only authorization boundary.
 - Queue payloads carry explicit tenant and actor/service identity; workers clear tenant context between jobs. Scheduled actions recheck permissions at execution under an explicitly defined service identity.
 - Review the last-owner removal and ownership-transfer cases. Organization transfer must not silently grant access to old credentials or integrations.
-- Audit administrative access and support impersonation if offered; impersonation is not assumed to be a release feature.
+- Administrative access is audited. Support staff cannot impersonate customers.
 
 Laravel policies are the framework mechanism for resource authorization; the policy contents and environment rules remain BitFlag's responsibility. [Laravel authorization documentation](https://laravel.com/docs/13.x/authorization)
 
@@ -87,6 +87,6 @@ Apply output encoding and content security controls to flag descriptions, audit 
 
 Audit events record who changed what, where, why, and from which revision to which revision, with correlation IDs. Keep audit metadata separate from raw evaluation context and secret values. The application should treat audit entries as append-only; privileged database modification is a separate threat requiring restricted access and, if selected, stronger tamper-evidence controls.
 
-Define retention for snapshots, audit logs, telemetry, exports, backups, deleted organizations, and integration payloads before release (**D09/D12**). Deletion must account for cached snapshots and backup expiry; do not claim that revoking a key erases copies already delivered to customer processes.
+Retention is defined for snapshots, audit logs, telemetry, exports, backups, deleted organizations, and integration payloads. Deletion accounts for cached snapshots and backup expiry; do not claim that revoking a key erases copies already delivered to customer processes.
 
-Security verification belongs in the release gates, including cross-tenant tests, publication races, stale approval rejection, revoked token retries, secret redaction, browser bundle inspection, and webhook egress attacks.
+Security verification includes cross-tenant tests, publication races, stale approval rejection, revoked token retries, secret redaction, browser bundle inspection, and webhook egress attacks.

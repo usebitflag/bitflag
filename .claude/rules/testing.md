@@ -18,7 +18,7 @@
 | Architecture | Pest, group `arch` | `tests/Arch` |
 | Static analysis | PHPStan + Larastan (max), Pint | CI `backend-lint` |
 | Frontend | Vitest, `vue-tsc` | `resources/js/**/*.spec.ts` |
-| Workflows | Cypress against Sail | `cypress/e2e/{milestone}-{flow}.cy.ts` |
+| Workflows | Cypress against Sail | `cypress/e2e/{area}-{flow}.cy.ts` |
 
 ## Architecture rules and canaries
 

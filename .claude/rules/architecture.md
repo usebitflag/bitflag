@@ -33,7 +33,7 @@ Source of truth: `docs/architecture.md` and `docs/conventions.md`.
 ## Tenancy
 
 - Add every new table to `config/tenancy.php` (`tenant`, `scoped` or `global`). An unclassified table fails a test.
-- Create tenant tables with the `tenantOrganization()`, `tenantProject()`, `tenantEnvironment()` blueprint
+- Create tenant tables with the `tenantOrganization()`, `tenantProject()`, `tenantEnvironment()` Blueprint
   macros so composite foreign keys and the leading `organization_id` index come by default.
 - Queue jobs implement `TenantAware` and use the `RestoreTenantContext` middleware.
 - `Tenancy::crossTenant($reason, …)` is allowed only for the outbox dispatcher, scheduled maintenance,
@@ -42,7 +42,7 @@ Source of truth: `docs/architecture.md` and `docs/conventions.md`.
 ## Audit and outbox
 
 - Audit event names are `{object}.{verb}` in past tense (`flag.created`) and are registered in `AuditCatalog`.
-- Outbox payloads carry IDs and versions only: never secrets, rule contents or subject data. Use the R02 event
+- Outbox payloads carry IDs and versions only: never secrets, rule contents or subject data. Use the webhook event
   names where one exists; other messages are prefixed `internal.`.
 - Consumers are idempotent. Receipts in MySQL are the work list; Redis jobs are only signals.
 - Never call an external service inside a database transaction.

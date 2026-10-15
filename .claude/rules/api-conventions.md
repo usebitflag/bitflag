@@ -4,7 +4,7 @@
 
 - Primary keys are ULIDs (`HasUlids`, `char(26)`). Public IDs add a prefix and are derived, never stored:
   `org_`, `usr_`, `prj_`, `env_`, `flg_`, `var_`, `seg_`, `chg_`, `rev_`, `key_`, `exp_`, `whk_`, `evt_`,
-  plus `aud_` and `req_` from M0. New prefixes are added to `docs/conventions.md`.
+  plus `aud_` and `req_`. New prefixes are added to `docs/conventions.md`.
 - Use `PublicId::encode` / `decode` and the `HasPublicId` trait. A wrong prefix or malformed ID is a 404.
 - Slugs and keys are for URLs and display. Authorization never relies on them.
 - Secret prefixes (`bf_srv_`, `bf_pub_`, `bf_mgt_`, `bf_pat_`, `whsec_`) are not IDs.

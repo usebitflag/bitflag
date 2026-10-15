@@ -1,10 +1,8 @@
 # Email and notifications
 
-[Documentation index](README.md) · Status: proposed design; channel split decided (R10), email provider not yet chosen
-
 BitFlag tells people about things in three ways: transactional email, in-app notifications, and integrations the customer configures (Slack and webhooks, covered in [API and integrations](api-and-integrations.md)). This document covers the first two.
 
-## 1. Channel rule (R10)
+## 1. Channel rule
 
 | Channel | Used for |
 | --- | --- |
@@ -30,7 +28,7 @@ Each person controls their own in-app and optional email notifications. Security
 | Payment failed / subscription ending / plan changed | Org Owners | No |
 | Organization or project scheduled for deletion | Org Owners, project Owners | No |
 
-**Content rules:** no secrets, key values, rule contents, or targeting attributes in any email. Emails link into the portal, where the viewer's permissions apply. Review-request emails show the environment, project, requester, and change count only. Links in security emails are single-use and expire.
+**Content rules:** no secrets, key values, rule contents, or targeting attributes in any email. Emails link into the portal, where the viewer's permissions apply. Review-request emails show the environment, project, requester, and change count only; the requester's reason is shown in the portal behind permissions. Links in security emails are single-use and expire.
 
 ## 3. In-app notifications
 
@@ -61,16 +59,16 @@ Per person, per organization:
 
 ## 5. Delivery
 
-- **Provider:** a transactional email service (for example Postmark, Amazon SES, or Resend), chosen with D08. Use a dedicated sending domain with SPF, DKIM, and DMARC, and separate streams for account mail and notification mail so a notification complaint cannot hurt password-reset deliverability.
+- **Provider:** a transactional email service, behind a provider adapter. A dedicated sending domain with SPF, DKIM, and DMARC, and separate streams for account mail and notification mail, so a notification complaint cannot hurt password-reset deliverability.
 - **Sending path:** every email is queued through the outbox ([publishing and security](publishing-and-security.md) §3), never sent inside a request transaction. Sends are idempotent per message ID.
 - **Bounces and complaints:** hard bounces and complaints mark the address undeliverable for optional mail and show a banner asking the person to update their email; security mail still attempts delivery.
 - **Templates:** plain, text-first, with an HTML version in the product style; times shown in the recipient's timezone with UTC alongside.
 - **Development and staging:** never send to real customer addresses; route to a capture inbox.
-- **Language:** English at launch.
+- **Language:** English.
 
 ## 6. Domain records
 
-Notification (recipient, organization, type, object reference, created, read), notification preferences (per person and organization), and email message log (type, recipient, provider message ID, status, without body content). Retention follows D09.
+Notification (recipient, organization, type, object reference, created, read), notification preferences (per person and organization), and email message log (type, recipient, provider message ID, status, without body content). Logs are retained for 90 days.
 
 ## 7. Verification
 

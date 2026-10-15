@@ -36,7 +36,7 @@ This diagram shows logical responsibilities, not a mandatory microservice topolo
 | Laravel | Application actions, authentication, policies, persistence, APIs, jobs | Evaluator core remains independent of Laravel |
 | MySQL | Authoritative management state, published snapshots, audit and durable event records | Redis cannot be the only source of published configuration |
 | Redis | Cache, queues, rate limits, coordination and invalidation fanout | Failure must not corrupt or erase published revisions |
-| Optional object storage | Large exports, backup artifacts, possible snapshot distribution | Provider and access model remain to be selected |
+| Object storage | Large exports, backup artifacts, immutable artifacts | Private access only; never a public cache of private configuration |
 
 Astro's island model supports selectively interactive public content. Inertia connects server routes to client-rendered pages; it does not dictate how every component manages its local state. These are framework capabilities; the boundaries above are BitFlag design choices. Sources: [Astro islands](https://docs.astro.build/en/concepts/islands/), [Inertia introduction](https://inertiajs.com/docs/v3/getting-started).
 
@@ -107,10 +107,8 @@ Use synchronous transactions for small authoritative mutations. Long analysis, e
 
 Keep permissions fresh for delayed customer-initiated actions. System aggregation jobs use explicit service authority rather than impersonating an expired session. Queue priority must isolate publication notifications from high-volume analytics work.
 
-Laravel supplies background-job infrastructure; queue selection, resource isolation and BitFlag's durability rules are application design decisions. [Laravel queues](https://laravel.com/docs/13.x/queues)
+Laravel supplies background-job infrastructure; queue priorities, resource isolation and the durability rules are application design. [Laravel queues](https://laravel.com/docs/13.x/queues)
 
 ## Architecture verification
 
-Architecture tests should reject forbidden dependencies, evaluator-to-framework imports, controllers that bypass write actions, and cross-module writes through unsupported interfaces. Integration tests cover transactions spanning publication, audit, and the outbox. Read queries and background jobs need explicit cross-tenant tests.
-
-The [decision register](decision-register.md) records unresolved runtime, streaming, infrastructure and scale choices. They must be resolved for the affected subsystem before performance or availability promises are published.
+Architecture tests reject forbidden dependencies, evaluator-to-framework imports, controllers that bypass write actions, and cross-module writes through unsupported interfaces. Integration tests cover transactions spanning publication, audit, and the outbox. Read queries and background jobs have explicit cross-tenant tests.

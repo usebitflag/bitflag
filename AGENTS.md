@@ -12,9 +12,7 @@ Related repositories: `bitflag-protocol` (schemas and fixtures), `bitflag-php` a
 (the two independent evaluators). There is no monorepo and no path dependency between them.
 
 The technical documentation is in `docs/`. Start with `docs/README.md`, then `docs/conventions.md`.
-Decisions are in `docs/decision-register.md`. Milestone plans are kept outside this repository; the
-person assigning the work provides the plan. Do not build behavior that the register marks as open or
-blocked, and do not invent behavior the docs leave open: ask.
+Do not invent behavior the docs leave open: ask.
 
 The application is not scaffolded yet.
 
@@ -35,7 +33,7 @@ bitflag/
 ├── resources/js/             # pages/, features/, components/ui/, layouts/, composables/, types/
 ├── routes/                   # web.php (+ web/{module}.php), api.php, sdk.php, admin.php, testing.php
 ├── tests/                    # Unit/, Feature/{Module}/, Arch/
-├── cypress/e2e/              # {milestone}-{flow}.cy.ts
+├── cypress/e2e/              # {area}-{flow}.cy.ts
 ├── design/nocturne/          # vendored design tokens
 └── docs/                     # technical documentation
 ```

@@ -21,12 +21,11 @@
 ## Naming
 
 - Tables and columns: snake_case; tenant tables have `organization_id` first among foreign keys.
-- Audit actions: `{object}.{verb}` past tense. Outbox types: R02 names or `internal.*`.
-- Tests: `tests/Feature/{Module}/…`, Cypress `cypress/e2e/{milestone}-{flow}.cy.ts`.
+- Audit actions: `{object}.{verb}` past tense. Outbox types: webhook event names or `internal.*`.
+- Tests: `tests/Feature/{Module}/…`, Cypress `cypress/e2e/{area}-{flow}.cy.ts`.
 
 ## Documentation
 
 - Technical documentation lives in `docs/`. Do not put agent instructions or planning notes there; those belong in
   `AGENTS.md` and `.claude/rules/`.
-- When a change alters a contract or a decision, update `docs/decision-register.md` and the affected plan in the same
-  pull request.
+- When a change alters a contract or behavior, update the affected document in `docs/` in the same pull request.

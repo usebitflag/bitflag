@@ -4,7 +4,7 @@
 
 ## Separate repositories
 
-Every row below is a separate Git repository with its own lockfiles, CI, release tags and access settings. These are planned repository names; remote creation, registry availability, licensing, and package ownership are not established by this document.
+Every row below is a separate Git repository with its own lockfiles, CI, release tags and access settings.
 
 | Repository | Owns | Runtime dependencies |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ Every row below is a separate Git repository with its own lockfiles, CI, release
 | `bitflag-mcp` | MCP transport, tool contracts and management API adapter | Versioned management API |
 | `bitflag-protocol` | Delivery schemas, event contracts, algorithm specification and canonical conformance fixtures | None of the application runtimes |
 
-The portal frontend belongs inside `bitflag` because it is one Inertia application. It is not the consumer-facing Vue SDK. Hosted-only operation does not determine whether any repository will be public or private; licensing and publication are separate decisions.
+The portal frontend belongs inside `bitflag` because it is one Inertia application. It is not the consumer-facing Vue SDK. Hosted-only operation does not determine whether a repository is public or private.
 
 ## Main application
 
@@ -41,8 +41,11 @@ bitflag/
 │   │   ├── Analytics/
 │   │   ├── Integrations/
 │   │   ├── Audit/
-│   │   └── Billing/
+│   │   ├── Billing/
+│   │   ├── Notifications/
+│   │   └── Support/
 │   ├── Providers/
+│   ├── Admin/
 │   └── Shared/
 ├── bootstrap/
 ├── config/
@@ -65,12 +68,13 @@ bitflag/
 │   ├── web.php
 │   ├── api.php
 │   ├── sdk.php
-│   └── console.php
+│   └── admin.php
 ├── tests/
 │   ├── Unit/
 │   ├── Feature/
-│   ├── Architecture/
-│   └── Browser/
+│   └── Arch/
+├── cypress/e2e/
+├── design/nocturne/
 ├── docs/
 ├── infrastructure/
 ├── composer.json
@@ -78,7 +82,7 @@ bitflag/
 └── vite.config.ts
 ```
 
-These paths describe the future application. Only the documentation files exist as a result of the current work. Register the custom SDK routes and module namespaces/providers explicitly during scaffolding; they are not automatically discovered merely by placing files in these folders.
+Custom SDK routes and module namespaces/providers are registered explicitly; they are not discovered merely by placing files in these folders.
 
 ## Module layout
 
@@ -101,7 +105,7 @@ app/Modules/Publishing/
 └── Jobs/
 ```
 
-Use only folders a module needs. Migrations remain globally ordered under `database/migrations`; test folders mirror the module or workflow being tested. No framework-specific module package is selected yet.
+Use only folders a module needs. Migrations remain globally ordered under `database/migrations`; test folders mirror the module or workflow being tested. Modules are plain namespaces with a service provider each, not a framework module package.
 
 ## Frontend organization
 
@@ -111,7 +115,7 @@ Keep website presentation components in `bitflag-website`. The design system sup
 
 ## SDK internal boundaries
 
-| Repository | Suggested source areas | Important restriction |
+| Repository | Source areas | Important restriction |
 | --- | --- | --- |
 | `bitflag-php` | `src/Evaluation`, `src/Protocol`, `src/Client`, `src/Transport`, `src/Cache`, `src/Telemetry` | Evaluation imports no transport or framework classes |
 | `bitflag-js` | `src/evaluation`, `src/protocol`, `src/client`, `src/browser`, `src/node`, `src/telemetry` | Browser exports cannot pull in server secrets or Node-only modules |
@@ -122,7 +126,7 @@ The backend reuses the PHP evaluation core directly; it does not call its own de
 
 ## Contract ownership and releases
 
-`bitflag` owns the management OpenAPI specification, proposed at `contracts/management/openapi.yaml`. `bitflag-protocol` owns snapshot, evaluation and telemetry schemas, versioned webhook envelopes, bucketing semantics and canonical fixtures. Avoid two independently editable copies of the same contract. Generated copies identify their source release and checksum.
+`bitflag` owns the management OpenAPI specification at `contracts/management/openapi.yaml`. `bitflag-protocol` owns snapshot, evaluation and telemetry schemas, versioned webhook envelopes, bucketing semantics and canonical fixtures. Avoid two independently editable copies of the same contract. Generated copies identify their source release and checksum.
 
 For a cross-repository protocol change:
 
@@ -135,4 +139,4 @@ For a cross-repository protocol change:
 
 Never build against another repository's floating `main` branch. Pin fixture artifacts and package dependencies; verify artifact checksums. SDK package versions, delivery protocol versions, management API versions and evaluation algorithm versions are separate identifiers.
 
-The compatibility matrix records server release, supported protocol versions, evaluator algorithms, PHP/JS SDK versions, and supported language/framework runtimes. Its initial values and deprecation window are open decisions, not invented version guarantees.
+The compatibility matrix records server release, supported protocol versions, evaluator algorithms, PHP/JS SDK versions, and supported language/framework runtimes, together with the deprecation window.
