@@ -275,7 +275,7 @@ Never gated: rollback, key rotation and revocation, MFA. SDK requests have a gen
 
 ### R17 — Milestone plan questions
 
-**Decision (8 October 2026, Shei):** the sixteen blocked questions from the [milestone index](milestones/README.md) are decided as below. Rows marked † differ from the default the plans had assumed.
+**Decision (8 October 2026, Shei):** the sixteen blocked questions from the milestone index (kept outside this repository) are decided as below. Rows marked † differ from the default the plans had assumed.
 
 | # | Question | Decision | Affects |
 | --- | --- | --- | --- |
@@ -336,6 +336,6 @@ Verification / acceptance:
 Supersedes / links:
 ```
 
-Milestone plans may build on a stated default only when the default does not change permissions, security, privacy, protocol semantics, or release scope. A default that does any of those (marked "(high impact)" in the [milestone index](milestones/README.md)) is **blocked** until it is decided and recorded here; documenting a conflict is not resolving it. When a decision is made, update this register, the affected design documents, the milestone plans, and the mockup copy list in the same change.
+Milestone plans may build on a stated default only when the default does not change permissions, security, privacy, protocol semantics, or release scope. A default that does any of those (marked "(high impact)" in the milestone index, kept outside this repository) is **blocked** until it is decided and recorded here; documenting a conflict is not resolving it. When a decision is made, update this register, the affected design documents, the milestone plans, and the mockup copy list in the same change.
 
 Not every open decision blocks all engineering work. Build independent foundations while resolving the relevant dependencies, but do not invent permanent protocol, security, statistical, or commercial behavior silently. Completion of the complete product remains the release condition.

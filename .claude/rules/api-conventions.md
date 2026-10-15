@@ -4,7 +4,7 @@
 
 - Primary keys are ULIDs (`HasUlids`, `char(26)`). Public IDs add a prefix and are derived, never stored:
   `org_`, `usr_`, `prj_`, `env_`, `flg_`, `var_`, `seg_`, `chg_`, `rev_`, `key_`, `exp_`, `whk_`, `evt_`,
-  plus `aud_` and `req_` from M0. Later milestones add their own and list them in their plan.
+  plus `aud_` and `req_` from M0. New prefixes are added to `docs/conventions.md`.
 - Use `PublicId::encode` / `decode` and the `HasPublicId` trait. A wrong prefix or malformed ID is a 404.
 - Slugs and keys are for URLs and display. Authorization never relies on them.
 - Secret prefixes (`bf_srv_`, `bf_pub_`, `bf_mgt_`, `bf_pat_`, `whsec_`) are not IDs.
@@ -27,8 +27,8 @@
 
 ## Capabilities
 
-- The capability list and role map are in `docs/milestones/00-conventions.md`. A milestone that adds a capability
-  lists it in its plan and updates `RoleCapabilityMap` and its test.
+- The capability list and role map are in `docs/conventions.md`. A change that adds a capability
+  is documented in `docs/conventions.md` and updates `RoleCapabilityMap` and its test.
 - Inertia pages receive a `can` map for the current scope. The server always rechecks.
 
 ## Routes

@@ -1,6 +1,6 @@
-# Shared conventions for milestone plans
+# Shared conventions
 
-Status: draft, 6 October 2026. Every milestone plan follows these conventions so the plans fit together. If a milestone needs to break one, it says so explicitly in its "Open questions" section. A milestone may build on an assumed default for an open decision only when the default does not change permissions, security, privacy, protocol semantics or release scope; otherwise the default is blocked until the decision register records a decision (decision register §4).
+Status: draft, 6 October 2026. The application, its tests and the work plans follow these conventions so the parts fit together. A change that breaks one records the reason in the decision register. A default for an open decision may be built only when it does not change permissions, security, privacy, protocol semantics or release scope; otherwise it is blocked until the [decision register](decision-register.md) records a decision (§4).
 
 ## Repositories and stack
 
@@ -38,7 +38,7 @@ Modules: Identity, Organizations, Projects, Environments, Flags, Targeting, Publ
 
 - Primary keys are ULIDs (`HasUlids`). Public IDs add a type prefix in API and UI: `org_`, `usr_`, `prj_`, `env_`, `flg_`, `var_`, `seg_`, `chg_`, `rev_`, `key_`, `exp_`, `whk_`, `evt_`.
 - Prefixes added by milestones: `aud_` (audit entry) and `req_` (request ID) in M0; `rule_` (rule), `ovr_` (override), `sgv_` (segment version), `vvl_` (variation value), `tcx_` (test context) in M4; `cnd_` (review candidate) and `apv_` (approval) in M5; `dlv_` (webhook delivery), `att_` (delivery attempt) and `int_` (provider connection) in M9; `alc_` (experiment allocation) and `met_` (metric definition) in M11. Secret prefixes (`bf_srv_`, `bf_pub_`, `bf_mgt_`, `bf_pat_`, `whsec_`) are not IDs.
-- Table names follow the persistence groups in [domain-model.md](../domain-model.md) where it names a table. Each milestone's §3.1 is authoritative for the tables it creates and lists any name that differs from the domain model.
+- Table names follow the persistence groups in [domain-model.md](domain-model.md) where it names a table. Each milestone's §3.1 is authoritative for the tables it creates and lists any name that differs from the domain model.
 - Every tenant-owned table has `organization_id`, plus `project_id` / `environment_id` where they apply. Each has a composite index that starts with `organization_id`.
 - Timestamps are UTC, stored as `timestamp(6)`.
 - Soft deletes are not used for domain records. Lifecycle is an explicit `status` column.
@@ -117,23 +117,3 @@ Seeders recreate the mockup world:
 - Flags `new-checkout`, `checkout-layout` and `payment-config`.
 
 Cypress specs run against this seed.
-
-## Milestone plan template
-
-Each plan file `M{n}-{slug}.md` uses these sections:
-
-1. **Goal and scope**: what is in, what is explicitly out.
-2. **Mockups covered**: file and artboard IDs, and the behaviors each implies.
-3. **Design**
-   - 3.1 Data model: tables, columns, types, indexes, constraints.
-   - 3.2 Domain rules and state machines.
-   - 3.3 Actions: name, input, capability, transaction contents, audit and outbox events.
-   - 3.4 Routes: portal pages and props, API endpoints, SDK endpoints.
-   - 3.5 Frontend: pages, feature components, composables.
-   - 3.6 Jobs, events, outbox consumers.
-   - 3.7 Security and tenant isolation.
-4. **Implementation steps**: ordered, each small enough for one pull request, listing the main files.
-5. **Tests**: Pest unit / feature / arch, Vitest, Cypress spec names, fixtures.
-6. **Decisions**: register items this depends on, and the default assumed until they are decided.
-7. **Done criteria**
-8. **Risks and open questions**

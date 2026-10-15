@@ -1,6 +1,6 @@
 # Architecture
 
-Source of truth: `docs/architecture.md` and `docs/milestones/00-conventions.md`.
+Source of truth: `docs/architecture.md` and `docs/conventions.md`.
 
 ## Modules
 

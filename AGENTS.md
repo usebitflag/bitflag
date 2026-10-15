@@ -11,12 +11,12 @@ workers, and the Filament admin console (own host and guard). It is a modular mo
 Related repositories: `bitflag-protocol` (schemas and fixtures), `bitflag-php` and `bitflag-js`
 (the two independent evaluators). There is no monorepo and no path dependency between them.
 
-The design is in `docs/`. Start with `docs/README.md`, then `docs/milestones/00-conventions.md` and the
-plan for the milestone being built (`docs/milestones/M{n}-*.md`). Decisions are in
-`docs/decision-register.md`. Do not build behavior that a plan marks as blocked, and do not invent
-behavior the plans leave open: ask.
+The technical documentation is in `docs/`. Start with `docs/README.md`, then `docs/conventions.md`.
+Decisions are in `docs/decision-register.md`. Milestone plans are kept outside this repository; the
+person assigning the work provides the plan. Do not build behavior that the register marks as open or
+blocked, and do not invent behavior the docs leave open: ask.
 
-The application is not scaffolded yet. Milestone M0 creates it.
+The application is not scaffolded yet.
 
 ## Project Structure
 
@@ -37,7 +37,7 @@ bitflag/
 ├── tests/                    # Unit/, Feature/{Module}/, Arch/
 ├── cypress/e2e/              # {milestone}-{flow}.cy.ts
 ├── design/nocturne/          # vendored design tokens
-└── docs/                     # design documentation and milestone plans
+└── docs/                     # technical documentation
 ```
 
 ## Core Rules
@@ -57,7 +57,7 @@ Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`
 
 ## Commands
 
-Available once M0 scaffolds the application (see `docs/milestones/M0-foundations.md`):
+Available once the application is scaffolded:
 
 - `./vendor/bin/sail up -d` starts the app, MySQL, Redis, Mailpit, Horizon and the outbox worker.
 - `sail artisan migrate:fresh --seed --seeder=DemoSeeder` resets the demo world.
