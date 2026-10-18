@@ -74,7 +74,8 @@ bitflag/
 │   ├── Feature/
 │   └── Arch/
 ├── cypress/e2e/
-├── design/nocturne/
+├── design/nocturne/          # unchanged base tokens
+├── design/bitflag/           # reviewed product overrides and component specifications
 ├── docs/
 ├── infrastructure/
 ├── composer.json
