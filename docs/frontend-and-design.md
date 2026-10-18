@@ -1,6 +1,6 @@
-# Frontend architecture and design handoff
+# Frontend architecture and design
 
-[Documentation index](README.md) · Status: implementation design based on the prototype, not a claim of production readiness
+[Documentation index](README.md)
 
 ## 1. Separate applications, deliberate boundaries
 
@@ -12,9 +12,9 @@
 
 Astro pages should primarily render static content. Add hydrated islands only for useful interactive features, such as a pricing control or copyable interactive example. Portal-style global client state is unnecessary for the entire marketing site. [Astro islands documentation](https://docs.astro.build/en/concepts/islands/)
 
-Use consistent design tokens across products, but do not introduce a monorepo to achieve that. Initially maintain an explicit token specification and reviewed copies in each repository. If drift becomes costly, a separately versioned token package can be evaluated later; it is not a prerequisite or an unrequested new repository.
+Design tokens are consistent across products without a monorepo: each repository keeps a reviewed copy of the token specification. The portal generates its Tailwind theme from the Nocturne tokens.
 
-Use hosted messaging consistently. Do not advertise a supported self-hosted installer, unselected license, unverified performance number, or integration behavior that exists only in a mockup. Source availability and a supported self-hosted product are separate choices.
+
 
 ## 2. Portal composition
 
@@ -28,7 +28,7 @@ Organize pages by product area and reusable UI by responsibility:
 - Composables manage behavior such as environment selection, pagination, dirty-state tracking, and request status. They do not independently decide permissions or reproduce evaluation semantics.
 - Typed page props and API schemas distinguish display models from writable commands. Generate types from owned contracts where practical; do not expose entire Eloquent models automatically.
 
-The folder map is in [repository structure](repository-structure.md). Names are proposed, not already scaffolded.
+The folder map is in [repository structure](repository-structure.md).
 
 ## 3. Four editor states
 
@@ -41,13 +41,13 @@ Always distinguish:
 
 Use explicit labels and timestamps. A toast saying “Saved” must not imply “Live.” The environment enabled badge should reflect published state unless it is visibly labeled as a draft preview.
 
-The prototype has a known example to correct during handoff: the flag environment badge can read the draft `on` value while the rollout summary reads the published configuration. The production view must derive every live indicator from the same published object.
+Every live indicator derives from the same published object, so an environment badge and a rollout summary can never disagree.
 
 On save conflicts, preserve local edits and show a compare/reload/reapply workflow. Do not silently overwrite another editor's changes. On environment or organization switching and navigation, warn about unsaved changes. Do not casually persist sensitive simulation context or configuration in browser storage to solve dirty-state recovery.
 
 ## 4. Page behavior contracts
 
-| Area | Production behavior to implement |
+| Area | Behavior |
 | --- | --- |
 | Overview | Organization/project/environment scope visible; activity and counts drawn from real read models; explain reporting lag and empty states |
 | Onboarding | Create project/environment, issue appropriate key, install the chosen SDK, publish a flag, verify an actual evaluation; distinguish setup instructions from observed telemetry |
@@ -71,13 +71,13 @@ Keep rule order visible because the first matching rule wins. Distinguish an off
 
 Show impact when changing salts, eligibility, multivariate weights, or precedence can move subjects between variants. Do not promise stable assignment merely because the percentage field changed monotonically.
 
-The proposed publication unit is the environment. From a flag detail page, “Review changes” opens the complete environment change set, not an apparently flag-only confirmation that hides other changes. If selective publication is desired, design dependency closure and change-set selection explicitly before implementing it.
+The publication unit is the environment. From a flag detail page, “Review changes” opens the complete environment change set, never an apparently flag-only confirmation that hides other changes.
 
 Use production confirmations that name the environment, summarize impact, and collect a reason where policy requires it. Success includes a revision link. Propagation views should report what was actually observed, with timestamps and reporting coverage; do not imply knowledge of every offline SDK instance.
 
 ## 6. Experiments and analytics honesty
 
-Do not render prototype confidence percentages, lift, sample sizes, conversion counts, or “winner” labels from invented data in production. Insufficient evidence, invalid attribution, sample-ratio mismatch, and delayed data need designed states, not zeros that look authoritative.
+Confidence percentages, lift, sample sizes, conversion counts and “winner” labels come only from collected data. Insufficient evidence, invalid attribution, sample-ratio mismatch and delayed data have their own states, not zeros that look authoritative.
 
 Evaluation count is not exposure count. A flag's low observed usage is not proof it is unused. Cleanup recommendations combine observation window, reporting coverage, repository scan scope, ownership, dependencies, and known instrumentation gaps, then request human review.
 
@@ -85,18 +85,16 @@ An SDK refresh fetches configuration; it does not itself imply a jump in applica
 
 ## 7. Accessibility and responsive behavior
 
-Design and test the layout at laptop widths, including 1280px, and at narrower widths without relying solely on static artboards. Set deliberate rules for sidebar collapse, sticky environment context, wrapping filter controls, table scrolling, dialog sizing, and stacked comparison panels.
+The layout is designed and tested at laptop widths, including 1280px, and at narrower widths. Rules cover sidebar collapse, sticky environment context, wrapping filter controls, table scrolling, dialog sizing and stacked comparison panels.
 
 Use semantic inputs and headings, visible keyboard focus, accessible names, keyboard-operable menus/dialogs, focus restoration, and non-color status cues. Targeting reordering needs a keyboard alternative to dragging. Charts require textual summaries or accessible data views. Announce asynchronous results without flooding assistive technology.
 
-Document support expectations for browsers and mobile views before acceptance. Full desktop administration and narrower readable layouts must be explicit expectations, not accidental CSS behavior.
+Full desktop administration and narrower readable layouts are explicit expectations, not accidental CSS behavior.
 
-## 8. Prototype-to-production handoff
+## 8. Themes and typography
 
-The mockups remain visual and workflow references; their `sessionStorage` data, role toggles, demo clocks, fake network success, and sample credentials are not implementation architecture.
+The portal ships a dark and a light theme. Dark is the default; a switch in the user menu offers Dark, Light and System, and the choice is applied before first paint so the page never flashes the wrong theme. Inter is used for headings and body text. IBM Plex Mono is used for code, keys, IDs and monospace numbers such as revisions and counts; other numbers use tabular figures in Inter. Fonts are served from the application. Both themes meet WCAG AA contrast for text.
 
-Keep demo scenario controls and simulation annotations outside the actual product UI in a dedicated demo/test shell. Production authorization must never be driven by a client-side role switch. A demo build can use deterministic fixtures, clearly labeled, with a reset mechanism isolated from real tenants.
+## 9. Demo and test controls
 
-Capture a page/state inventory from the current artboards and portal before coding each area. Map every mockup control to its action, permission, validation, success, and failure behavior. Where mockups disagree, record a design decision rather than accidentally using whichever screen was coded first.
-
-Visual acceptance includes desktop and laptop screenshots, keyboard review, empty/error states, long labels, large rule sets, and realistic tenant data. The full mockup scope stays in the launch gate; sequencing pages internally is not a reduced public release.
+Demo scenario controls, role switching and simulated clocks never appear in the product UI. Authorization is never driven by a client-side role switch. Test-only routes (reset, login, clock, forced failure) exist only in local and CI environments behind a token, and a production-boot test asserts they are absent. A deterministic demo seed provides fixtures for tests and local development.

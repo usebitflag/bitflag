@@ -1,26 +1,26 @@
-# Hosted operations, verification, and release
+# Hosted operations and verification
 
-[Documentation index](README.md) · Status: operational design; capacity and service guarantees are not yet selected
+[Documentation index](README.md)
 
 ## 1. Deployment shape
 
-Deploy the marketing website and documentation independently from the hosted application. The working application topology is:
+The marketing website and documentation deploy independently from the hosted application. The application topology is:
 
 ```text
 Hosted app boundary
   HTTP application processes       Portal + management + authorized delivery
   Background workers              Publication delivery, integrations, ingestion, reports
   Scheduler                       Retention, reconciliation, scheduled lifecycle work
-  Streaming runtime               Authenticated SDK invalidations; deployment choice open
+  Streaming runtime               Authenticated SDK invalidations
   MySQL                           Authoritative configuration, publication, identities
   Redis                           Cache, queues/rate-limit state as selected
   Private object storage          Exports/backups and immutable artifacts if selected
-  Telemetry storage/read models    Sized and selected through representative benchmarks
+  Telemetry storage/read models    Behind a storage interface, sized through benchmarks
 ```
 
 This is a process/responsibility map, not a requirement for one microservice or repository per line. Application and worker processes can deploy the same `bitflag` artifact with different commands. Stream infrastructure may be managed or separately provisioned without splitting business logic prematurely.
 
-Prefer managed database/cache services and reproducible infrastructure for the hosted product where suitable. No cloud vendor, region, Kubernetes requirement, or numerical availability claim is approved yet (**D04/D08**). Hosted-only does not mean manual, unreproducible deployments; internal containers/infrastructure automation do not constitute a supported self-hosted offering.
+Managed database and cache services and reproducible infrastructure are preferred. Hosted-only does not mean manual deployments; internal containers and infrastructure automation do not constitute a supported self-hosted offering.
 
 ## 2. Configuration, isolation, and secrets
 
@@ -38,17 +38,17 @@ Separate workload priorities so telemetry bursts or a broken external webhook ca
 
 Measure distinct intervals: command latency, publication commit-to-delivery availability, SDK observation lag, stream reconnect time, and time since last successful cache validation. Observation metrics depend on reporting clients; offline clients are not silently counted as current.
 
-When a disaster restore reintroduces older database state, SDKs may already hold higher revision numbers. The protocol needs an authenticated generation/epoch recovery mechanism or another explicitly verified strategy; silently allowing all lower revisions breaks ordinary race protection. This is part of **D03/D08**, and restore drills must include cached clients, not only database startup.
+When a disaster restore reintroduces older database state, SDKs may already hold higher revision numbers. The protocol therefore carries an authenticated generation (epoch) for recovery; silently allowing all lower revisions would break ordinary race protection. Restore drills include cached clients, not only database startup.
 
 ## 4. Telemetry and analytics pipeline
 
-Proposed flow: validate and acknowledge ingestion according to its durability contract, persist/enqueue accepted events, deduplicate, enrich with versioned configuration references, aggregate, and expose reporting read models. Do not acknowledge reliable ingestion before the chosen durable boundary. Batch acknowledgements must distinguish accepted, retryable, and permanently invalid events without losing successful members on retry.
+Flow: validate and acknowledge ingestion according to its durability contract, persist/enqueue accepted events, deduplicate, enrich with versioned configuration references, aggregate, and expose reporting read models. Do not acknowledge reliable ingestion before the chosen durable boundary. Batch acknowledgements must distinguish accepted, retryable, and permanently invalid events without losing successful members on retry.
 
-Raw-event storage format and retention depend on expected throughput and privacy policy. MySQL is the configuration baseline; it is not an unmeasured promise to store unlimited evaluation events. Evaluate an analytical store or object-storage pipeline when representative load tests justify it. Choose and document the launch storage design before collecting customer telemetry (**D08/D09**).
+Raw-event storage format and retention depend on throughput and privacy policy. Telemetry is written through a storage interface; MySQL is the initial store, and an analytical store or object-storage pipeline replaces it when load tests justify it.
 
 Track event-time versus ingestion-time, late arrivals, clock skew, duplicate rates, sampling, dropped events, SDK version, and data freshness. Counts derived from sampled data must be labeled appropriately. Dashboards explain which clients/events are covered.
 
-Experiment pipelines require stable assignment and plan identifiers, explicit exposures, conversion identity/deduplication, attribution windows, metric definitions, and quality checks. Statistical method, stopping rules, guardrail logic, multiple comparisons, power/minimum evidence, and sample-ratio checks require a reviewed method specification (**D07**). A polished chart is not statistical validation.
+Experiment pipelines require stable assignment and plan identifiers, explicit exposures, conversion identity/deduplication, attribution windows, metric definitions, and quality checks. Statistical method, stopping rules, guardrail logic, multiple comparisons, power and minimum evidence, and sample-ratio checks follow a reviewed method specification. A polished chart is not statistical validation.
 
 Privacy controls apply to pseudonymous IDs too. Define who can inspect subject-level information, how long linkage remains possible, and how deletion propagates through raw events, derived reports, exports, and backups.
 
@@ -64,7 +64,7 @@ Application rollback restores a compatible artifact; feature configuration rollb
 
 ## 6. Operational controls and runbooks
 
-Before launch, document and rehearse:
+Runbooks are documented and rehearsed for:
 
 - Failed publication delivery: inspect committed revision/outbox, replay safely, validate newest snapshot availability.
 - Credential compromise: revoke/rotate, inspect access, invalidate appropriate delivery paths, communicate offline-cache limitations.
@@ -75,7 +75,7 @@ Before launch, document and rehearse:
 - Telemetry loss or experiment integrity incident: visible degraded-data warning, stop invalid conclusions, rebuild only where retained evidence allows it.
 - Organization deletion/export: authorization, retention, revocation, linked provider cleanup, backup limitations, completion evidence.
 
-Define on-call ownership, escalation, support access, audit access, and incident communication. RPO, RTO, service objectives, alert thresholds, quotas, and support coverage are **D08** decisions. Do not copy illustrative numbers into customer-facing promises.
+On-call ownership, escalation, support access, audit access and incident communication are defined alongside the runbooks. Recovery and service objectives are published only after they are measured.
 
 ## 7. Verification strategy
 
@@ -95,29 +95,18 @@ Define on-call ownership, escalation, support access, audit access, and incident
 
 SQLite-only tests are insufficient evidence for MySQL locking and transactional behavior. Test doubles are useful for unit tests but do not replace real Redis/queue/provider-boundary verification. Test harnesses should exercise controllable time, failures, retries, and deterministic fixtures.
 
-Select workload targets before load testing: organizations, flags per environment, snapshot size, rule complexity, concurrent streams, refresh frequency, remote evaluation RPS, event ingestion rate, and reporting latency. Report measured conditions and bottlenecks, not an unsupported “millions of requests” headline.
+Load tests start from stated workload targets: organizations, flags per environment, snapshot size, rule complexity, concurrent streams, refresh frequency, remote evaluation RPS, event ingestion rate, and reporting latency. Results report measured conditions and bottlenecks, not an unsupported headline number.
 
-## 8. Complete-product release gates
+## 8. Acceptance checks
 
-Release requires the complete agreed mockup scope, not simply completion of the earliest milestone:
+Before a build is released, these areas are verified end to end:
 
-- Website, documentation, hosted onboarding, authentication/security, organizations, projects, environments, roles, keys, and billing work end-to-end.
-- All supported flag types, variations, segments, overrides, prerequisites, rollouts, simulation, approvals, publication, propagation visibility, audit, rollback, and lifecycle flows are verified.
-- Experiments include real instrumentation, attribution, reviewed statistical reporting, quality warnings, guardrails, and safe decision/publication flows.
-- Analytics, SDK health, cleanup evidence, retention, exports where represented, and error/degraded states use real data.
-- Webhooks and Slack, GitHub, Datadog, Jira, Vercel, and Sentry integrations meet the agreed behavior and failure handling.
-- PHP/JavaScript SDKs, Laravel/Vue/React adapters, CLI, MCP, and the protocol artifacts are released with tested compatibility and examples.
-- Accessibility/responsive acceptance, tenant/security review, realistic load tests, restore drill, monitoring, operational ownership, and support documentation pass.
-- Contract-affecting open decisions are resolved; no simulated integration, made-up experiment result, demo role control, or placeholder security gate remains in production.
+- Authentication, organizations, projects, environments, roles, keys and billing.
+- Flag types, variations, segments, overrides, prerequisites, rollouts, simulation, approvals, publication, rollback and lifecycle flows.
+- Experiment instrumentation, attribution, reviewed statistical reporting, quality warnings and guardrails.
+- Analytics, SDK health, cleanup evidence and error or degraded states backed by real data.
+- Webhooks and each provider integration, including failure handling.
+- SDK, adapter, CLI and MCP compatibility against the pinned protocol release.
+- Accessibility and responsive behavior, tenant isolation and security review, load tests, a restore drill, monitoring and support documentation.
 
-## 9. Internal implementation sequence
-
-Build in dependency order while keeping the same full launch scope:
-
-1. Resolve foundational protocol/identity decisions; establish separate repositories, CI, design tokens, auth, tenant boundaries, and evaluator fixtures.
-2. Deliver the connected configuration workflow: modeling, draft editor, targeting, simulation, review, transactional publish, snapshots, SDK consumption, and audit.
-3. Complete lifecycle/operations and client breadth: rollback, delivery observation, adapters, CLI/MCP, integrations, billing, key and member administration.
-4. Complete the measurement system and experiment workflows with real exposures/conversions, validated methods, reporting and cleanup evidence. Start the statistical specification and data design early; this is not a late UI-only task.
-5. Run full workflow, security, compatibility, accessibility, load, and recovery acceptance across every feature area before public release.
-
-These are engineering milestones, not separate MVP releases. There is no schedule estimate until staffing, workload targets, and decision dependencies are known.
+Production contains no simulated integration, invented experiment result, demo role control or placeholder security check.

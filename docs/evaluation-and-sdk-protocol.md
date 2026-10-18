@@ -2,9 +2,9 @@
 
 [Documentation index](README.md)
 
-## Contract status
+## Contract
 
-This document defines the intended semantics and a proposed version-one wire design. `bitflag-protocol` will own the normative schemas, algorithm specification and conformance fixtures. Example payloads are illustrative until those artifacts are released. Numbers such as revision 42 are demo values, not performance or compatibility promises.
+This document defines the evaluation semantics and the version-one wire design. `bitflag-protocol` owns the normative schemas, algorithm specification and conformance fixtures. Example payloads are illustrative; numbers such as revision 42 are sample values.
 
 The result depends on the complete snapshot, normalized input context, caller fallback and an explicit evaluation time where expiry/date behavior is relevant. Transport authorization happens before the evaluator; the pure evaluator performs no network or database access.
 
@@ -26,7 +26,7 @@ Use one context shape in server evaluation, SDKs, flag simulation and segment pr
 
 Subject keys are strings, not numbers coerced independently by PHP and JavaScript. Context keys, attribute count, nesting, strings and arrays have bounded sizes. Stable subject kind/key are mandatory for sticky rollout or experiment assignment. Callers without identity can use a persisted anonymous ID; SDKs must not invent a new random cohort identity on each read.
 
-Typed read APIs require a fallback matching the requested type. Invalid caller fallback is a programming error with an explicit SDK error, not a covert conversion. A missing flag or unusable configuration returns a valid caller fallback with a machine-readable reason/error. Financially precise decimals or integers outside the agreed safe numeric range should be represented by a deliberate string/structured contract rather than accidental JavaScript rounding; the numeric representation is finalized in D03.
+Typed read APIs require a fallback matching the requested type. Invalid caller fallback is a programming error with an explicit SDK error, not a covert conversion. A missing flag or unusable configuration returns a valid caller fallback with a machine-readable reason/error. Financially precise decimals or integers outside the safe numeric range are represented by a deliberate string or structured contract rather than accidental JavaScript rounding.
 
 ## Evaluation precedence
 
@@ -40,11 +40,11 @@ Typed read APIs require a fallback matching the requested type. Invalid caller f
 | 6 | First matching enabled ordered rule | Fixed variation or stable weighted assignment |
 | 7 | No rule matched | Default on variation |
 
-An invalid prerequisite graph or invalid variation reference is a configuration error, not an ordinary unmet prerequisite. Validation should prevent these snapshots from being published; runtimes must still handle malformed input safely.
+An invalid prerequisite graph or invalid variation reference is a configuration error, not an ordinary unmet prerequisite. Validation prevents these snapshots from being published; runtimes still handle malformed input safely.
 
-Experiment assignment must compile into an explicit outcome at a defined point in this same evaluation order. Proposed design: an experiment outcome attached to the selected rule, with a separate salt and exposure metadata. Off state, prerequisites and exact overrides retain their documented precedence. The finalized experiment configuration must not introduce an undocumented second evaluator.
+Experiment assignment compiles into an explicit outcome at a defined point in this same evaluation order: an experiment outcome attached to the selected rule, with a separate salt and exposure metadata. Off state, prerequisites and exact overrides retain their documented precedence. Experiments do not introduce a second evaluator.
 
-Predicate evaluation is strict: do not let language coercion make `"20"` equal to `20`. Proposed missing/null rule: absent values fail comparisons including negative comparisons; `not exists` explicitly tests absence. Null is an explicit JSON value, distinct from absence. Empty groups, array semantics, date parsing, semantic versions, case sensitivity and depth limits must have fixtures before the contract is frozen.
+Predicate evaluation is strict: language coercion never makes `"20"` equal to `20`. Absent values fail comparisons, including negative comparisons; `not exists` explicitly tests absence. Null is an explicit JSON value, distinct from absence. Empty groups, array semantics, date parsing, semantic versions, case sensitivity and depth limits each have conformance fixtures.
 
 ## Result shape
 
@@ -61,7 +61,7 @@ Predicate evaluation is strict: do not let language coercion make `"20"` equal t
 }
 ```
 
-`reason` identifies OFF, OVERRIDE, RULE, DEFAULT, PREREQUISITE, FALLBACK or ERROR. `errorCode` gives details such as FLAG_NOT_FOUND, TYPE_MISMATCH, MISSING_SUBJECT, UNSUPPORTED_CAPABILITY, INVALID_CONFIG, STALE_CACHE or AUTHORIZATION_REJECTED. Final naming is part of the protocol release.
+`reason` identifies OFF, OVERRIDE, RULE, DEFAULT, PREREQUISITE, FALLBACK or ERROR. `errorCode` gives details such as FLAG_NOT_FOUND, TYPE_MISMATCH, MISSING_SUBJECT, UNSUPPORTED_CAPABILITY, INVALID_CONFIG, STALE_CACHE or AUTHORIZATION_REJECTED. The protocol release defines the final names.
 
 An authenticated remote-evaluation endpoint returns per-flag results for valid evaluation requests. Authentication/authorization failures use HTTP 401/403, not successful fallback responses. SDKs may convert transport failures into the caller's fallback locally, while exposing the failure state.
 
@@ -71,7 +71,7 @@ Debug traces include rule decisions, predicate failures, prerequisite path and b
 
 Use 100,000 integer buckets numbered 0 through 99,999. A 20% allocation occupies 20,000 buckets. These are buckets, not 100,000 basis points.
 
-**Algorithm `bucket-sha256-v1` (decided, R15):**
+**Algorithm `bucket-sha256-v1`:**
 
 1. Build the ordered tuple: the domain tag `bitflag-bucket-v1`, the allocation's persistent salt, subject kind, and the bucketing value (the context `key`, or the rule's `bucketBy` attribute, which must be a non-empty string).
 2. Encode each tuple element as its UTF-8 bytes prefixed by a four-byte unsigned big-endian byte length. This avoids delimiter ambiguity. Do not apply implicit case folding or Unicode normalization.
@@ -81,7 +81,7 @@ Use 100,000 integer buckets numbered 0 through 99,999. A 20% allocation occupies
 
 Project, environment and flag identity are deliberately not hash inputs: the salt carries allocation identity. Salts are random and unique per allocation, and publication rejects two allocations in one snapshot that share a salt unless they were explicitly linked to keep a cohort. Copying a rule, flag or environment generates new salts by default.
 
-Do not use language-specific string hashes or the prototype's demonstration hash as production behavior. Freeze the chosen algorithm and publish exact known-answer vectors for both languages. Changing it later requires an explicit algorithm version and migration plan.
+Language-specific string hashes are never used. The algorithm has exact known-answer vectors for both languages. Changing it requires a new algorithm version and a migration plan.
 
 Increasing a single treatment's threshold from 20% to 50% preserves its prior members only while identity inputs, salt, eligibility and preceding rule behavior remain unchanged. Multivariate weight changes, rule reordering, audience edits and salt changes may reassign subjects. The UI must describe those consequences.
 
@@ -96,7 +96,7 @@ A snapshot is a complete immutable environment configuration containing:
 - Frozen segment definitions, overrides with expiry, prerequisites and experiment allocation metadata where applicable.
 - A checksum of the canonical content and a defined audience projection identifier.
 
-Canonical serialization, checksum input boundaries and schema limits are D03 requirements. Avoid self-referential checksum fields: compute over the defined canonical payload excluding the checksum/envelope metadata itself.
+Canonical serialization, checksum input boundaries and schema limits are defined in the protocol. The checksum is computed over the canonical payload, excluding the checksum and envelope metadata itself, so it is never self-referential.
 
 Generate server and browser representations from the same authorized published revision. A browser projection contains only deliberately public configuration. Public flags with private prerequisite/segment dependencies must be rejected at publication or served through a trusted server path; dropping private dependencies while retaining altered public behavior is not acceptable.
 
@@ -123,13 +123,13 @@ Cache keys include endpoint, project/environment, credential identity and audien
 
 Conditional polling and streaming invalidations are complementary. Streaming carries revision notices, never secrets or raw context; the SDK refetches authorized configuration. Reconnect includes jitter/backoff and falls back to polling/full fetch when event history is unavailable. Never regress to an older revision due to racing refresh responses. A rollback is a higher revision with older content.
 
-Disaster recovery is a separate case: restoring server data can leave a client's cached revision ahead of the restored server. Define an authenticated generation/epoch transition or equivalent verified recovery mechanism under D03/D08 before freezing the protocol. An ordinary older response must never trigger this exception. See the [restore requirements](operations-and-release.md).
+Disaster recovery is a separate case: restoring server data can leave a client's cached revision ahead of the restored server. An authenticated generation (epoch) transition lets clients accept a verified recovery; an ordinary older response never triggers this exception. See the [restore requirements](operations-and-release.md).
 
 ## Browser and server SDK boundaries
 
 Server credentials authorize private snapshot retrieval and remote evaluation within their scope. Browser identifiers are public and authorize only public configuration/event capabilities. CORS is a browser control, not a confidentiality boundary. Browser-provided attributes are untrusted and must not enforce server authorization or paid entitlements.
 
-Default private evaluation path: the customer's trusted backend evaluates and sends safe result values to the browser. The full browser SDK remains in release scope; whether it defaults to public local snapshots or an evaluated-value endpoint is D06. If result bootstrapping is used, include safe revision/context binding without private rules or credentials.
+Default private evaluation path: the customer's trusted backend evaluates and sends safe result values to the browser. The browser SDK either evaluates a deliberately public snapshot locally or reads values from an evaluated-value endpoint. Result bootstrapping includes a safe revision and context binding without private rules or credentials.
 
 Vue/React adapters share one SDK instance per appropriate application/request scope. SSR uses per-request identity and safe hydration values. Prevent cross-user cache leaks and duplicate exposure events from repeated renders. The Laravel adapter binds the PHP SDK and chooses explicit context attributes; it does not reimplement evaluation.
 
@@ -139,4 +139,4 @@ Evaluation does not implicitly become experiment exposure. Record exposure only 
 
 Canonical fixtures cover every predicate/type, missing/null inputs, Unicode, identity encoding, bucket boundaries, 0/100% allocations, multivariate reallocation, precedence, expiry with a fixed clock, invalid graphs, unsupported capabilities and cache/fallback cases. Server simulation and both SDK engines must agree on value, variation, reason and applicable rule/revision.
 
-An OpenFeature provider is an optional integration proposal, not a replacement for these contracts or an automatically added release requirement. [OpenFeature providers](https://openfeature.dev/docs/reference/concepts/provider/)
+An OpenFeature provider can be layered on top of these contracts; it does not replace them. [OpenFeature providers](https://openfeature.dev/docs/reference/concepts/provider/)

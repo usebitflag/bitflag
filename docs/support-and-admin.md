@@ -1,10 +1,8 @@
 # Support and admin console
 
-[Documentation index](README.md) · Status: proposed design; scope decided (R12)
-
 BitFlag staff need to answer "why isn't my flag updating?", "why was I charged?", and "I lost my MFA device" without database access and without seeing more customer data than the question needs. This document defines the internal admin console that does that. It is not a customer feature and is not part of the portal's navigation.
 
-## 1. Principles (R12)
+## 1. Principles
 
 - **No impersonation.** Staff never act as a customer or see the portal as a customer sees it.
 - **Read first.** Almost everything is a lookup. The few write actions are listed in §4 and each is audited.
@@ -39,17 +37,17 @@ BitFlag staff need to answer "why isn't my flag updating?", "why was I charged?"
 | Reset MFA after identity verification | Two staff members (requester and approver), ticket reference, 24-hour delay with email to the account and Org Owners before it takes effect | Yes |
 | Replay failed outbox or webhook deliveries | Same replay rules as the customer action; idempotent | Yes |
 | Apply a billing credit or extend a grace period | Billing support; performed through Stripe with BitFlag reconciling | Yes |
-| Suspend an organization for abuse or non-payment past policy | Two staff members, documented reason. Suspension blocks management actions only; published flags keep serving, as billing rules require | Yes |
+| Suspend an organization for abuse or non-payment past policy | Two staff members, documented reason; lifting a suspension needs one staff member with a reason and ticket reference. Suspension blocks management actions only; published flags keep serving, as billing rules require | Yes |
 
-Staff cannot: edit flags, segments, environments, or members; publish or roll back; create, view, or rotate keys; change roles; delete organizations or data outside the documented deletion process (D12); disable MFA without the procedure above.
+Staff cannot: edit flags, segments, environments, or members; publish or roll back; create, view, or rotate keys; change roles; delete organizations or data outside the documented deletion process (see the deletion process); disable MFA without the procedure above.
 
 ## 5. Staff audit
 
-Every console view of an organization or user, every search, and every action is recorded with staff identity, ticket reference where required, time, and target. The log is append-only, reviewed periodically, and retained under D09. Customer-visible entries use actor "BitFlag support" with channel `support`, so the audit channel list becomes `dashboard`, `api`, `cli`, `mcp`, `system`, `support`.
+Every console view of an organization or user, every search, and every action is recorded with staff identity, ticket reference where required, time, and target. The log is append-only, reviewed periodically, and retained for audit purposes. Customer-visible entries use actor "BitFlag support" with channel `support`, so the audit channel list becomes `dashboard`, `api`, `cli`, `mcp`, `system`, `support`.
 
 ## 6. What customers see
 
-- Support contact: documentation and community on Free, email on Pro (R08).
+- Support contact: documentation and community on Free, email on Pro.
 - Errors in the portal, API, CLI, and MCP include a request ID that staff can search.
 - The customer's audit log shows any support action taken on their organization.
 

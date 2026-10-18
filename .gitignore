@@ -10,3 +10,6 @@
 /public/build/
 /public/hot
 /storage/*.key
+
+.claude/settings.local.json
+CLAUDE.local.md
