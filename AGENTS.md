@@ -34,7 +34,8 @@ bitflag/
 ├── routes/                   # web.php (+ web/{module}.php), api.php, sdk.php, admin.php, testing.php
 ├── tests/                    # Unit/, Feature/{Module}/, Arch/
 ├── cypress/e2e/              # {area}-{flow}.cy.ts
-├── design/nocturne/          # vendored design tokens
+├── design/nocturne/          # unchanged base design tokens
+├── design/bitflag/           # reviewed product tokens and component specifications
 └── docs/                     # technical documentation
 ```
 
@@ -48,6 +49,8 @@ bitflag/
 - Audit and outbox rows are written in the same transaction as the change.
 - Secrets (keys, tokens, passwords) are never stored, logged, audited or serialized in plaintext.
 - The evaluator is `bitflag-php`; the application never imports its internals.
+- UI work follows `docs/frontend-and-design.md` and `.claude/rules/frontend.md`: use the BitFlag overrides over
+  Nocturne, not the base theme alone. Do not invent reporting semantics from display examples.
 - Every change goes through a pull request. See `.claude/rules/git-workflow.md`.
 
 Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`, `code-style.md`,

@@ -12,7 +12,9 @@
 
 Astro pages should primarily render static content. Add hydrated islands only for useful interactive features, such as a pricing control or copyable interactive example. Portal-style global client state is unnecessary for the entire marketing site. [Astro islands documentation](https://docs.astro.build/en/concepts/islands/)
 
-Design tokens are consistent across products without a monorepo: each repository keeps a reviewed copy of the token specification. The portal generates its Tailwind theme from the Nocturne tokens.
+Design tokens are consistent across products without a monorepo: each repository keeps a reviewed copy of the BitFlag token specification. The portal generates its Tailwind theme from the unchanged Nocturne base in `design/nocturne/` plus the reviewed product overrides in `design/bitflag/`. The product layer owns both theme palettes, semantic roles, typography, spacing, radii, shadows and component dimensions; the base alone does not define the product appearance.
+
+Keep source checksums and a mapping of overrides with those inputs. `npm run tokens` generates `resources/css/theme.generated.css`; `npm run tokens:check` detects stale output from either input layer and validates contrast. Components consume named theme classes, not raw hex values or default Tailwind palette colors. Fonts are self-hosted; external font imports are excluded from the generated stylesheet.
 
 
 
@@ -29,6 +31,30 @@ Organize pages by product area and reusable UI by responsibility:
 - Typed page props and API schemas distinguish display models from writable commands. Generate types from owned contracts where practical; do not expose entire Eloquent models automatically.
 
 The folder map is in [repository structure](repository-structure.md).
+
+### Shell and navigation
+
+The desktop shell has a 256px sidebar and a flexible content column. Its 56px sidebar header combines an 18px brand mark in a 32px bordered tile, organization name above project name, and the switcher control. The environment picker shows an identity dot, name and published revision. Grouped navigation uses 16px icons. The footer shows initials, name and email, with an account/sign-out menu. Project roles still govern capability checks and read-only notices; an email subtitle does not replace permission feedback.
+
+| Group | Items in order |
+| --- | --- |
+| Project | Overview |
+| Configuration | Flags, Segments |
+| Releases | Changes |
+| Insights | Experiments, Analytics |
+| Administration | Audit, Integrations, Settings |
+
+Navigation is server-supplied, scoped and capability-aware; render only registered, accessible destinations and hide empty groups. Counts have accessible labels and load independently of the page. Active items use a neutral tint and violet inset edge. The organization-settings entry remains available to authorized users.
+
+The 56px top bar contains the sidebar toggle, page/environment context (and object breadcrumbs when needed), search, notification access and the theme control. Notification counts are real unread counts, not fixtures. Controls appear when their feature is available. At 1024px use a compact icon rail; below 1024px the sidebar becomes a keyboard-accessible drawer. Preserve environment context when the layout narrows and run the dirty-state guard before scope switches.
+
+### Shared visual components
+
+- Primary actions are filled violet with contrasting text; secondary actions are surface-colored with explicit borders; ghost actions stay quiet. Destructive actions retain object-naming confirmation and type-to-confirm where required. Semantic danger styling does not bypass those safeguards.
+- Cards and tables are flat, separated by explicit borders rather than floating shadows. Reserve elevation for overlays; dialogs use a dim backdrop without requiring blur.
+- Base buttons are 34px high, inputs 36px, compact tags 22px; control radii are 8px, tag radii 6px and card/dialog radii 12px. Provide accessible hit areas for icon-only controls. Wider or touch layouts may increase target size without compressing labels.
+- Inter headings use weight 600; standard page titles are 24px and the compact Overview project heading is 22px. Use documented component tokens rather than applying one old heading/spacing scale everywhere.
+- The violet–magenta–coral gradient is a brand treatment, not a status encoding. Success, warning and danger each have semantic foreground, subtle-background and border tokens for both themes. Map status meaning explicitly, with labels/icons; environment identity colors do not indicate risk.
 
 ## 3. Four editor states
 
@@ -65,6 +91,16 @@ On save conflicts, preserve local edits and show a compare/reload/reapply workfl
 
 Each page needs initial loading, empty, populated, forbidden, validation-error, recoverable-failure, and stale/conflict states where applicable. Background refresh must not overwrite an actively edited form.
 
+### Overview reporting surface
+
+The populated Overview includes project/environment context; capability-aware New flag and Review drafts actions; four summary metrics (evaluations, active flags, reporting SDK instances and fallbacks); current/previous-period evaluation series; a flag-distribution panel; compact publish, snapshot-fetch and evaluation-error summaries; recent changes; and needs-attention items linked to their evidence. Keep the setup checklist and observed first-evaluation verification for new projects instead of presenting an all-zero populated dashboard.
+
+Each metric read model supplies its scope, unit, observation window, freshness/coverage and availability, not just a formatted number. Comparisons include their baseline window and specify absolute change, relative percent or percentage points. A zero/missing baseline must not become infinity or a fabricated percentage; unavailable observations are distinct from zero. Trend color comes from a defined interpretation for that metric, not from whether its value increased.
+
+The Overview evaluation comparison presents seven days against the previous seven days. Exact calendar/rolling boundaries, timezone and chart bucket alignment require an explicit reporting contract before implementation. The SDK-instance count uses its reporting window, not the evaluation chart's window; snapshot fetches and 304 responses are delivery measurements, never evaluation counts. Historical flag-count comparisons need an actual historical source, not a reconstruction from the current count.
+
+Distribution labels such as serving one value, rolling out, in an experiment and disabled can overlap in the domain. A donut may represent them as one total only after a mutually exclusive classification and scope are defined and tested; do not invent precedence in the view. Likewise, alerts require defined thresholds, minimum evidence and destinations. Evaluation-error categories must follow the evaluation protocol; an attribute-type non-match must not be relabeled as a runtime error to fit an alert. Until a reporting definition is settled, ask before implementing it. All charts provide a textual summary or accessible data view, and missing or delayed data has its own state.
+
 ## 5. Targeting and publishing interaction details
 
 Keep rule order visible because the first matching rule wins. Distinguish an off variation from caller fallback and from the default on variation. Validate total weights, types, missing references, prerequisite cycles, and expiry before allowing submission, then validate again on the server.
@@ -93,7 +129,11 @@ Full desktop administration and narrower readable layouts are explicit expectati
 
 ## 8. Themes and typography
 
-The portal ships a dark and a light theme. Dark is the default; a switch in the user menu offers Dark, Light and System, and the choice is applied before first paint so the page never flashes the wrong theme. Inter is used for headings and body text. IBM Plex Mono is used for code, keys, IDs and monospace numbers such as revisions and counts; other numbers use tabular figures in Inter. Fonts are served from the application. Both themes meet WCAG AA contrast for text.
+The portal ships light and dark themes. **Light is the initial preference when none is saved.** The top-bar theme control offers Light, Dark and System; System follows `prefers-color-scheme`. Apply the resolved theme before first paint, persist an explicit choice, and never overwrite an existing Dark or System preference when changing the default. Preference storage is per browser until account preferences are available.
+
+Inter is used for headings, body, navigation, dashboard figures and shell revision labels; numeric displays use tabular figures where appropriate. Azeret Mono is used for code, keys, IDs and copyable technical values. A number is not automatically monospace. Fonts are served from the application.
+
+Semantic success, warning and danger colors are permitted throughout the portal. Color never carries meaning alone. Verify text, muted text, semantic labels, filled-button text, borders and focus indicators against their actual surfaces in both themes; adjust token pairs rather than adding component-specific hex fixes. Target WCAG 2.2 AA, including 4.5:1 for normal text and 3:1 for large text and required non-text contrast.
 
 ## 9. Demo and test controls
 
