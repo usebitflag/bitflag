@@ -67,3 +67,5 @@ Run everything through Sail; there is no host PHP or Node requirement. Alias it 
 - `sail bin pint --test` checks PHP style; `sail bin pint` fixes it.
 - `sail bin phpstan analyse` runs Larastan at level max.
 - `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test`, `build` for the frontend.
+- `sail npm run tokens` regenerates `resources/css/theme.generated.css`; `tokens:check` fails when it is stale or a
+  contrast pair fails. Never edit the generated file or `design/nocturne/styles.css`.

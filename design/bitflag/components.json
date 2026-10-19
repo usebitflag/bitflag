@@ -1,0 +1,19 @@
+{
+  "button": {
+    "height": "34px",
+    "padding-x": "12px",
+    "gap": "6px",
+    "radius": "md",
+    "font-size": "md"
+  },
+  "icon-button": { "size": "34px", "radius": "md" },
+  "input": { "height": "36px", "radius": "md" },
+  "tag": { "height": "22px", "padding-x": "8px", "radius": "sm", "font-size": "xs" },
+  "card": { "radius": "lg", "padding": "20px" },
+  "dialog": { "radius": "lg" },
+  "menu": { "radius": "md" },
+  "nav-item": { "height": "32px", "padding-x": "8px", "radius": "md", "font-size": "md" },
+  "environment-picker": { "height": "34px", "radius": "md" },
+  "brand-tile": { "size": "32px", "mark": "18px", "radius": "md" },
+  "hit-area": { "min": "24px" }
+}
