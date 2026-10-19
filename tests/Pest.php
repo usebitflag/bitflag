@@ -3,12 +3,17 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\FakeVite;
 use Tests\Support\TenantQueryGuard;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->beforeEach(fn () => TenantQueryGuard::start())
+    ->beforeEach(function () {
+        // The root view calls @vite; tests check responses, not assets, so no build manifest is needed.
+        FakeVite::install();
+        TenantQueryGuard::start();
+    })
     ->afterEach(fn () => TenantQueryGuard::assertClean())
     ->in('Feature');
 
