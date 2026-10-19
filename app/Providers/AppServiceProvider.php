@@ -13,12 +13,16 @@ use App\Shared\Capabilities\NoEnvironmentProtection;
 use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Navigation\PortalNavigation;
+use App\Shared\Persistence\TransactionGuard;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
+use App\Shared\Time\SystemClock;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
+use Psr\Clock\ClockInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
         // Registries that module service providers add to when they boot.
         $this->app->singleton(PortalNavigation::class);
         $this->app->singleton(AuditCatalog::class);
+
+        $this->app->singleton(ClockInterface::class, SystemClock::class);
+        $this->app->bind(TransactionGuard::class, fn (): TransactionGuard => new TransactionGuard(DB::connection()));
 
         // Defaults until environments define protection and credentials define scopes.
         $this->app->bind(EnvironmentProtection::class, NoEnvironmentProtection::class);
