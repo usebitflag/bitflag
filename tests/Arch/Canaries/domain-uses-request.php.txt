@@ -1,0 +1,18 @@
+// expect: arch
+// fails: DomainPurityTest
+//// app/Modules/Projects/Domain/CanaryRule.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Projects\Domain;
+
+use Illuminate\Http\Request;
+
+final class CanaryRule
+{
+    public function applies(Request $request): bool
+    {
+        return $request->has('x');
+    }
+}

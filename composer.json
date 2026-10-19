@@ -35,7 +35,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Tools\\PHPStan\\": "tools/phpstan/"
         }
     },
     "scripts": {

@@ -25,6 +25,10 @@
 - Every architecture rule has a canary in `tests/Arch/Canaries/*.php.txt`. A new rule needs a new canary; the
   `arch-canary` job fails if a canary passes.
 - Do not weaken or skip an architecture test to make a change pass. Fix the change.
+- Declare a Pest architecture rule once per namespace. An expectation over several namespaces at once can pass without
+  catching a violation; the canaries exist to show that.
+- Pest only sees classes that exist. Rules about code that may not be installed (such as the evaluator package) read
+  source text instead.
 
 ## Cypress
 

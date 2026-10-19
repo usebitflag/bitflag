@@ -1,0 +1,18 @@
+// expect: arch
+// fails: ControllersTest
+//// app/Modules/Billing/Http/Controllers/Web/CanaryController.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Http\Controllers\Web;
+
+use Illuminate\Support\Facades\DB;
+
+final class CanaryController
+{
+    public function index(): int
+    {
+        return DB::table('users')->count();
+    }
+}

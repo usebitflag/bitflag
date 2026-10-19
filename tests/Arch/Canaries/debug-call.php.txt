@@ -1,0 +1,16 @@
+// expect: arch
+// fails: HygieneTest
+//// app/Shared/CanaryDebug.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shared;
+
+final class CanaryDebug
+{
+    public function run(): void
+    {
+        dump('left behind');
+    }
+}

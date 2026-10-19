@@ -1,0 +1,18 @@
+// expect: phpstan
+// fails: Database writes
+//// app/Modules/Projects/Http/Controllers/Web/CanaryWriter.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Projects\Http\Controllers\Web;
+
+use App\Models\User;
+
+final class CanaryWriter
+{
+    public function store(): void
+    {
+        User::create(['name' => 'x', 'email' => 'x@example.test', 'password' => 'x']);
+    }
+}
