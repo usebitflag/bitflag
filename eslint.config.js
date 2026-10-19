@@ -16,6 +16,8 @@ export default tseslint.config(
       'resources/js/actions/',
       'resources/js/routes/',
       'resources/js/wayfinder/',
+      'resources/js/types/capabilities.ts',
+      'resources/js/types/ids.ts',
     ],
   },
   js.configs.recommended,

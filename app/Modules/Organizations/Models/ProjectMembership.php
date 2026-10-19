@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Organizations\Models;
 
+use App\Shared\Capabilities\ProjectRole;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
 use App\Shared\Tenancy\BelongsToOrganization;
 use Database\Factories\ProjectMembershipFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $organization_id
  * @property string $project_id
  * @property string $user_id
- * @property string $role
+ * @property ProjectRole $role
  */
 #[UseFactory(ProjectMembershipFactory::class)]
 class ProjectMembership extends Model
@@ -28,4 +29,12 @@ class ProjectMembership extends Model
     use BelongsToOrganization, HasFactory, HasUlids, UsesMicrosecondTimestamps;
 
     protected $fillable = ['organization_id', 'project_id', 'user_id', 'role'];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['role' => ProjectRole::class];
+    }
 }
