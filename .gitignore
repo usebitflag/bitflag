@@ -41,3 +41,8 @@ _ide_helper.php
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
+
+# Published by Filament
+/public/css/filament
+/public/js/filament
+/public/fonts/filament
