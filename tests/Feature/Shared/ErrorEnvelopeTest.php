@@ -14,8 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\FakeVite;
 
 beforeEach(function () {
+    FakeVite::install();
     config(['app.debug' => false]);
 
     Route::middleware('api')->prefix('api/v1/_probe')->group(function () {

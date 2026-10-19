@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Tests\Support\FakeVite;
 
 beforeEach(function () {
+    FakeVite::install();
     config(['inertia.testing.ensure_pages_exist' => false]);
     Route::middleware('web')->get('/_probe', fn () => Inertia::render('Probe'));
 });

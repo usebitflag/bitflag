@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\FakeVite;
 
 const REQUEST_ID_PATTERN = '/^req_[0-7][0-9a-hjkmnp-tv-z]{25}$/';
 
@@ -37,6 +38,7 @@ it('adds the request ID to the log context', function () {
 });
 
 it('shares the request ID with the portal', function () {
+    FakeVite::install();
     config(['inertia.testing.ensure_pages_exist' => false]);
     Route::middleware('web')->get('/_probe', fn () => Inertia::render('Probe'));
 
