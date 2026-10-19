@@ -87,6 +87,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      # Wayfinder generates the typed route helpers by running Artisan.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+      - run: cp .env.example .env
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: php artisan key:generate
+      - run: php artisan wayfinder:generate
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc

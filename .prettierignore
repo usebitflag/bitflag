@@ -14,3 +14,6 @@ resources/css/theme.generated.css
 composer.json
 compose.yaml
 pint.json
+resources/js/actions
+resources/js/routes
+resources/js/wayfinder

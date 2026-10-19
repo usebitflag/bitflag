@@ -6,7 +6,17 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['vendor/', 'node_modules/', 'public/', 'storage/', 'bootstrap/cache/', 'coverage/'],
+    ignores: [
+      'vendor/',
+      'node_modules/',
+      'public/',
+      'storage/',
+      'bootstrap/cache/',
+      'coverage/',
+      'resources/js/actions/',
+      'resources/js/routes/',
+      'resources/js/wayfinder/',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
