@@ -199,34 +199,79 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        // Publication delivery is isolated and gets the highest priority, so telemetry bursts or a broken webhook
+        // can never starve it.
+        'publication' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => ['publication'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
+            'maxProcesses' => 2,
+            'minProcesses' => 1,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 60,
+            'timeout' => 120,
             'nice' => 0,
+        ],
+        'default' => [
+            'connection' => 'redis',
+            'queue' => ['default', 'notifications'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'minProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 120,
+            'nice' => 0,
+        ],
+        'integrations' => [
+            'connection' => 'redis',
+            'queue' => ['integrations'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 120,
+            'nice' => 5,
+        ],
+        'telemetry' => [
+            'connection' => 'redis',
+            'queue' => ['telemetry'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'minProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 120,
+            'nice' => 10,
         ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
-                'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
+            'publication' => ['maxProcesses' => 8, 'balanceMaxShift' => 1, 'balanceCooldown' => 3],
+            'default' => ['maxProcesses' => 10, 'balanceMaxShift' => 1, 'balanceCooldown' => 3],
+            'integrations' => ['maxProcesses' => 6, 'balanceMaxShift' => 1, 'balanceCooldown' => 3],
+            'telemetry' => ['maxProcesses' => 4, 'balanceMaxShift' => 1, 'balanceCooldown' => 3],
         ],
 
         'local' => [
-            'supervisor-1' => [
-                'maxProcesses' => 3,
-            ],
+            'publication' => ['maxProcesses' => 1],
+            'default' => ['maxProcesses' => 2],
+            'integrations' => ['maxProcesses' => 1],
+            'telemetry' => ['maxProcesses' => 1],
         ],
     ],
 

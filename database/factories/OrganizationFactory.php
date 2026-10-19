@@ -22,7 +22,7 @@ class OrganizationFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->unique()->numerify('###'),
+            'slug' => Str::limit(Str::slug($name), 30, '').'-'.fake()->unique()->numerify('###'),
             'status' => 'active',
         ];
     }

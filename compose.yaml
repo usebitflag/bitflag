@@ -46,6 +46,46 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+    outbox:
+        image: sail-8.5/app
+        command: php artisan outbox:work --max-time=3600
+        restart: unless-stopped
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            laravel.test:
+                condition: service_started
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+    scheduler:
+        image: sail-8.5/app
+        command: php artisan schedule:work
+        restart: unless-stopped
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            laravel.test:
+                condition: service_started
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
     mysql:
         image: 'mysql:8.4'
         ports:

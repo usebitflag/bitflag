@@ -61,7 +61,7 @@ Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`
 
 Run everything through Sail; there is no host PHP or Node requirement. Alias it with `alias sail='./vendor/bin/sail'`.
 
-- `sail up -d` starts the app, Horizon, MySQL, Redis and Mailpit.
+- `sail up -d` starts the app, Horizon, the outbox worker, the scheduler, MySQL, Redis and Mailpit.
 - `sail artisan migrate` applies migrations; `sail composer …` and `sail npm …` manage dependencies.
 - `sail bin pest` runs the tests on real MySQL (`--parallel` to split them, `--group=arch` for architecture tests).
 - `sail bin pint --test` checks PHP style; `sail bin pint` fixes it.

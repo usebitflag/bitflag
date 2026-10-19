@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\FakeVite;
 use Tests\Support\TenantQueryGuard;
@@ -31,3 +32,14 @@ function bitflag_modules(): array
         'Experiments', 'Analytics', 'Integrations', 'Audit', 'Billing', 'Notifications', 'Support',
     ];
 }
+
+// Tests that need committed data, such as concurrency between two connections, cannot run inside the transaction
+// RefreshDatabase wraps around a test, so they truncate the tables afterwards instead.
+pest()->extend(TestCase::class)
+    ->use(DatabaseTruncation::class)
+    ->beforeEach(function () {
+        FakeVite::install();
+        TenantQueryGuard::start();
+    })
+    ->afterEach(fn () => TenantQueryGuard::assertClean())
+    ->in('Concurrency');

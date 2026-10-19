@@ -13,6 +13,10 @@ use App\Shared\Capabilities\NoEnvironmentProtection;
 use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Navigation\PortalNavigation;
+use App\Shared\Outbox\Console\OutboxReclaimCommand;
+use App\Shared\Outbox\Console\OutboxRecoverCommand;
+use App\Shared\Outbox\Console\OutboxWorkCommand;
+use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
@@ -34,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         // Registries that module service providers add to when they boot.
         $this->app->singleton(PortalNavigation::class);
         $this->app->singleton(AuditCatalog::class);
+        $this->app->singleton(ConsumerRegistry::class);
 
         $this->app->singleton(ClockInterface::class, SystemClock::class);
         $this->app->bind(TransactionGuard::class, fn (): TransactionGuard => new TransactionGuard(DB::connection()));
@@ -61,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
     {
         TenantColumns::register();
 
-        $this->commands([GenerateTypesCommand::class]);
+        $this->commands([
+            GenerateTypesCommand::class,
+            OutboxWorkCommand::class,
+            OutboxReclaimCommand::class,
+            OutboxRecoverCommand::class,
+        ]);
     }
 }

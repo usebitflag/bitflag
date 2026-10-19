@@ -8,6 +8,8 @@ The application runs in Docker through Laravel Sail. PHP, Composer, Node and npm
 | --- | --- | --- |
 | `laravel.test` | Application (PHP 8.5, Node 22) | 80, Vite on 5173 |
 | `horizon` | Queue workers supervised by Horizon | none |
+| `outbox` | Outbox worker (`outbox:work`) that fans stored messages out to consumers | none |
+| `scheduler` | Scheduled commands (`schedule:work`), including outbox recovery | none |
 | `mysql` | MySQL 8.4 | 3306 |
 | `redis` | Redis 7 | 6379 |
 | `mailpit` | Captures outgoing mail | 1025 (SMTP), 8025 (inbox) |
