@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Projects;
 
+use App\Shared\Navigation\NavigationEntry;
+use App\Shared\Navigation\NavigationGroup;
+use App\Shared\Navigation\PortalNavigation;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -19,6 +22,9 @@ final class ProjectsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        // The Overview is the first page of every project.
+        $this->app->make(PortalNavigation::class)->register(
+            new NavigationEntry('overview', 'Overview', 'house', NavigationGroup::Project, 10, 'project.overview'),
+        );
     }
 }

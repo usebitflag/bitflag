@@ -17,6 +17,8 @@ final class CurrentPerson
     {
         $user = Auth::guard('web')->user();
 
-        return $user instanceof User ? new SignedInPerson($user->id, $user->name) : null;
+        return $user instanceof User
+            ? new SignedInPerson($user->id, $user->name, $user->email, $user->last_organization_id, $user->last_project_id, $user->last_environment_id)
+            : null;
     }
 }
