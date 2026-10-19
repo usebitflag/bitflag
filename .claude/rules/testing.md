@@ -5,7 +5,9 @@
 - Database tests run on real MySQL and Redis, never SQLite only.
 - The tenant query guard is on for every feature test. A query on a tenant table without an `organization_id`
   predicate fails the test.
-- A new tenant table gets an `assertTenantIsolated(Model::class)` test and a classification in `config/tenancy.php`.
+- A new tenant table gets an `assertTenantIsolated(Model::class, fn (Organization $organization) => …)` test (see
+  `tests/Feature/Tenancy/IsolationTest.php`) and a classification in `config/tenancy.php`.
+- Feature tests run on `RefreshDatabase`. Tables that only tests need go in `tests/Support/migrations`, never in a test body.
 - A new write action gets tests for authorization, tenant isolation, version conflict, and rollback when the audit
   or outbox insert fails.
 - External providers are never called. Use fakes or the in-process stubs.

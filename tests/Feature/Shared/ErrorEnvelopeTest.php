@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
+use App\Modules\Identity\Models\User;
 use App\Shared\Errors\ApplicationException;
 use App\Shared\Errors\AuthorizationDenied;
 use App\Shared\Errors\ResourceNotFound;

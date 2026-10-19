@@ -8,7 +8,6 @@ use App\Shared\Ids\IdPrefix;
 use App\Shared\Ids\PublicId;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 const SAMPLE_ULID = '01j9x3k7q2m5n8p0r4s6t8v0wy';
@@ -62,16 +61,6 @@ it('accepts the ULIDs Laravel generates', function () {
 });
 
 describe('the HasPublicId trait', function () {
-    beforeEach(function () {
-        Schema::dropIfExists('public_id_probes');
-        Schema::create('public_id_probes', function ($table) {
-            $table->char('id', 26)->primary();
-            $table->string('slug')->unique();
-        });
-    });
-
-    afterEach(fn () => Schema::dropIfExists('public_id_probes'));
-
     function probeModel(): Model
     {
         return new class extends Model

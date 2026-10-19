@@ -25,7 +25,15 @@ trait HasPublicId
      */
     protected function publicId(): Attribute
     {
-        return Attribute::get(fn (): string => PublicId::encode(static::publicIdPrefix(), (string) $this->getKey()));
+        return Attribute::get(function (): string {
+            $key = $this->getKey();
+
+            if (! is_string($key)) {
+                throw new \LogicException('A public ID needs a saved model with a ULID key.');
+            }
+
+            return PublicId::encode(static::publicIdPrefix(), $key);
+        });
     }
 
     /**
@@ -47,6 +55,10 @@ trait HasPublicId
             return parent::resolveRouteBinding($value, $field);
         }
 
-        return $this->newQuery()->wherePublicId((string) $value)->first();
+        if (! is_string($value)) {
+            return null;
+        }
+
+        return $this->newQuery()->wherePublicId($value)->first();
     }
 }

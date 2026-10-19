@@ -1,0 +1,18 @@
+// expect: arch
+// fails: TenantModelsTest
+//// app/Modules/Projects/Models/CanaryUnscoped.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Projects\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @property string $organization_id
+ */
+final class CanaryUnscoped extends Model
+{
+    protected $fillable = ['organization_id'];
+}
