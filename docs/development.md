@@ -33,9 +33,11 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | Task | Command |
 | --- | --- |
 | Start and stop | `sail up -d`, `sail down` |
-| Run tests | `sail artisan test` |
+| Run tests | `sail bin pest` (`--parallel`, `--group=arch`) |
+| PHP style and static analysis | `sail bin pint --test`, `sail bin phpstan analyse` |
+| Frontend checks | `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test` |
 | Artisan | `sail artisan …` |
 | Frontend dev server | `sail npm run dev` |
 | Mail inbox | http://localhost:8025 |
 
-Tests use the `testing` database on the same MySQL service, created automatically on first start.
+Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.

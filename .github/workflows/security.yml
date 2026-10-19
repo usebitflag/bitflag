@@ -1,0 +1,31 @@
+name: security
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  pull_request:
+    paths:
+      - composer.lock
+      - package-lock.json
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: composer audit --locked
+      - run: npm ci --ignore-scripts
+      - name: Audit production npm dependencies
+        run: npm audit --omit=dev --audit-level=high
