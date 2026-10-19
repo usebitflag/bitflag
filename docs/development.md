@@ -28,6 +28,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 ./vendor/bin/sail npm run build
 ```
 
+The demo seed creates Acme and Globex, five Acme people and one Globex person, and the staff user `support@bitflag.test`. Everyone signs in with `DEMO_PASSWORD` (default `password`). The seeder uses fixed identifiers and refuses to run in production.
+
 The portal is served on `APP_HOST` (default `localhost`) and the admin console on `ADMIN_HOST` (default `admin.localhost`). Cookies are host-only, so signing in on one host never signs you in on the other.
 
 ## Everyday commands
@@ -39,6 +41,7 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | PHP style and static analysis | `sail bin pint --test`, `sail bin phpstan analyse` |
 | Regenerate the theme | `sail npm run tokens` (`tokens:check` verifies it) |
 | Frontend checks | `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test` |
+| Seed the demo world | `sail artisan db:seed --class=DemoSeeder` (safe to repeat; `migrate:fresh --seed --seeder=DemoSeeder` starts over) |
 | Artisan | `sail artisan …` |
 | Frontend dev server | `sail npm run dev` |
 | Mail inbox | http://localhost:8025 |
