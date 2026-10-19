@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Environments\Queries;
 
 use App\Modules\Environments\Data\EnvironmentSummary;
+use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
 use App\Shared\Tenancy\Tenancy;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,7 +32,7 @@ final class EnvironmentLookup
         return Tenancy::crossTenant('environment lookup resolves the portal scope', fn (): array => array_values(Environment::query()
             ->where('organization_id', $organizationId)
             ->where('project_id', $projectId)
-            ->where('status', 'active')
+            ->where('status', EnvironmentStatus::Active->value)
             ->orderBy('position')
             ->orderBy('key')
             ->get()
@@ -59,9 +60,9 @@ final class EnvironmentLookup
             $environment->project_id,
             $environment->key,
             $environment->name,
-            $environment->color,
+            $environment->color->value,
             $environment->position,
-            $environment->status,
+            $environment->status === EnvironmentStatus::Active,
         );
     }
 }

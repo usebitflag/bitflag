@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->string('timezone', 64)->default('UTC');
-            $table->enum('status', ['active', 'deactivated'])->default('active');
+            $table->string('status', 32)->default('active');
             // The last scope the person worked in. Foreign keys are added once those tables exist.
             $table->char('last_organization_id', 26)->nullable();
             $table->char('last_project_id', 26)->nullable();

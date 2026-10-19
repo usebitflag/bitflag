@@ -1,0 +1,20 @@
+// expect: arch
+// fails: MigrationsTest
+//// database/migrations/2099_01_01_000000_canary_enum_column.php
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('canary_enum', function (Blueprint $table): void {
+            $table->enum('status', ['active', 'archived']);
+        });
+    }
+};

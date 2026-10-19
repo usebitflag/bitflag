@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Demo;
 
+use App\Modules\Environments\Domain\EnvironmentColor;
+use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
 use App\Shared\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
@@ -14,9 +16,9 @@ use Illuminate\Database\Seeder;
 final class EnvironmentsSeeder extends Seeder
 {
     private const ENVIRONMENTS = [
-        1 => ['development', 'slate'],
-        2 => ['staging', 'lilac'],
-        3 => ['production', 'violet'],
+        1 => ['development', EnvironmentColor::Slate],
+        2 => ['staging', EnvironmentColor::Lilac],
+        3 => ['production', EnvironmentColor::Violet],
     ];
 
     public function run(): void
@@ -42,7 +44,7 @@ final class EnvironmentsSeeder extends Seeder
                         'key' => $key,
                         'color' => $color,
                         'position' => $position,
-                        'status' => 'active',
+                        'status' => EnvironmentStatus::Active,
                     ])->save();
                 }
             });

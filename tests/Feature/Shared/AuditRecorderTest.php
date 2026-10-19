@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Organizations\Models\Organization;
 use App\Shared\Actors\Actor;
+use App\Shared\Actors\ActorType;
 use App\Shared\Actors\Channel;
 use App\Shared\Audit\AuditCatalog;
 use App\Shared\Audit\AuditEvent;
@@ -51,10 +52,10 @@ it('records who did what to which object', function () {
 
     expect($stored->public_id)->toStartWith('aud_')
         ->and($stored->organization_id)->toBe($this->organization->id)
-        ->and($stored->actor_type)->toBe('user')
+        ->and($stored->actor_type)->toBe(ActorType::User)
         ->and($stored->actor_id)->toBe(AUDIT_USER)
         ->and($stored->actor_display)->toBe('Maya Santos')
-        ->and($stored->channel)->toBe('dashboard')
+        ->and($stored->channel)->toBe(Channel::Dashboard)
         ->and($stored->action)->toBe('revision.published')
         ->and($stored->target_type)->toBe('environment')
         ->and($stored->target_id)->toBe(AUDIT_TARGET)
@@ -70,7 +71,7 @@ it('records who did what to which object', function () {
 it('records the system as an actor without an identifier', function () {
     $event = app(AuditRecorder::class)->record(Actor::system('outbox:work'), 'flag.created', new AuditTarget('flag'));
 
-    expect($event->actor_type)->toBe('system')->and($event->actor_id)->toBeNull()->and($event->channel)->toBe('system');
+    expect($event->actor_type)->toBe(ActorType::System)->and($event->actor_id)->toBeNull()->and($event->channel)->toBe(Channel::System);
 });
 
 it('refuses to write outside a transaction', function () {

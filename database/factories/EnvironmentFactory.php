@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Modules\Environments\Domain\EnvironmentColor;
+use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Projects\Models\Project;
 use App\Shared\Tenancy\Tenancy;
@@ -30,9 +32,9 @@ class EnvironmentFactory extends Factory
             ),
             'name' => ucfirst($key),
             'key' => $key,
-            'color' => 'slate',
+            'color' => EnvironmentColor::Slate,
             'position' => 1,
-            'status' => 'active',
+            'status' => EnvironmentStatus::Active,
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Actions\Fortify;
 
+use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -21,7 +22,7 @@ final class AuthenticateUser
         // Hash a password either way, so a missing account takes about as long as a wrong password.
         $matches = Hash::check($password, $user->password ?? Hash::make(bin2hex(random_bytes(8))));
 
-        if ($user === null || ! $matches || $user->status !== 'active') {
+        if ($user === null || ! $matches || $user->status !== AccountStatus::Active) {
             return null;
         }
 

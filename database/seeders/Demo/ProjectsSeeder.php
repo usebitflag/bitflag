@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Demo;
 
+use App\Modules\Projects\Domain\ProjectStatus;
 use App\Modules\Projects\Models\Project;
 use App\Shared\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
@@ -35,7 +36,7 @@ final class ProjectsSeeder extends Seeder
                     'name' => $name,
                     'key' => $key,
                     'description' => $description,
-                    'status' => 'active',
+                    'status' => ProjectStatus::Active,
                 ])->save();
             });
         }

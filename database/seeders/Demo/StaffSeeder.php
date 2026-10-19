@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Demo;
 
+use App\Modules\Support\Domain\StaffStatus;
 use App\Modules\Support\Models\StaffUser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Config;
@@ -21,7 +22,7 @@ final class StaffSeeder extends Seeder
             'name' => 'Support Staff',
             'email' => 'support@bitflag.test',
             'password' => Config::string('bitflag.demo_password'),
-            'status' => 'active',
+            'status' => StaffStatus::Active,
         ])->save();
     }
 }

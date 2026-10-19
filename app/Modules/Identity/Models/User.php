@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Models;
 
+use App\Modules\Identity\Domain\AccountStatus;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -21,7 +22,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $name
  * @property string $email
  * @property string $timezone
- * @property string $status
+ * @property AccountStatus $status
  * @property string|null $last_organization_id
  * @property string|null $last_project_id
  * @property string|null $last_environment_id
@@ -49,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => AccountStatus::class,
         ];
     }
 }

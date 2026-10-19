@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * scope and user_id.
  *
  * @property string $id
- * @property string $scope
+ * @property OutboxScope $scope
  * @property string|null $organization_id
  * @property string|null $user_id
  * @property string|null $project_id
@@ -53,7 +53,7 @@ final class OutboxMessageRecord extends Model
     {
         return OutboxMessage::restore(
             $this->id,
-            OutboxScope::from($this->scope),
+            $this->scope,
             $this->organization_id,
             $this->user_id,
             $this->project_id,
@@ -72,6 +72,7 @@ final class OutboxMessageRecord extends Model
     protected function casts(): array
     {
         return [
+            'scope' => OutboxScope::class,
             'payload' => 'array',
             'occurred_at' => 'immutable_datetime',
             'available_at' => 'immutable_datetime',

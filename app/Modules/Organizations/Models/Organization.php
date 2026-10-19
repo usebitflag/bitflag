@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Organizations\Models;
 
+use App\Modules\Organizations\Domain\OrganizationStatus;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $name
  * @property string $slug
- * @property string $status
+ * @property OrganizationStatus $status
  */
 #[UseFactory(OrganizationFactory::class)]
 class Organization extends Model
@@ -32,5 +33,15 @@ class Organization extends Model
     public static function publicIdPrefix(): IdPrefix
     {
         return IdPrefix::Organization;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => OrganizationStatus::class,
+        ];
     }
 }

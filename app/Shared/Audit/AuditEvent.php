@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Audit;
 
+use App\Shared\Actors\ActorType;
+use App\Shared\Actors\Channel;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -21,12 +23,12 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property string $organization_id
  * @property string|null $project_id
  * @property string|null $environment_id
- * @property string $actor_type
+ * @property ActorType $actor_type
  * @property string|null $actor_id
  * @property string $actor_display
  * @property string|null $via_token_id
  * @property string|null $token_creator_id
- * @property string $channel
+ * @property Channel $channel
  * @property string $action
  * @property string $target_type
  * @property string|null $target_id
@@ -84,6 +86,8 @@ final class AuditEvent extends Model
     protected function casts(): array
     {
         return [
+            'actor_type' => ActorType::class,
+            'channel' => Channel::class,
             'details' => 'array',
             'occurred_at' => 'immutable_datetime',
             'from_revision' => 'integer',

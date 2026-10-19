@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Demo;
 
+use App\Modules\Organizations\Domain\OrganizationStatus;
 use App\Modules\Organizations\Models\Organization;
 use Illuminate\Database\Seeder;
 
@@ -20,7 +21,7 @@ final class OrganizationsSeeder extends Seeder
     {
         foreach ([self::ACME => ['Acme', 'acme'], self::GLOBEX => ['Globex', 'globex']] as $number => [$name, $slug]) {
             $organization = Organization::query()->find(DemoIds::organization($number)) ?? new Organization;
-            $organization->forceFill(['id' => DemoIds::organization($number), 'name' => $name, 'slug' => $slug, 'status' => 'active'])->save();
+            $organization->forceFill(['id' => DemoIds::organization($number), 'name' => $name, 'slug' => $slug, 'status' => OrganizationStatus::Active])->save();
         }
     }
 }

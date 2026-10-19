@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('operation', 64);
             $table->string('idempotency_key', 255);
             $table->char('request_fingerprint', 64);
-            $table->enum('status', ['in_progress', 'completed']);
+            $table->string('status', 32);
             $table->smallInteger('response_status')->nullable();
             $table->json('response_body')->nullable();
             $table->string('result_type', 32)->nullable();

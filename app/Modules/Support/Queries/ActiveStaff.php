@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Support\Queries;
 
+use App\Modules\Support\Domain\StaffStatus;
 use App\Modules\Support\Models\StaffUser;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,6 @@ final class ActiveStaff
     {
         $staff = Auth::guard('staff')->user();
 
-        return $staff instanceof StaffUser && $staff->status === 'active';
+        return $staff instanceof StaffUser && $staff->status === StaffStatus::Active;
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->char('id', 26)->primary();
             $table->string('name', 120);
             $table->string('slug', 40)->unique();
-            $table->enum('status', ['active', 'suspended', 'deletion_scheduled'])->default('active');
+            $table->string('status', 32)->default('active');
             $table->timestamps(6);
         });
     }

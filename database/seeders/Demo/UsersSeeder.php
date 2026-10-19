@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Demo;
 
+use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Models\User;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Models\ProjectMembership;
@@ -39,7 +40,7 @@ final class UsersSeeder extends Seeder
 
         foreach ($people as $number => [$name, $email, $organization, $orgRole, $projectRoles]) {
             $user = User::query()->find(DemoIds::user($number)) ?? new User;
-            $user->forceFill(['id' => DemoIds::user($number), 'name' => $name, 'email' => $email, 'password' => $password, 'email_verified_at' => now(), 'status' => 'active'])->save();
+            $user->forceFill(['id' => DemoIds::user($number), 'name' => $name, 'email' => $email, 'password' => $password, 'email_verified_at' => now(), 'status' => AccountStatus::Active])->save();
 
             $organizationId = DemoIds::organization($organization);
 

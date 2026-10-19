@@ -10,6 +10,7 @@ use App\Shared\Outbox\Outbox;
 use App\Shared\Outbox\OutboxMessage;
 use App\Shared\Outbox\OutboxMessageRecord;
 use App\Shared\Outbox\OutboxReceipt;
+use App\Shared\Outbox\OutboxScope;
 use App\Shared\Outbox\ReceiptProcessor;
 use App\Shared\Outbox\ReceiptRecovery;
 use App\Shared\Outbox\ReceiptStatus;
@@ -58,7 +59,7 @@ describe('pushing a message', function () {
 
         $record = OutboxMessageRecord::query()->findOrFail($message->id);
 
-        expect($record->scope)->toBe('organization')
+        expect($record->scope)->toBe(OutboxScope::Organization)
             ->and($record->organization_id)->toBe($this->organization->id)
             ->and($record->type)->toBe('internal.test_happened')
             ->and($record->aggregate_id)->toBe(OUTBOX_AGGREGATE)
@@ -175,7 +176,7 @@ describe('dispatching', function () {
 
         dispatchAll();
 
-        expect(theReceipt()->scope)->toBe('account')
+        expect(theReceipt()->scope)->toBe(OutboxScope::Account)
             ->and(theReceipt()->user_id)->toBe(OUTBOX_AGGREGATE)
             ->and(theReceipt()->organization_id)->toBeNull();
     });

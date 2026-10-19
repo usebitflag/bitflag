@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Modules\Organizations\Domain\OrganizationStatus;
 use App\Modules\Organizations\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ class OrganizationFactory extends Factory
         return [
             'name' => $name,
             'slug' => Str::limit(Str::slug($name), 30, '').'-'.fake()->unique()->numerify('###'),
-            'status' => 'active',
+            'status' => OrganizationStatus::Active,
         ];
     }
 }

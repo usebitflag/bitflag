@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Projects\Queries;
 
 use App\Modules\Projects\Data\ProjectSummary;
+use App\Modules\Projects\Domain\ProjectStatus;
 use App\Modules\Projects\Models\Project;
 use App\Shared\Tenancy\Tenancy;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +37,7 @@ final class ProjectLookup
         return Tenancy::crossTenant('project lookup resolves the portal scope', fn (): array => array_values(Project::query()
             ->where('organization_id', $organizationId)
             ->whereIn('id', $projectIds)
-            ->where('status', 'active')
+            ->where('status', ProjectStatus::Active->value)
             ->orderBy('name')
             ->get()
             ->map(fn (Project $project): ProjectSummary => $this->summary($project))
@@ -57,6 +58,6 @@ final class ProjectLookup
 
     private function summary(Project $project): ProjectSummary
     {
-        return new ProjectSummary($project->id, $project->organization_id, $project->key, $project->name, $project->status);
+        return new ProjectSummary($project->id, $project->organization_id, $project->key, $project->name, $project->status === ProjectStatus::Active);
     }
 }

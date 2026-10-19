@@ -17,7 +17,7 @@ final readonly class EnvironmentSummary
         public string $name,
         public string $color,
         public int $position,
-        public string $status,
+        public bool $active,
         public ?int $revision = null,
     ) {}
 }

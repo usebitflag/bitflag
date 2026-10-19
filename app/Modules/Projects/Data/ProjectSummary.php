@@ -11,6 +11,6 @@ final readonly class ProjectSummary
         public string $organizationId,
         public string $key,
         public string $name,
-        public string $status,
+        public bool $active,
     ) {}
 }
