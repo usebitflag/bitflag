@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Middleware\ApplyTestingClock;
 use App\Http\Middleware\ResolveActor;
 use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Portal\PortalScope;
@@ -27,6 +28,8 @@ use App\Shared\Time\SystemClock;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Psr\Clock\ClockInterface;
@@ -75,6 +78,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TenantColumns::register();
+
+        // The end-to-end suite can freeze the clock across requests. The middleware exists only where the test routes load.
+        if (Config::boolean('testing.e2e') && $this->app->environment(['local', 'testing'])) {
+            $this->app->make(Router::class)->prependMiddlewareToGroup('web', ApplyTestingClock::class);
+        }
 
         $this->commands([
             GenerateTypesCommand::class,
