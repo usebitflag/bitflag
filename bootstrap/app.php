@@ -38,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // The request ID middleware runs first for every route group so every response and log line carries it.
         $middleware->prepend(AssignRequestId::class);
+        $middleware->redirectUsersTo('/');
         $middleware->append(SecurityHeaders::class);
         $middleware->web(append: [ResolveActor::class, HandleInertiaRequests::class]);
     })

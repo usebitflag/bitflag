@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use App\Modules\Analytics\AnalyticsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\Billing\BillingServiceProvider;
@@ -20,21 +21,21 @@ use App\Providers\AppServiceProvider;
 use App\Providers\HorizonServiceProvider;
 
 return [
-    AppServiceProvider::class,
-    HorizonServiceProvider::class,
-    IdentityServiceProvider::class,
-    OrganizationsServiceProvider::class,
-    ProjectsServiceProvider::class,
-    EnvironmentsServiceProvider::class,
-    FlagsServiceProvider::class,
-    TargetingServiceProvider::class,
-    PublishingServiceProvider::class,
-    CredentialsServiceProvider::class,
-    ExperimentsServiceProvider::class,
     AnalyticsServiceProvider::class,
-    IntegrationsServiceProvider::class,
     AuditServiceProvider::class,
     BillingServiceProvider::class,
+    CredentialsServiceProvider::class,
+    EnvironmentsServiceProvider::class,
+    ExperimentsServiceProvider::class,
+    FlagsServiceProvider::class,
+    IdentityServiceProvider::class,
+    IntegrationsServiceProvider::class,
     NotificationsServiceProvider::class,
+    OrganizationsServiceProvider::class,
+    ProjectsServiceProvider::class,
+    PublishingServiceProvider::class,
     SupportServiceProvider::class,
+    TargetingServiceProvider::class,
+    AppServiceProvider::class,
+    HorizonServiceProvider::class,
 ];
