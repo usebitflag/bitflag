@@ -47,7 +47,8 @@ it('gives each person the access the demo describes', function () {
         ->mapWithKeys(fn ($row) => ["{$row->email}:{$row->project}" => $row->role instanceof ProjectRole ? $row->role->value : $row->role])
         ->all());
 
-    expect($roles)->toBe([
+    // The join has no ORDER BY, so compare as a map and ignore the order MySQL returns the rows in.
+    expect($roles)->toEqual([
         'maya@acme.dev:storefront' => 'owner',
         'maya@acme.dev:checkout-api' => 'owner',
         'jon@acme.dev:storefront' => 'publisher',
@@ -60,6 +61,16 @@ it('gives each person the access the demo describes', function () {
     $leo = User::query()->where('email', 'leo@acme.dev')->firstOrFail();
     expect(Tenancy::crossTenant('demo seed check', fn () => ProjectMembership::query()->where('user_id', $leo->id)->count()))->toBe(0)
         ->and(Tenancy::crossTenant('demo seed check', fn () => OrganizationMembership::query()->where('user_id', $leo->id)->count()))->toBe(1);
+});
+
+it('remembers Maya on Storefront in production and nobody else', function () {
+    seedDemo();
+
+    $maya = User::query()->where('email', 'maya@acme.dev')->firstOrFail();
+    $production = Tenancy::crossTenant('demo seed check', fn () => Environment::query()->where('project_id', $maya->last_project_id)->where('key', 'production')->firstOrFail());
+
+    expect($maya->last_environment_id)->toBe($production->id)
+        ->and(User::query()->whereNotNull('last_project_id')->count())->toBe(1);
 });
 
 it('lets the demo people and the staff user sign in with the demo password', function () {

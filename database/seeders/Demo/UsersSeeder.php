@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Config;
 /**
  * The demo people, covering every project role and a person with no project access.
  *
- * Maya owns Acme and both projects. Jon publishes to Storefront and develops Checkout API. Priya develops on
+ * Maya owns Acme and both projects, and her last-used scope is Storefront in production, so signing in takes her there.
+ * The others have no remembered scope. Jon publishes to Storefront and develops Checkout API. Priya develops on
  * Storefront. Ana can only view Storefront. Leo belongs to Acme with no project. Gina owns Globex.
  */
 final class UsersSeeder extends Seeder
@@ -34,12 +35,22 @@ final class UsersSeeder extends Seeder
 
         $password = Config::string('bitflag.demo_password');
         $membership = 0;
+        $remembered = [1 => [OrganizationsSeeder::ACME, ProjectsSeeder::STOREFRONT, 3]];
 
         foreach ($people as $number => [$name, $email, $organization, $orgRole, $projectRoles]) {
             $user = User::query()->find(DemoIds::user($number)) ?? new User;
             $user->forceFill(['id' => DemoIds::user($number), 'name' => $name, 'email' => $email, 'password' => $password, 'email_verified_at' => now(), 'status' => 'active'])->save();
 
             $organizationId = DemoIds::organization($organization);
+
+            if (isset($remembered[$number])) {
+                [$lastOrganization, $lastProject, $lastPosition] = $remembered[$number];
+                $user->forceFill([
+                    'last_organization_id' => DemoIds::organization($lastOrganization),
+                    'last_project_id' => DemoIds::project($lastProject),
+                    'last_environment_id' => DemoIds::environment($lastProject, $lastPosition),
+                ])->save();
+            }
 
             app(TenantContext::class)->run($organizationId, function () use ($number, $user, $organizationId, $orgRole, $projectRoles, &$membership): void {
                 $record = OrganizationMembership::query()->find(DemoIds::organizationMembership($number)) ?? new OrganizationMembership;

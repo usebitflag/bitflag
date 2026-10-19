@@ -116,7 +116,7 @@ Seeders create a demo world:
 - Environments `development`, `staging` and `production`.
 - Users Maya Santos (Org Owner, Owner), Jon Reyes (Publisher), Priya Nair (Developer), Ana Cruz (Viewer) and Leo Ramos (no project access).
 - A second organization, **Globex**, with one project and one person, for isolation checks, and the staff user `support@bitflag.test`.
-- Fixed identifiers, so re-seeding updates the same rows.
+- Fixed identifiers, so re-seeding updates the same rows. Maya's last-used scope is Storefront in production, so signing in takes her there; nobody else has a remembered scope.
 - Flags `new-checkout`, `checkout-layout` and `payment-config`.
 
 Cypress specs run against this seed.
