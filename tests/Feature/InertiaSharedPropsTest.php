@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
+    // The root view calls @vite; these tests check props, not assets, so no build manifest is needed.
+    $this->withoutVite();
     config(['inertia.testing.ensure_pages_exist' => false]);
 
     Route::middleware('web')->get('/_probe', fn () => Inertia::render('Probe'));
