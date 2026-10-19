@@ -14,7 +14,8 @@ Related repositories: `bitflag-protocol` (schemas and fixtures), `bitflag-php` a
 The technical documentation is in `docs/`. Start with `docs/README.md`, then `docs/conventions.md`.
 Do not invent behavior the docs leave open: ask.
 
-The application is not scaffolded yet.
+The application runs in Docker through Laravel Sail (PHP 8.5, Laravel 13, Node 22, MySQL 8.4, Redis 7). See
+`docs/development.md` and `docs/adr/0001-versions.md`.
 
 ## Project Structure
 
@@ -58,11 +59,9 @@ Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`
 
 ## Commands
 
-Available once the application is scaffolded:
+Run everything through Sail; there is no host PHP or Node requirement. Alias it with `alias sail='./vendor/bin/sail'`.
 
-- `./vendor/bin/sail up -d` starts the app, MySQL, Redis, Mailpit, Horizon and the outbox worker.
-- `sail artisan migrate:fresh --seed --seeder=DemoSeeder` resets the demo world.
-- `sail composer test` / `vendor/bin/pest` (add `--group=arch` for architecture tests).
-- `vendor/bin/phpstan analyse`, `vendor/bin/pint --test`.
-- `npm run tokens:check`, `vue-tsc --noEmit`, `vitest run`, `vite build`.
-- `npx cypress run` against Sail.
+- `sail up -d` starts the app, Horizon, MySQL, Redis and Mailpit.
+- `sail artisan migrate` applies migrations; `sail artisan test` runs the tests on real MySQL.
+- `sail composer …` and `sail npm …` for dependencies.
+- `sail npm run build` builds the frontend.

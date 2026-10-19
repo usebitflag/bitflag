@@ -6,6 +6,8 @@ BitFlag is a hosted feature flag management service. People define flags and tar
 
 | Document | Covers |
 | --- | --- |
+| [Local development](development.md) | Running the application with Sail, services, ports, hosts |
+| [Version pins](adr/0001-versions.md) | PHP, Laravel, Node, MySQL and Redis versions and where they are pinned |
 | [Architecture](architecture.md) | System boundaries, modules, design patterns, dependency rules |
 | [Conventions](conventions.md) | Stack, code layout, identifiers, actions, capabilities, errors |
 | [Repository structure](repository-structure.md) | Repositories, application and module layout, SDK boundaries, contract ownership |
