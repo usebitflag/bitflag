@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
+use App\Shared\Errors\ExceptionRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
@@ -33,10 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The request ID middleware runs first for every route group so every response and log line carries it.
+        $middleware->prepend(AssignRequestId::class);
+        $middleware->append(SecurityHeaders::class);
         $middleware->web(append: [HandleInertiaRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*', 'sdk/*') || $request->expectsJson(),
-        );
+        ExceptionRenderer::register($exceptions);
     })->create();

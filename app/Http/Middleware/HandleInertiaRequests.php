@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
             'navigation' => [],
             'can' => (object) [],
             'flash' => ['toast' => null],
-            'requestId' => null,
+            'requestId' => $request->attributes->get(AssignRequestId::ATTRIBUTE),
         ];
     }
 }
