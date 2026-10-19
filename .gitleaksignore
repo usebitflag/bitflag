@@ -1,0 +1,3 @@
+# The header of the generated theme once listed input hashes under a label that looked like a credential.
+# The hashes are public checksums of design files, not secrets, and the header no longer uses that label.
+e9095b245b83372daa2abe058e077cf1569ec521:resources/css/theme.generated.css:generic-api-key:3
