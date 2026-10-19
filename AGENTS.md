@@ -35,8 +35,7 @@ bitflag/
 ├── routes/                   # web.php (+ web/{module}.php), api.php, sdk.php, admin.php, testing.php
 ├── tests/                    # Unit/, Feature/{Module}/, Arch/
 ├── cypress/e2e/              # {area}-{flow}.cy.ts
-├── design/nocturne/          # unchanged base design tokens
-├── design/bitflag/           # reviewed product tokens and component specifications
+├── design/bitflag/           # reviewed design tokens and component specifications
 └── docs/                     # technical documentation
 ```
 
@@ -50,8 +49,7 @@ bitflag/
 - Audit and outbox rows are written in the same transaction as the change.
 - Secrets (keys, tokens, passwords) are never stored, logged, audited or serialized in plaintext.
 - The evaluator is `bitflag-php`; the application never imports its internals.
-- UI work follows `docs/frontend-and-design.md` and `.claude/rules/frontend.md`: use the BitFlag overrides over
-  Nocturne, not the base theme alone. Do not invent reporting semantics from display examples.
+- UI work follows `docs/frontend-and-design.md` and `.claude/rules/frontend.md`: use the BitFlag design tokens. Do not invent reporting semantics from display examples.
 - Every change goes through a pull request. See `.claude/rules/git-workflow.md`.
 
 Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`, `code-style.md`,
@@ -69,4 +67,4 @@ Run everything through Sail; there is no host PHP or Node requirement. Alias it 
 - `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test`, `build` for the frontend.
 - `npm run e2e` runs the Cypress specs on the host against the running application (see `docs/development.md`).
 - `sail npm run tokens` regenerates `resources/css/theme.generated.css`; `tokens:check` fails when it is stale or a
-  contrast pair fails. Never edit the generated file or `design/nocturne/styles.css`.
+  contrast pair fails. Never edit the generated file; change `design/bitflag/` and regenerate.

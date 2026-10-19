@@ -12,9 +12,9 @@
 
 Astro pages should primarily render static content. Add hydrated islands only for useful interactive features, such as a pricing control or copyable interactive example. Portal-style global client state is unnecessary for the entire marketing site. [Astro islands documentation](https://docs.astro.build/en/concepts/islands/)
 
-Design tokens are consistent across products without a monorepo: each repository keeps a reviewed copy of the BitFlag token specification. The portal generates its Tailwind theme from the unchanged Nocturne base in `design/nocturne/` plus the reviewed product overrides in `design/bitflag/`. The product layer owns both theme palettes, semantic roles, typography, spacing, radii, shadows and component dimensions; the base alone does not define the product appearance.
+Design tokens are consistent across products without a monorepo: each repository keeps a reviewed copy of the BitFlag token specification. The portal generates its Tailwind theme from the reviewed tokens in `design/bitflag/`, which own both theme palettes, semantic roles, typography, spacing, radii, shadows and component dimensions.
 
-Keep source checksums and a mapping of overrides with those inputs. `npm run tokens` generates `resources/css/theme.generated.css`; `npm run tokens:check` detects stale output from either input layer and validates contrast. Components consume named theme classes, not raw hex values or default Tailwind palette colors. Fonts are self-hosted; external font imports are excluded from the generated stylesheet.
+Keep source checksums and a mapping of overrides with those inputs. `npm run tokens` generates `resources/css/theme.generated.css`; `npm run tokens:check` detects stale output and validates contrast. Components consume named theme classes, not raw hex values or default Tailwind palette colors. Fonts are self-hosted; external font imports are excluded from the generated stylesheet.
 
 
 

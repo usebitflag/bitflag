@@ -9,8 +9,8 @@ paths:
 ## Theme
 
 - Read `docs/frontend-and-design.md` for the canonical visual, shell and reporting contracts before UI work.
-- The Tailwind theme is generated from the unchanged Nocturne base plus reviewed BitFlag overrides in
-  `design/bitflag/` (`npm run tokens`). Use theme classes (`bg-surface`, `text-text`,
+- The Tailwind theme is generated from the reviewed tokens in `design/bitflag/`
+  (`npm run tokens`). Use theme classes (`bg-surface`, `text-text`,
   `border-divider`). Never write raw hex colors or Tailwind palette colors; lint blocks them.
 - Light is the initial theme; Light, Dark and System are offered in the top bar. Preserve saved preferences and set
   `data-theme` before first paint. Every new component must work in both themes.
@@ -24,7 +24,7 @@ paths:
 - Build on `components/ui` (Reka UI primitives). Each component has typed props, `data-test` hooks and a gallery entry
   at `/_dev/ui`.
 - Primary buttons are filled violet; secondary buttons are bordered. Cards/tables are flat with explicit borders;
-  overlays own elevation. Use the documented component dimensions and radii, not an inherited base-only scale.
+  overlays own elevation. Use the documented component dimensions and radii.
 - Destructive actions confirm in a dialog that names the object. Type-to-confirm keeps the button disabled until
   the typed key matches, regardless of the action's color.
 - Semantic success, warning and danger colors are allowed throughout. Use named tokens, labels/icons and contrast
