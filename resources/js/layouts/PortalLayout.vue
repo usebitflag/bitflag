@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import Banner from '../components/ui/Banner.vue';
 import ToastViewport from '../components/ui/ToastViewport.vue';
 import CommandPalette from '../features/shell/CommandPalette.vue';
@@ -9,6 +9,7 @@ import ProjectSwitcher from '../features/shell/ProjectSwitcher.vue';
 import SidebarNav from '../features/shell/SidebarNav.vue';
 import TopBar from '../features/shell/TopBar.vue';
 import UserMenu from '../features/shell/UserMenu.vue';
+import { useRememberScope } from '../composables/useRememberScope';
 import { useToast } from '../composables/useToast';
 import type { SharedProps } from '../types/shared';
 
@@ -16,7 +17,15 @@ withDefaults(defineProps<{ context?: string }>(), { context: '' });
 
 const page = usePage<SharedProps>();
 const drawerOpen = ref(false);
+const sidebar = ref<HTMLElement | null>(null);
+// From 1024px the sidebar is always visible (a rail, then the full sidebar). Below that it is a drawer, and while the
+// drawer is closed nothing inside it can take focus.
+const desktop = ref(true);
+let media: MediaQueryList | null = null;
+const syncDesktop = () => (desktop.value = media?.matches ?? true);
 const { toast } = useToast();
+
+useRememberScope();
 
 const scope = computed(() => page.props.scope);
 const navigation = computed(() => page.props.navigation);
@@ -37,10 +46,31 @@ watch(
   { immediate: true },
 );
 
+onMounted(() => {
+  if (typeof window.matchMedia !== 'function') return;
+  media = window.matchMedia('(min-width: 1024px)');
+  syncDesktop();
+  media.addEventListener('change', syncDesktop);
+});
+onBeforeUnmount(() => media?.removeEventListener('change', syncDesktop));
+
+function closeDrawer(restoreFocus = true): void {
+  if (!drawerOpen.value) return;
+  drawerOpen.value = false;
+  if (restoreFocus) document.querySelector<HTMLElement>('[data-test="drawer-toggle"]')?.focus();
+}
+
+async function toggleDrawer(): Promise<void> {
+  if (drawerOpen.value) return closeDrawer();
+  drawerOpen.value = true;
+  await nextTick();
+  sidebar.value?.querySelector<HTMLElement>('a, button')?.focus();
+}
+
 // Following a link closes the drawer.
 watch(
   () => page.url,
-  () => (drawerOpen.value = false),
+  () => closeDrawer(false),
 );
 </script>
 
@@ -60,6 +90,8 @@ watch(
     />
 
     <aside
+      ref="sidebar"
+      :inert="!desktop && !drawerOpen"
       :class="[
         'bg-surface border-divider fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r transition-transform',
         'lg:w-14 lg:translate-x-0 xl:w-64',
@@ -67,7 +99,7 @@ watch(
       ]"
       aria-label="Primary"
       data-test="sidebar"
-      @keydown.esc="drawerOpen = false"
+      @keydown.esc="closeDrawer()"
     >
       <div class="border-divider border-b"><ProjectSwitcher :expanded="drawerOpen" /></div>
       <div class="border-divider border-b p-2">
@@ -93,7 +125,7 @@ watch(
       <TopBar
         :context="context || scope.project?.name || ''"
         :environment-name="scope.environment?.name ?? null"
-        @toggle-drawer="drawerOpen = !drawerOpen"
+        @toggle-drawer="toggleDrawer"
       />
       <main id="main" class="flex flex-1 flex-col gap-4 p-6" tabindex="-1">
         <Banner v-if="isViewer" tone="neutral" label="Read-only." data-test="viewer-notice">

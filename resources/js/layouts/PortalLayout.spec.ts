@@ -16,6 +16,8 @@ vi.mock('@inertiajs/vue3', () => ({
   Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
 }));
 
+vi.mock('../composables/useRememberScope', () => ({ useRememberScope: vi.fn() }));
+
 const stubs = {
   EnvironmentPicker: true,
   ProjectSwitcher: true,

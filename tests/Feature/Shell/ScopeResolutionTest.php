@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Identity\Models\User;
 use App\Modules\Projects\Models\Project;
+use App\Shared\Ids\IdPrefix;
+use App\Shared\Ids\PublicId;
 use App\Shared\Tenancy\Tenancy;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -100,9 +102,9 @@ describe('remembering the last scope', function () {
     beforeEach(function () {
         $this->production = Tenancy::crossTenant('read', fn () => Environment::query()->where('project_id', $this->world['storefront']->id)->where('key', 'production')->firstOrFail());
         $this->payload = fn (array $override = []): array => [
-            'organization_id' => $this->world['acme']->id,
-            'project_id' => $this->world['storefront']->id,
-            'environment_id' => $this->production->id,
+            'organization_id' => PublicId::encode(IdPrefix::Organization, $this->world['acme']->id),
+            'project_id' => PublicId::encode(IdPrefix::Project, $this->world['storefront']->id),
+            'environment_id' => PublicId::encode(IdPrefix::Environment, $this->production->id),
             ...$override,
         ];
     });
@@ -123,11 +125,15 @@ describe('remembering the last scope', function () {
     it('rejects an environment that belongs to a different project', function () {
         $other = Tenancy::crossTenant('read', fn () => Environment::query()->where('project_id', $this->world['checkout']->id)->firstOrFail());
 
-        $this->actingAs($this->world['maya'])->postJson('/scope/remember', ($this->payload)(['environment_id' => $other->id]))->assertNotFound();
+        $this->actingAs($this->world['maya'])->postJson('/scope/remember', ($this->payload)(['environment_id' => PublicId::encode(IdPrefix::Environment, $other->id)]))->assertNotFound();
     });
 
     it('rejects malformed input', function () {
         $this->actingAs($this->world['maya'])->postJson('/scope/remember', ['organization_id' => 'x'])->assertUnprocessable();
+    });
+
+    it('answers 404 for an identifier of the wrong type', function () {
+        $this->actingAs($this->world['maya'])->postJson('/scope/remember', ($this->payload)(['project_id' => 'org_'.$this->world['storefront']->id]))->assertNotFound();
     });
 
     it('needs a signed-in person', function () {
