@@ -1,0 +1,8 @@
+title = "BitFlag gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated files that list SHA-256 checksums of design inputs, which are public and not credentials"
+paths = ['''resources/css/theme\.generated\.css''']
