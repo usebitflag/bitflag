@@ -9,6 +9,7 @@ use Tests\Support\TenantQueryGuard;
 use Tests\TestCase;
 
 require_once __DIR__.'/Support/tenancy.php';
+require_once __DIR__.'/Support/people.php';
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
