@@ -36,6 +36,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="LOG_CHANNEL" value="null"/>
         <env name="TESTING_E2E" value="false"/>
         <env name="TESTING_E2E_TOKEN" value=""/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

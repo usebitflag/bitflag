@@ -15,6 +15,7 @@ use App\Shared\Capabilities\EnvironmentProtection;
 use App\Shared\Capabilities\NoEnvironmentProtection;
 use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
+use App\Shared\Http\TrustedProxies;
 use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
 use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Outbox\Console\OutboxReclaimCommand;
@@ -78,6 +79,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TenantColumns::register();
+
+        $proxies = Config::get('bitflag.trusted_proxies');
+        TrustedProxies::apply(is_string($proxies) ? $proxies : null);
 
         // The end-to-end suite can freeze the clock across requests. The middleware exists only where the test routes load.
         if (Config::boolean('testing.e2e') && $this->app->environment(['local', 'testing'])) {

@@ -36,8 +36,8 @@ Source of truth: `docs/architecture.md` and `docs/conventions.md`.
 - Create tenant tables with the `tenantOrganization()`, `tenantProject()`, `tenantEnvironment()` Blueprint
   macros so composite foreign keys and the leading `organization_id` index come by default.
 - Queue jobs implement `TenantAware` and use the `RestoreTenantContext` middleware.
-- `Tenancy::crossTenant($reason, …)` is allowed only for the outbox dispatcher, scheduled maintenance,
-  the admin console and portal scope resolution.
+- `Tenancy::crossTenant($reason, …)` is allowed only in `App\Shared\{Tenancy,Outbox,Idempotency}`, `App\Admin` and
+  `Queries` classes that resolve portal scope or capabilities (an architecture test enforces it).
 
 ## Audit and outbox
 

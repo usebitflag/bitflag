@@ -33,4 +33,17 @@ return [
 
     'demo_password' => env('DEMO_PASSWORD', 'password'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted proxies
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated addresses or CIDR ranges of the load balancers in front
+    | of the application, or * when the platform gives no fixed address. Leave
+    | empty when nothing sits in front of it.
+    |
+    */
+
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
 ];

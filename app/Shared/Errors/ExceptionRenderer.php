@@ -39,6 +39,10 @@ final class ExceptionRenderer
         );
 
         $exceptions->render(static fn (Throwable $e, Request $request): ?Response => $renderer->render($e, $request));
+
+        // Expected client errors (not found, forbidden, conflict, validation) are answered, not reported. Only server
+        // errors reach the log at error level, so probes and stale links cannot bury a real failure.
+        $exceptions->dontReportWhen(static fn (Throwable $e): bool => $e instanceof ApplicationException && $e->httpStatus() < 500);
     }
 
     public static function wantsEnvelope(Request $request): bool
