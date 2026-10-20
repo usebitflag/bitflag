@@ -98,3 +98,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:coverage
       - run: npm run build
+      - name: No committed file matches .gitignore
+        run: bash scripts/ci/clean-tree.sh tracked-ignored
+      - name: The tests and the build leave no stray files
+        run: bash scripts/ci/clean-tree.sh clean
