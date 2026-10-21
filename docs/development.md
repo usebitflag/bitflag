@@ -42,5 +42,6 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | Artisan | `sail artisan …` |
 | Frontend dev server | `sail npm run dev` |
 | Mail inbox | http://localhost:8025 |
+| Admin console | http://admin.localhost (staff sign-in; the Horizon dashboard is at /horizon on the same host) |
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.

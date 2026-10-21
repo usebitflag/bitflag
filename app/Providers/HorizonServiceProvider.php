@@ -4,32 +4,18 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Gate;
+use App\Modules\Support\Queries\ActiveStaff;
 use Laravel\Horizon\Horizon;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
     /**
-     * Bootstrap any application services.
+     * The Horizon dashboard is for active staff only, in every environment. It is served on the admin host and reads the
+     * staff session, so a customer session never reaches it.
      */
-    public function boot(): void
+    protected function authorization(): void
     {
-        parent::boot();
-
-        // Horizon::routeSmsNotificationsTo('15556667777');
-        // Horizon::routeMailNotificationsTo('example@example.com');
-        // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
-    }
-
-    /**
-     * Register the Horizon gate.
-     *
-     * This gate determines who can access Horizon in non-local environments.
-     */
-    protected function gate(): void
-    {
-        // Nobody passes this gate yet. The dashboard is opened to staff through the staff guard on the admin host.
-        Gate::define('viewHorizon', static fn (): bool => false);
+        Horizon::auth(fn (): bool => $this->app->make(ActiveStaff::class)->isSignedIn());
     }
 }

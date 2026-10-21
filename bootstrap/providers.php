@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Admin\AdminPanelProvider;
 use App\Modules\Analytics\AnalyticsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\Billing\BillingServiceProvider;
@@ -21,6 +22,7 @@ use App\Providers\AppServiceProvider;
 use App\Providers\HorizonServiceProvider;
 
 return [
+    AdminPanelProvider::class,
     AnalyticsServiceProvider::class,
     AuditServiceProvider::class,
     BillingServiceProvider::class,

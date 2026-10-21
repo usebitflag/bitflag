@@ -6,6 +6,8 @@ namespace App\Modules\Support\Models;
 
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
 use Database\Factories\StaffUserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,7 +23,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $status
  */
 #[UseFactory(StaffUserFactory::class)]
-class StaffUser extends Authenticatable
+class StaffUser extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<StaffUserFactory> */
     use HasFactory, HasUlids, UsesMicrosecondTimestamps;
@@ -33,6 +35,11 @@ class StaffUser extends Authenticatable
 
     /** @var list<string> */
     protected $hidden = ['password', 'remember_token'];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->status === 'active';
+    }
 
     /**
      * @return array<string, string>
