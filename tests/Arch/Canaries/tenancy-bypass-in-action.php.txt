@@ -1,0 +1,18 @@
+// expect: arch
+// fails: TenancyBypassTest
+//// app/Modules/Billing/Actions/CanaryBypassesTenancy.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Actions;
+
+use App\Shared\Tenancy\Tenancy;
+
+final class CanaryBypassesTenancy
+{
+    public function handle(): int
+    {
+        return Tenancy::crossTenant('canary', fn (): int => 1);
+    }
+}

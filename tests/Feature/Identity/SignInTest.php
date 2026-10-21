@@ -57,6 +57,18 @@ it('slows repeated failures down', function () {
     $this->assertGuest('web');
 });
 
+it('slows trying many different accounts from one network', function () {
+    RateLimiter::clear('ip|127.0.0.1');
+
+    foreach (range(1, 30) as $attempt) {
+        $this->post('/signin', ['email' => "someone{$attempt}@acme.dev", 'password' => 'wrong'])->assertStatus(302);
+    }
+
+    $this->post('/signin', ['email' => 'another@acme.dev', 'password' => 'wrong'])->assertStatus(429);
+
+    RateLimiter::clear('ip|127.0.0.1');
+});
+
 it('sends a signed-in person away from the sign-in screen', function () {
     $this->actingAs($this->user)->get('/signin')->assertRedirect('/');
 });

@@ -28,6 +28,8 @@ Use separate production, staging, and development databases, caches, queues, sto
 
 Read secrets from a managed secret mechanism, not committed environment files. Limit database and storage access by service role. Encrypt traffic and stored secrets/backups, rotate access keys, and document recovery of encryption keys. Losing decryption material can make a nominally successful backup useless.
 
+Behind a load balancer, set `TRUSTED_PROXIES` to the balancer's addresses (or `*` when the platform gives none) so the application reads the client address and original scheme from the forwarding headers; without it, secure cookies, generated URLs and per-address rate limits see only the balancer. The session cookie is `Secure` in production unless `SESSION_SECURE_COOKIE=false` is set. The application serves a `robots.txt` that disallows crawling, and expected client errors (404, 403, 409, 422) are answered without being reported, so the error log holds server failures.
+
 Long-running workers and application servers must reset tenant/request context. Authenticate streaming connections and define reauthentication, maximum lifetime, revocation, reconnect, and backpressure behavior. Deployment reloads must not lose committed publication intents.
 
 ## 3. Publication and runtime reliability

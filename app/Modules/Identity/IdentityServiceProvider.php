@@ -35,12 +35,16 @@ final class IdentityServiceProvider extends ServiceProvider
                 : null;
         });
 
-        // Five attempts a minute for one address from one network.
-        RateLimiter::for('login', function (Request $request): Limit {
+        // Five attempts a minute for one address from one network, and thirty a minute from one network whatever the
+        // address, so trying many different accounts from one place is slowed too.
+        RateLimiter::for('login', function (Request $request): array {
             $email = $request->input(Fortify::username());
             $key = Str::transliterate(Str::lower(is_string($email) ? $email : '').'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($key);
+            return [
+                Limit::perMinute(5)->by($key),
+                Limit::perMinute(30)->by('ip|'.$request->ip()),
+            ];
         });
     }
 }
