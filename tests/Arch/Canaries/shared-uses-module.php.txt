@@ -1,0 +1,18 @@
+// expect: arch
+// fails: SharedTest
+//// app/Shared/CanaryUsesModule.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shared;
+
+use App\Modules\Flags\FlagsServiceProvider;
+
+final class CanaryUsesModule
+{
+    public function provider(): string
+    {
+        return FlagsServiceProvider::class;
+    }
+}

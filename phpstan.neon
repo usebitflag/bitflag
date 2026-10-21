@@ -1,6 +1,12 @@
 includes:
     - vendor/larastan/larastan/extension.neon
 
+services:
+    -
+        class: Tools\PHPStan\Rules\NoModelWritesOutsideActionsRule
+        tags:
+            - phpstan.rules.rule
+
 parameters:
     level: max
     paths:

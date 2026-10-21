@@ -1,0 +1,18 @@
+// expect: arch
+// fails: EvaluatorBoundaryTest
+//// app/Modules/Billing/Actions/CanaryUsesEvaluator.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Actions;
+
+use BitFlag\Evaluation\Internal\Hasher;
+
+final class CanaryUsesEvaluator
+{
+    public function handle(): string
+    {
+        return Hasher::class;
+    }
+}

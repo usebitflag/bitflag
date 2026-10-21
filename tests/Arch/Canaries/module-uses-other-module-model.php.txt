@@ -1,0 +1,28 @@
+// expect: arch
+// fails: ModuleBoundariesTest
+//// app/Modules/Flags/Models/CanaryFlag.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Flags\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+final class CanaryFlag extends Model {}
+//// app/Modules/Billing/Actions/CanaryUsesFlagsModel.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Actions;
+
+use App\Modules\Flags\Models\CanaryFlag;
+
+final class CanaryUsesFlagsModel
+{
+    public function handle(): string
+    {
+        return CanaryFlag::class;
+    }
+}

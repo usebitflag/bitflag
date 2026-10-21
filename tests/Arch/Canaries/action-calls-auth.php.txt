@@ -1,0 +1,16 @@
+// expect: arch
+// fails: ActionsTest
+//// app/Modules/Billing/Actions/CanaryAction.php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Actions;
+
+final class CanaryAction
+{
+    public function handle(): mixed
+    {
+        return auth()->user();
+    }
+}
