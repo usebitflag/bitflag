@@ -53,9 +53,14 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
-    // Inertia page components are named by their path, for example errors/Error.
-    files: ['resources/js/pages/**/*.vue'],
+    // Inertia pages are named by their path (errors/Error) and UI primitives by what they are (Button, Tag).
+    files: ['resources/js/pages/**/*.vue', 'resources/js/components/ui/**/*.vue'],
     rules: { 'vue/multi-word-component-names': 'off' },
+  },
+  {
+    // TypeScript marks optional props; Vue's default-value requirement adds noise for optional-by-nature props.
+    files: ['resources/js/**/*.vue'],
+    rules: { 'vue/require-default-prop': 'off' },
   },
   prettier,
 );
