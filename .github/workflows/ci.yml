@@ -131,3 +131,56 @@ jobs:
         run: bash scripts/ci/clean-tree.sh tracked-ignored
       - name: The tests and the build leave no stray files
         run: bash scripts/ci/clean-tree.sh clean
+
+  e2e:
+    needs: [backend-test, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # Sail runs the application, so it needs the Composer dependencies on the host first.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+      - run: cp .env.e2e .env
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: php artisan key:generate
+      - name: Run the containers as the runner user
+        run: |
+          echo "WWWUSER=$(id -u)" >> "$GITHUB_ENV"
+          echo "WWWGROUP=$(id -g)" >> "$GITHUB_ENV"
+      - run: ./vendor/bin/sail up -d --wait
+      - run: ./vendor/bin/sail artisan migrate:fresh --seed --seeder=DemoSeeder --force
+      - run: ./vendor/bin/sail npm ci
+      - run: ./vendor/bin/sail npm run build
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # Cypress 16 does not download its browser binary during npm ci, so install and cache it explicitly.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm ci
+      - run: npx cypress install
+      - uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          wait-on: http://localhost/up
+          wait-on-timeout: 120
+      - name: Show the application log when a spec fails
+        if: failure()
+        run: ./vendor/bin/sail artisan about --only=environment; tail -n 100 storage/logs/laravel.log || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-failures
+          path: |
+            cypress/screenshots
+            cypress/videos
+          if-no-files-found: ignore
