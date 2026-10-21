@@ -45,6 +45,8 @@ Source of truth: `docs/architecture.md` and `docs/conventions.md`.
 - Outbox payloads carry IDs and versions only: never secrets, rule contents or subject data. Use the webhook event
   names where one exists; other messages are prefixed `internal.`.
 - Consumers are idempotent. Receipts in MySQL are the work list; Redis jobs are only signals.
+- `outbox:prune` deletes only messages whose receipts all succeeded before the retention period; never delete or
+  edit outstanding work by hand. `outbox:status` shows the backlog and the age of the oldest overdue work.
 - Never call an external service inside a database transaction.
 
 ## Boundaries that must hold

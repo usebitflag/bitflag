@@ -18,8 +18,10 @@ use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Http\TrustedProxies;
 use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
 use App\Shared\Navigation\PortalNavigation;
+use App\Shared\Outbox\Console\OutboxPruneCommand;
 use App\Shared\Outbox\Console\OutboxReclaimCommand;
 use App\Shared\Outbox\Console\OutboxRecoverCommand;
+use App\Shared\Outbox\Console\OutboxStatusCommand;
 use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
@@ -93,6 +95,8 @@ class AppServiceProvider extends ServiceProvider
             IdempotencyPruneCommand::class,
             OutboxWorkCommand::class,
             OutboxReclaimCommand::class,
+            OutboxPruneCommand::class,
+            OutboxStatusCommand::class,
             OutboxRecoverCommand::class,
         ]);
     }

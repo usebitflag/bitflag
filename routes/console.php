@@ -16,4 +16,7 @@ Schedule::command('idempotency:prune')->hourly();
 Schedule::command('outbox:reclaim')->everyMinute()->withoutOverlapping();
 Schedule::command('outbox:recover')->everyMinute()->withoutOverlapping();
 
+// Delivered messages are deleted after the retention period; anything still outstanding is kept.
+Schedule::command('outbox:prune')->dailyAt('03:15')->withoutOverlapping()->onOneServer();
+
 Schedule::command('horizon:snapshot')->everyFiveMinutes();
