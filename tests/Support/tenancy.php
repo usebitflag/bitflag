@@ -33,7 +33,7 @@ function assertTenantIsolated(string $modelClass, Closure $createFor, bool $muta
             ->and($modelClass::query()->find($foreign->getKey()))->toBeNull();
 
         if ($mutable) {
-            expect($modelClass::query()->whereKey($foreign->getKey())->update(['updated_at' => now()]))->toBe(0)
+            expect($modelClass::query()->whereKey($foreign->getKey())->update(['organization_id' => $foreign->getAttribute('organization_id')]))->toBe(0)
                 ->and($modelClass::query()->whereKey($foreign->getKey())->delete())->toBe(0);
         }
 

@@ -12,6 +12,7 @@ use App\Shared\Capabilities\EnvironmentProtection;
 use App\Shared\Capabilities\NoEnvironmentProtection;
 use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
+use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
 use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Outbox\Console\OutboxReclaimCommand;
 use App\Shared\Outbox\Console\OutboxRecoverCommand;
@@ -68,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->commands([
             GenerateTypesCommand::class,
+            IdempotencyPruneCommand::class,
             OutboxWorkCommand::class,
             OutboxReclaimCommand::class,
             OutboxRecoverCommand::class,

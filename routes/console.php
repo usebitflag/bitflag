@@ -10,6 +10,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('idempotency:prune')->hourly();
+
 // Outbox: release claims whose worker died, and rebuild outstanding work from the receipts.
 Schedule::command('outbox:reclaim')->everyMinute()->withoutOverlapping();
 Schedule::command('outbox:recover')->everyMinute()->withoutOverlapping();

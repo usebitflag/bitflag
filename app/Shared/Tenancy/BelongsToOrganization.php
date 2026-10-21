@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Tenancy;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -46,5 +47,22 @@ trait BelongsToOrganization
                 throw CrossTenantWrite::between($model::class, $contextOrganization, $rowOrganization);
             }
         });
+    }
+
+    /**
+     * Updates and deletes of a saved model target its primary key. Adding the organization as well means a write can
+     * never touch a row of another organization, even if the key were guessed.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    protected function setKeysForSaveQuery($query)
+    {
+        $organizationId = $this->getRawOriginal('organization_id') ?? $this->getAttribute('organization_id');
+
+        // The parent narrows the same builder to the key; the organization predicate is added to it as well.
+        parent::setKeysForSaveQuery($query)->where($this->qualifyColumn('organization_id'), $organizationId);
+
+        return $query;
     }
 }
