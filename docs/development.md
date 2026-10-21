@@ -35,6 +35,7 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | Start and stop | `sail up -d`, `sail down` |
 | Run tests | `sail bin pest` (`--parallel`, `--group=arch`) |
 | PHP style and static analysis | `sail bin pint --test`, `sail bin phpstan analyse` |
+| Regenerate the theme | `sail npm run tokens` (`tokens:check` verifies it) |
 | Frontend checks | `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test` |
 | Artisan | `sail artisan …` |
 | Frontend dev server | `sail npm run dev` |

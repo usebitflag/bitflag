@@ -1,0 +1,22 @@
+Reviewed product design inputs. tokens.json and components.json are extracted by hand from two design sources and
+checked in, so the application does not depend on those sources at build time.
+
+Sources (SHA-256 at extraction):
+- bitflag-theme.css (shared component styling: buttons, tags, inputs, cards, tables, dialogs): 519bc55f75f69af87279b47e5c50c29259b332dd330dadd4d359009e8d065916
+- BitFlag Overview (shell layout and the light and dark colour roles): ca14ebe91bda8b47180cfca57f2429204c8ae511cf70a47ee757133abb3e5dbf
+- design/nocturne/styles.css (base, unchanged): 6fea354710ec4e3b2b979b723ed37d8e8959bb7d9137425d0d562b4ad8733cda
+
+Mapping notes
+- Colour roles come from the Overview shell. Component dimensions and radii come from the shared theme.
+- Where the sources disagree, the Overview wins for roles and the shared theme wins for component geometry.
+- Source colours that failed contrast were darkened in tokens.json, not the threshold relaxed:
+  - Light success text #059669 (3.8:1) became #047857 on white. The original stays as the success marker colour.
+  - Light warning and danger text use darker steps (#92400e, #b91c1c) so labels stay legible on their tinted backgrounds.
+  - The source divider colours (about 1.2:1) are kept for decorative rules only. Form control boundaries use a separate
+    control-border role at 3:1 or more.
+- The source "faint" text colour (2.5:1) is dropped; muted is the lowest-emphasis text role.
+- Source rgba overlays (borders, hover, soft fills) are resolved to concrete colours so contrast can be verified.
+- The shared theme has no focus-visible background; the 2px accent outline with 2px offset is kept.
+
+Fonts: Inter and Azeret Mono are served from the application through @fontsource-variable/inter and
+@fontsource-variable/azeret-mono (both SIL Open Font License 1.1). The npm lockfile pins the font files.

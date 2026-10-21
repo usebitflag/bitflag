@@ -103,6 +103,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run tokens:check
       - run: npm run lint
       - run: npm run format:check
       - run: npm run stylelint

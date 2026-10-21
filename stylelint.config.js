@@ -21,5 +21,7 @@ export default {
       },
     ],
     'import-notation': 'string',
+    'color-no-hex': true,
+    'color-named': 'never',
   },
 };

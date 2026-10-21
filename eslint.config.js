@@ -30,7 +30,24 @@ export default tseslint.config(
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ['*.{js,ts}', 'cypress/**/*.ts'],
+    files: ['resources/**/*.{js,ts,vue}'],
+    rules: {
+      // Colours come from the generated theme, never from literals in components.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/^#[0-9a-fA-F]{3,8}$/]',
+          message: 'Use a theme colour class or variable instead of a hex literal.',
+        },
+        {
+          selector: 'TemplateElement[value.raw=/#[0-9a-fA-F]{6}/]',
+          message: 'Use a theme colour class or variable instead of a hex literal.',
+        },
+      ],
+    },
+  },
+  {
+    files: ['*.{js,ts}', 'cypress/**/*.ts', 'scripts/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
   prettier,
