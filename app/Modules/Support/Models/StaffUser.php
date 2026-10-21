@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Support\Models;
 
+use App\Modules\Support\Domain\StaffStatus;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
 use Database\Factories\StaffUserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -20,7 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $id
  * @property string $name
  * @property string $email
- * @property string $status
+ * @property StaffStatus $status
  */
 #[UseFactory(StaffUserFactory::class)]
 class StaffUser extends Authenticatable implements FilamentUser
@@ -38,7 +39,7 @@ class StaffUser extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->status === 'active';
+        return $this->status === StaffStatus::Active;
     }
 
     /**
@@ -46,6 +47,6 @@ class StaffUser extends Authenticatable implements FilamentUser
      */
     protected function casts(): array
     {
-        return ['password' => 'hashed'];
+        return ['password' => 'hashed', 'status' => StaffStatus::class];
     }
 }

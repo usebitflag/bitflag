@@ -15,9 +15,9 @@ return new class extends Migration
             $table->tenantProject();
             $table->string('name', 40);
             $table->string('key', 40);
-            $table->enum('color', ['slate', 'lilac', 'violet', 'indigo', 'ink']);
+            $table->string('color', 32);
             $table->unsignedSmallInteger('position');
-            $table->enum('status', ['active', 'archived'])->default('active');
+            $table->string('status', 32)->default('active');
             $table->timestamps(6);
 
             $table->unique(['organization_id', 'project_id', 'key']);

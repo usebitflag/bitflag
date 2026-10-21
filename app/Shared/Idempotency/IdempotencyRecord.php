@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $operation
  * @property string $idempotency_key
  * @property string $request_fingerprint
- * @property string $status
+ * @property IdempotencyStatus $status
  * @property int|null $response_status
  * @property array{body: array<array-key, mixed>, had_secret: bool}|null $response_body
  * @property string|null $result_type
@@ -48,6 +48,7 @@ final class IdempotencyRecord extends Model
     protected function casts(): array
     {
         return [
+            'status' => IdempotencyStatus::class,
             'response_body' => 'array',
             'created_at' => 'immutable_datetime',
             'completed_at' => 'immutable_datetime',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Modules\Organizations\Models\Organization;
+use App\Modules\Projects\Domain\ProjectStatus;
 use App\Modules\Projects\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -26,7 +27,7 @@ class ProjectFactory extends Factory
             'name' => Str::title($name),
             'key' => Str::slug($name).'-'.fake()->unique()->numerify('###'),
             'description' => null,
-            'status' => 'active',
+            'status' => ProjectStatus::Active,
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Modules\Support\Domain\StaffStatus;
 use App\Modules\Support\Models\StaffUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +22,7 @@ class StaffUserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->userName().'@bitflag.test',
             'password' => 'password',
-            'status' => 'active',
+            'status' => StaffStatus::Active,
         ];
     }
 }

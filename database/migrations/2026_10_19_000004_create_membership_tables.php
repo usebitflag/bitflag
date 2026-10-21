@@ -14,7 +14,7 @@ return new class extends Migration
             $table->char('id', 26)->primary();
             $table->tenantOrganization();
             $table->char('user_id', 26);
-            $table->enum('role', ['owner', 'member']);
+            $table->string('role', 32);
             $table->timestamps(6);
 
             $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->char('id', 26)->primary();
             $table->tenantProject();
             $table->char('user_id', 26);
-            $table->enum('role', ['owner', 'publisher', 'developer', 'viewer']);
+            $table->string('role', 32);
             $table->timestamps(6);
 
             $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();

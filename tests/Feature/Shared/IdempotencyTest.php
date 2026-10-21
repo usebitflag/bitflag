@@ -8,6 +8,7 @@ use App\Shared\Idempotency\IdempotencyKeyReused;
 use App\Shared\Idempotency\IdempotencyOutcome;
 use App\Shared\Idempotency\IdempotencyRecord;
 use App\Shared\Idempotency\IdempotencyScope;
+use App\Shared\Idempotency\IdempotencyStatus;
 use App\Shared\Idempotency\OperationResult;
 use App\Shared\Idempotency\RequestFingerprint;
 use App\Shared\Persistence\TransactionGuard;
@@ -48,7 +49,7 @@ it('runs the operation the first time and stores the result', function () {
 
     $record = Tenancy::crossTenant('inspect', fn () => IdempotencyRecord::query()->firstOrFail());
 
-    expect($record->status)->toBe('completed')
+    expect($record->status)->toBe(IdempotencyStatus::Completed)
         ->and($record->response_status)->toBe(201)
         ->and($record->result_type)->toBe('revision')
         ->and($record->expires_at?->format('Y-m-d H:i:s'))->toBe('2026-10-20 10:00:00');

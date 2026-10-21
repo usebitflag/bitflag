@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name', 80);
             $table->string('key', 40);
             $table->string('description', 280)->nullable();
-            $table->enum('status', ['active', 'archived', 'deletion_scheduled', 'deleted'])->default('active');
+            $table->string('status', 32)->default('active');
             $table->timestamps(6);
 
             $table->unique(['organization_id', 'key']);

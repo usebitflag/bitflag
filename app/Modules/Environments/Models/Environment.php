@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Environments\Models;
 
+use App\Modules\Environments\Domain\EnvironmentColor;
+use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -20,9 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $project_id
  * @property string $name
  * @property string $key
- * @property string $color
+ * @property EnvironmentColor $color
  * @property int $position
- * @property string $status
+ * @property EnvironmentStatus $status
  */
 #[UseFactory(EnvironmentFactory::class)]
 class Environment extends Model
@@ -35,5 +37,16 @@ class Environment extends Model
     public static function publicIdPrefix(): IdPrefix
     {
         return IdPrefix::Environment;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'color' => EnvironmentColor::class,
+            'status' => EnvironmentStatus::class,
+        ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Projects\Models;
 
+use App\Modules\Projects\Domain\ProjectStatus;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $key
  * @property string|null $description
- * @property string $status
+ * @property ProjectStatus $status
  */
 #[UseFactory(ProjectFactory::class)]
 class Project extends Model
@@ -33,5 +34,15 @@ class Project extends Model
     public static function publicIdPrefix(): IdPrefix
     {
         return IdPrefix::Project;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => ProjectStatus::class,
+        ];
     }
 }

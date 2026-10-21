@@ -10,6 +10,6 @@ final readonly class OrganizationSummary
         public string $id,
         public string $slug,
         public string $name,
-        public string $status,
+        public bool $active,
     ) {}
 }

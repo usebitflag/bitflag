@@ -80,7 +80,7 @@ final class Idempotency
             $result = $operation();
 
             $record->forceFill([
-                'status' => 'completed',
+                'status' => IdempotencyStatus::Completed,
                 'response_status' => $result->status,
                 'response_body' => ['body' => $result->body, 'had_secret' => $result->hasOneTimeSecrets()],
                 'result_type' => $result->resultType,
@@ -118,7 +118,7 @@ final class Idempotency
                 'operation' => $scope->operation,
                 'idempotency_key' => $key,
                 'request_fingerprint' => $fingerprint,
-                'status' => 'in_progress',
+                'status' => IdempotencyStatus::InProgress,
                 'created_at' => $now,
                 'expires_at' => $now->modify('+'.Config::integer('idempotency.ttl_hours', 24).' hours'),
             ]);
@@ -143,7 +143,7 @@ final class Idempotency
             throw new IdempotencyKeyReused;
         }
 
-        if ($record->status !== 'completed' || $record->response_body === null) {
+        if ($record->status !== IdempotencyStatus::Completed || $record->response_body === null) {
             throw new IdempotencyInProgress;
         }
 

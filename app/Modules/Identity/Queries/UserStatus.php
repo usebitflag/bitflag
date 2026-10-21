@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Queries;
 
+use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Models\User;
 
 /**
@@ -13,6 +14,6 @@ final class UserStatus
 {
     public function isActive(string $userId): bool
     {
-        return User::query()->whereKey($userId)->where('status', 'active')->exists();
+        return User::query()->whereKey($userId)->where('status', AccountStatus::Active->value)->exists();
     }
 }

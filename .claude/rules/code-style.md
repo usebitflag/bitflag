@@ -8,8 +8,9 @@
 - No `dd`, `dump`, `ray` or `var_dump`. `env()` only inside `config/`.
 - Lifecycle is an explicit `status` column. No soft deletes for domain records.
 - Timestamps are UTC `timestamp(6)`. Migrations stay globally ordered in `database/migrations`.
-- Enums that are stored in the database get a backed string value; add values freely, never change or
-  remove an existing value without a migration.
+- A fixed-value column is `$table->string('status', 32)` with a backed PHP enum cast on the model, never
+  `$table->enum()` or `set()` (an architecture test enforces it). Add values freely; never change or remove an
+  existing value without a data migration.
 - Dependencies point downward: `Shared` knows no module; a module's `Domain` knows no framework HTTP types.
 
 ## TypeScript and Vue

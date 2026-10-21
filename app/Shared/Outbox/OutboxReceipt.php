@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property string $id
  * @property string $outbox_message_id
- * @property string $scope
+ * @property OutboxScope $scope
  * @property string|null $organization_id
  * @property string|null $user_id
  * @property string $consumer
@@ -49,6 +49,7 @@ final class OutboxReceipt extends Model
     protected function casts(): array
     {
         return [
+            'scope' => OutboxScope::class,
             'status' => ReceiptStatus::class,
             'next_attempt_at' => 'immutable_datetime',
             'processed_at' => 'immutable_datetime',

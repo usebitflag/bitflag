@@ -13,12 +13,12 @@ return new class extends Migration
         Schema::create('audit_events', function (Blueprint $table) {
             $table->char('id', 26)->primary();
             $table->tenantEnvironment(nullable: true);
-            $table->enum('actor_type', ['user', 'management_token', 'system', 'support']);
+            $table->string('actor_type', 32);
             $table->char('actor_id', 26)->nullable();
             $table->string('actor_display', 120);
             $table->char('via_token_id', 26)->nullable();
             $table->char('token_creator_id', 26)->nullable();
-            $table->enum('channel', ['dashboard', 'api', 'cli', 'mcp', 'system', 'support']);
+            $table->string('channel', 32);
             $table->string('action', 64);
             $table->string('target_type', 32);
             $table->char('target_id', 26)->nullable();

@@ -15,7 +15,7 @@ return new class extends Migration
         // organization (sign-up, password reset) carry user_id; platform maintenance carries neither.
         Schema::create('outbox_messages', function (Blueprint $table) {
             $table->char('id', 26)->primary();
-            $table->enum('scope', ['organization', 'account', 'system']);
+            $table->string('scope', 32);
             $table->char('organization_id', 26)->nullable();
             $table->char('user_id', 26)->nullable();
             $table->char('project_id', 26)->nullable();
@@ -43,11 +43,11 @@ return new class extends Migration
         Schema::create('outbox_receipts', function (Blueprint $table) {
             $table->char('id', 26)->primary();
             $table->char('outbox_message_id', 26);
-            $table->enum('scope', ['organization', 'account', 'system']);
+            $table->string('scope', 32);
             $table->char('organization_id', 26)->nullable();
             $table->char('user_id', 26)->nullable();
             $table->string('consumer', 100);
-            $table->enum('status', ['pending', 'processing', 'succeeded', 'failed', 'exhausted'])->default('pending');
+            $table->string('status', 32)->default('pending');
             $table->unsignedSmallInteger('attempts')->default(0);
             $table->timestamp('next_attempt_at', 6)->nullable();
             $table->timestamp('processed_at', 6)->nullable();

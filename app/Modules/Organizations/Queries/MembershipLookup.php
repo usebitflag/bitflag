@@ -6,6 +6,7 @@ namespace App\Modules\Organizations\Queries;
 
 use App\Modules\Organizations\Data\OrganizationAccess;
 use App\Modules\Organizations\Data\OrganizationSummary;
+use App\Modules\Organizations\Domain\OrganizationStatus;
 use App\Modules\Organizations\Models\Organization;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Models\ProjectMembership;
@@ -85,7 +86,7 @@ final class MembershipLookup
 
                 if ($membership instanceof OrganizationMembership) {
                     $access[] = new OrganizationAccess(
-                        new OrganizationSummary($organization->id, $organization->slug, $organization->name, $organization->status),
+                        new OrganizationSummary($organization->id, $organization->slug, $organization->name, $organization->status === OrganizationStatus::Active),
                         $membership->role,
                     );
                 }
