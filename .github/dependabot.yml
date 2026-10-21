@@ -11,6 +11,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # bitflag-php is upgraded on purpose, together with protocol.lock.json and its changelog link.
+    ignore:
+      - dependency-name: bitflag/bitflag-php
     groups:
       composer:
         patterns: ['*']
