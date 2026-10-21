@@ -68,7 +68,8 @@ Application rollback restores a compatible artifact; feature configuration rollb
 
 Runbooks are documented and rehearsed for:
 
-- Failed publication delivery: inspect committed revision/outbox, replay safely, validate newest snapshot availability.
+- Failed publication delivery: inspect committed revision/outbox, replay safely, validate newest snapshot availability. `php artisan outbox:status` shows the backlog, receipts by state and the age of the oldest overdue work; `--max-lag=SECONDS` and `--fail-on-exhausted` make it a monitoring check (a stopped worker fails nothing, so work that sits is the signal), and `--json` is for tooling.
+- Outbox housekeeping: `outbox:prune` runs daily and deletes a message and its receipts once it was dispatched and every receipt succeeded more than `OUTBOX_RETENTION_DAYS` (default 14) ago. A message with a pending, processing, failed or exhausted receipt is never deleted. `--dry-run` reports the count; `--days` overrides the period.
 - Credential compromise: revoke/rotate, inspect access, invalidate appropriate delivery paths, communicate offline-cache limitations.
 - Queue/cache outage: capacity protection, priority recovery, duplicate-safe replay, no cross-tenant cache contamination.
 - Provider outage: integration degradation without blocking local evaluation/publication, bounded retry, reconnect and reconciliation.
