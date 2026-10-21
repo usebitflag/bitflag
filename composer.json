@@ -11,7 +11,8 @@
         "laravel/framework": "^13.17",
         "laravel/horizon": "^5.50",
         "laravel/tinker": "^3.0",
-        "laravel/wayfinder": "^0.1.23"
+        "laravel/wayfinder": "^0.1.23",
+        "psr/clock": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
