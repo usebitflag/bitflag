@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Projects\Queries;
 
-use App\Models\User;
+use App\Modules\Identity\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

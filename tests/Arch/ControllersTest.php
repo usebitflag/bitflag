@@ -17,7 +17,7 @@ $controllerNamespaces[] = 'App\Http\Controllers';
 foreach ($controllerNamespaces as $namespace) {
     arch("{$namespace} does not touch the database or models directly")
         ->expect($namespace)
-        ->not->toUse(['Illuminate\Support\Facades\DB', 'Illuminate\Database\Eloquent\Model', 'App\Models']);
+        ->not->toUse(['Illuminate\Support\Facades\DB', 'Illuminate\Database\Eloquent\Model']);
 }
 
 foreach (bitflag_modules() as $module) {

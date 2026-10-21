@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Projects\Http\Controllers\Web;
 
-use App\Models\User;
+use App\Modules\Identity\Models\User;
 
 final class CanaryWriter
 {
