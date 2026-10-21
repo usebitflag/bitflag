@@ -17,3 +17,8 @@ parameters:
         - routes
     excludePaths:
         - bootstrap/cache
+    ignoreErrors:
+        # No model uses the trait yet. This entry fails the analysis as soon as one does, which is the cue to remove it.
+        -
+            identifier: trait.unused
+            path: app/Shared/Ids/HasPublicId.php

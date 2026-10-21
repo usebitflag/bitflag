@@ -50,5 +50,10 @@ export default tseslint.config(
     files: ['*.{js,ts}', 'cypress/**/*.ts', 'scripts/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
+  {
+    // Inertia page components are named by their path, for example errors/Error.
+    files: ['resources/js/pages/**/*.vue'],
+    rules: { 'vue/multi-word-component-names': 'off' },
+  },
   prettier,
 );
