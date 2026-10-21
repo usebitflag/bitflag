@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // A module's internals are private to the module. Other modules use its Actions, Data, Queries, Events and
 // Domain\Exceptions only. Filament resources in App\Admin may use models, and migrations and seeders in
-// database/ and config/ may use anything.
+// database/, config/, routes/ and bootstrap/ wire modules together and may use anything.
 
 /**
  * Every reference from application code to another module's private layers.
@@ -24,7 +24,7 @@ function module_boundary_violations(string $root): array
         $path = str_replace('\\', '/', $file->getPathname());
         $relative = ltrim(substr($path, strlen(str_replace('\\', '/', $root))), '/');
 
-        if (preg_match('#^(database|tests|config)/#', $relative) === 1) {
+        if (preg_match('#^(database|tests|config|routes|bootstrap)/#', $relative) === 1) {
             continue;
         }
 
