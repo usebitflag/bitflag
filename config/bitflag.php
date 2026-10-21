@@ -20,4 +20,17 @@ return [
         'admin' => env('ADMIN_HOST', 'admin.localhost'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Demo data
+    |--------------------------------------------------------------------------
+    |
+    | DemoSeeder builds the sample world used for local development and the
+    | end-to-end tests. It refuses to run in production. Every demo person
+    | signs in with this password.
+    |
+    */
+
+    'demo_password' => env('DEMO_PASSWORD', 'password'),
+
 ];
