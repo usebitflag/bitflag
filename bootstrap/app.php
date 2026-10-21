@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -18,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::prefix('sdk/v1')->group(base_path('routes/sdk.php'));
 
             // Admin console routes live on the admin host only.
-            Route::domain(config('bitflag.hosts.admin'))
+            Route::domain(Config::string('bitflag.hosts.admin'))
                 ->middleware('web')
                 ->group(base_path('routes/admin.php'));
 

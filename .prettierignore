@@ -1,0 +1,16 @@
+/vendor
+/node_modules
+/public
+/storage
+/bootstrap/cache
+/docs
+/coverage
+*.md
+*.php
+*.blade.php
+composer.lock
+package-lock.json
+resources/css/theme.generated.css
+composer.json
+compose.yaml
+pint.json

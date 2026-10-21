@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
@@ -27,10 +29,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewHorizon', function ($user = null) {
-            return in_array(optional($user)->email, [
-                //
-            ]);
-        });
+        // Nobody passes this gate yet. The dashboard is opened to staff through the staff guard on the admin host.
+        Gate::define('viewHorizon', static fn (): bool => false);
     }
 }

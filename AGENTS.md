@@ -62,6 +62,8 @@ Detailed rules live in `.claude/rules/`: `architecture.md`, `api-conventions.md`
 Run everything through Sail; there is no host PHP or Node requirement. Alias it with `alias sail='./vendor/bin/sail'`.
 
 - `sail up -d` starts the app, Horizon, MySQL, Redis and Mailpit.
-- `sail artisan migrate` applies migrations; `sail artisan test` runs the tests on real MySQL.
-- `sail composer …` and `sail npm …` for dependencies.
-- `sail npm run build` builds the frontend.
+- `sail artisan migrate` applies migrations; `sail composer …` and `sail npm …` manage dependencies.
+- `sail bin pest` runs the tests on real MySQL (`--parallel` to split them, `--group=arch` for architecture tests).
+- `sail bin pint --test` checks PHP style; `sail bin pint` fixes it.
+- `sail bin phpstan analyse` runs Larastan at level max.
+- `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test`, `build` for the frontend.
