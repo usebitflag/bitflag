@@ -16,7 +16,7 @@
 
 | Layer | Tool | Location |
 | --- | --- | --- |
-| Unit and feature | Pest | `tests/Unit`, `tests/Feature/{Module}` |
+| Unit and feature | Pest | `tests/Unit`, `tests/Feature/{Area}`, `tests/Concurrency` |
 | Architecture | Pest, group `arch` | `tests/Arch` |
 | Static analysis | PHPStan + Larastan (max), Pint | CI `backend-lint` |
 | Frontend | Vitest, `vue-tsc` | `resources/js/**/*.spec.ts` |

@@ -54,7 +54,7 @@ Tests use the `testing` database on the same MySQL service, created on first sta
 
 The Cypress specs in `cypress/e2e` run in a real browser against the running application and the demo seed. Cypress runs on the host (Node 22 or newer), not in Sail, and needs Chrome.
 
-1. In `.env` set `TESTING_E2E=true`, `TESTING_E2E_TOKEN=e2e-local-token` and `APP_DEBUG=false` (`.env.e2e` has these values), then `sail artisan config:clear`.
+1. In `.env` set `TESTING_E2E=true`, `TESTING_E2E_TOKEN=e2e-local-token`, `APP_DEBUG=false` and `VITE_INCLUDE_DEV_PAGES=true` (`.env.e2e` has these values), then `sail artisan config:clear`. The last one keeps the component gallery in the build, which production builds leave out.
 2. `sail npm run build` so the application serves built assets, and `sail artisan migrate:fresh --seed --seeder=DemoSeeder`.
 3. `npm ci` on the host, then `npm run e2e`. When Sail listens on a port other than 80, point Cypress at it:
 

@@ -33,7 +33,7 @@ bitflag/
 │   └── Admin/                # Filament panel
 ├── resources/js/             # pages/, features/, components/ui/, layouts/, composables/, types/
 ├── routes/                   # web.php (+ web/{module}.php), api.php, sdk.php, admin.php, testing.php
-├── tests/                    # Unit/, Feature/{Module}/, Arch/
+├── tests/                    # Unit/, Feature/{Area}/ (Shell, Shared, Tenancy, …), Arch/, Concurrency/
 ├── cypress/e2e/              # {area}-{flow}.cy.ts
 ├── design/bitflag/           # reviewed design tokens and component specifications
 └── docs/                     # technical documentation

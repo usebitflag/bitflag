@@ -23,7 +23,7 @@
 
 - Tables and columns: snake_case; tenant tables have `organization_id` first among foreign keys.
 - Audit actions: `{object}.{verb}` past tense. Outbox types: webhook event names or `internal.*`.
-- Tests: `tests/Feature/{Module}/…`, Cypress `cypress/e2e/{area}-{flow}.cy.ts`.
+- Tests: `tests/Feature/{Area}/…` (a module, or a concern such as `Shell` or `Tenancy`), Cypress `cypress/e2e/{area}-{flow}.cy.ts`.
 
 ## Documentation
 

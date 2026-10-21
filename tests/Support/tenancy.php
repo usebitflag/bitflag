@@ -10,7 +10,7 @@ use App\Shared\Tenancy\TenantContextMissing;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Proves that a tenant model keeps organizations apart. Later milestones call this for every new tenant table.
+ * Proves that a tenant model keeps organizations apart. Every new tenant table gets a test that calls this.
  *
  * @param  class-string<Model>  $modelClass
  * @param  Closure(Organization): Model  $createFor  Creates one row owned by the given organization.

@@ -127,6 +127,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:coverage
       - run: npm run build
+      - name: The build holds no secrets and no development pages
+        run: node scripts/ci/scan-bundle-secrets.mjs
       - name: No committed file matches .gitignore
         run: bash scripts/ci/clean-tree.sh tracked-ignored
       - name: The tests and the build leave no stray files
