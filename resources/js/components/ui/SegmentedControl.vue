@@ -29,6 +29,7 @@ function select(value: string | undefined): void {
       v-for="option in options"
       :key="option.value"
       :value="option.value"
+      :data-test="`segment-${option.value}`"
       class="data-[state=on]:bg-surface data-[state=on]:text-text text-muted h-7 rounded-sm px-3 text-xs font-medium"
     >
       {{ option.label }}

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Middleware\ResolveActor;
+use App\Http\Middleware\ResolvePortalScope;
+use App\Http\Portal\PortalScope;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditCatalog;
 use App\Shared\Capabilities\Console\GenerateTypesCommand;
@@ -54,6 +56,13 @@ class AppServiceProvider extends ServiceProvider
             $actor = $request->attributes->get(ResolveActor::ATTRIBUTE);
 
             return $actor instanceof Actor ? $actor : throw new AuthenticationException;
+        });
+
+        // Controllers type-hint PortalScope to receive the verified scope of a portal URL.
+        $this->app->bind(PortalScope::class, function (Application $app): PortalScope {
+            $scope = ResolvePortalScope::scopeOf($app->make(Request::class));
+
+            return $scope ?? throw new AuthenticationException;
         });
 
         // The organization in context is per request and per job, never shared between them.

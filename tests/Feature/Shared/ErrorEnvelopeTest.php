@@ -138,7 +138,7 @@ describe('the portal', function () {
     });
 
     it('shows the error page for an unknown page', function () {
-        $this->get('/no-such-page')->assertNotFound()->assertInertia(fn (Assert $page) => $page
+        $this->actingAs(User::factory()->create())->get('/no-such-page')->assertNotFound()->assertInertia(fn (Assert $page) => $page
             ->component('errors/Error')->where('status', 404));
     });
 

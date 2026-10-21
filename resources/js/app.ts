@@ -3,9 +3,11 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/vue3';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
+import { installNavigationGuard } from './composables/useNavigationGuard';
 import { initTheme } from './composables/useTheme';
 
 initTheme();
+installNavigationGuard();
 
 const appName = import.meta.env.VITE_APP_NAME ?? 'BitFlag';
 
