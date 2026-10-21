@@ -2,11 +2,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { contrast, luminance, mix, parseHex, toHex } from './color.mjs';
-import { baseVariables, checkContrast, generate, resolveTheme } from './generate-theme.mjs';
+import { checkContrast, generate, resolveTheme } from './generate-theme.mjs';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const inputs = () => ({
-  nocturneCss: read('design/nocturne/styles.css'),
   tokens: JSON.parse(read('design/bitflag/tokens.json')),
   components: JSON.parse(read('design/bitflag/components.json')),
 });
@@ -70,10 +69,5 @@ describe('theme generation', () => {
 
   it('is deterministic', () => {
     expect(generate(inputs()).css).toBe(generate(inputs()).css);
-  });
-
-  it('reads base variables from the Nocturne file', () => {
-    const radius = baseVariables(inputs().nocturneCss, 'radius');
-    expect(Object.keys(radius)).toEqual(expect.arrayContaining(['sm', 'md', 'lg']));
   });
 });

@@ -6,7 +6,7 @@ The application, its tests and the supporting repositories follow these conventi
 
 - `bitflag-protocol`: JSON Schemas, the written spec, and fixtures. No runtime code beyond fixture tooling.
 - `bitflag-php`: the pure PHP evaluator (`src/Evaluation`, `src/Protocol`) and the SDK client (`src/Client`, `src/Transport`, `src/Cache`, `src/Telemetry`). Namespace `BitFlag\`.
-- `bitflag`: the application. It uses the latest stable Laravel on the newest supported PHP, Inertia + Vue 3 + TypeScript + Vite, and Tailwind themed from the Nocturne base plus reviewed BitFlag overrides. The admin console is Filament on its own host and guard. It also uses Fortify, Cashier (Stripe), Horizon, MySQL and Redis, with Sail for local development and Mailpit locally for email.
+- `bitflag`: the application. It uses the latest stable Laravel on the newest supported PHP, Inertia + Vue 3 + TypeScript + Vite, and Tailwind themed from the reviewed BitFlag design tokens. The admin console is Filament on its own host and guard. It also uses Fortify, Cashier (Stripe), Horizon, MySQL and Redis, with Sail for local development and Mailpit locally for email.
 - Quality tooling: Pest (unit, feature, architecture), PHPStan + Larastan (strict), Pint, Vitest, `vue-tsc`, ESLint + Prettier, Cypress, and GitHub Actions.
 
 ## Code layout in `bitflag`
@@ -105,7 +105,7 @@ The API error envelope is `{ "error": { "code": "VERSION_CONFLICT", "message": "
 
 - Inertia pages receive server props plus a `can` map of capabilities for the current scope. The server always rechecks.
 - Draft editing state lives in composables (`useFlagDraft`, …), never in page components.
-- The Tailwind theme is generated from unchanged `design/nocturne/` inputs plus reviewed `design/bitflag/` overrides (`--color-*`, `--font-*`, spacing, radii, shadows and component dimensions). Components use theme classes, never raw hex values. See [frontend and design](frontend-and-design.md) for the canonical visual contract.
+- The Tailwind theme is generated from the reviewed `design/bitflag/` tokens (`--color-*`, `--font-*`, spacing, radii, shadows and component dimensions). Components use theme classes, never raw hex values. See [frontend and design](frontend-and-design.md) for the canonical visual contract.
 - Phosphor icons are installed as an npm dependency (`@phosphor-icons/vue`), not from a CDN.
 - The portal ships both themes, initially Light when no preference is saved, with Light/Dark/System selection in the top bar. Inter covers headings, body and dashboard figures; Azeret Mono covers code, keys and IDs. Fonts are self-hosted. Filled violet primary actions, flat bordered surfaces and labeled semantic success/warning/danger colors use contrast-tested tokens in both themes.
 

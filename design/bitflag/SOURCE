@@ -1,10 +1,12 @@
 Reviewed product design inputs. tokens.json and components.json are extracted by hand from two design sources and
 checked in, so the application does not depend on those sources at build time.
 
+These files are the only design input. Nothing else is layered underneath them; every colour, font, size, radius,
+shadow and component dimension in the generated theme comes from here.
+
 Sources (SHA-256 at extraction):
 - bitflag-theme.css (shared component styling: buttons, tags, inputs, cards, tables, dialogs): 519bc55f75f69af87279b47e5c50c29259b332dd330dadd4d359009e8d065916
 - BitFlag Overview (shell layout and the light and dark colour roles): ca14ebe91bda8b47180cfca57f2429204c8ae511cf70a47ee757133abb3e5dbf
-- design/nocturne/styles.css (base, unchanged): 6fea354710ec4e3b2b979b723ed37d8e8959bb7d9137425d0d562b4ad8733cda
 
 Mapping notes
 - Colour roles come from the Overview shell. Component dimensions and radii come from the shared theme.
