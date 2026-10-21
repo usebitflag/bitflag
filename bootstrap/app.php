@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\ResolveActor;
 use App\Http\Middleware\SecurityHeaders;
 use App\Shared\Errors\ExceptionRenderer;
 use Illuminate\Foundation\Application;
@@ -38,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // The request ID middleware runs first for every route group so every response and log line carries it.
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(SecurityHeaders::class);
-        $middleware->web(append: [HandleInertiaRequests::class]);
+        $middleware->web(append: [ResolveActor::class, HandleInertiaRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         ExceptionRenderer::register($exceptions);

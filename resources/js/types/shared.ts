@@ -3,6 +3,8 @@
  * Identifiers, names and booleans only.
  */
 
+import type { CapabilityName } from './capabilities';
+
 export type ProjectRole = 'owner' | 'publisher' | 'developer' | 'viewer';
 export type OrgRole = 'owner' | 'member';
 export type ToastTone = 'neutral' | 'accent';
@@ -40,13 +42,13 @@ export interface NavigationItem {
   active: boolean;
 }
 
-export interface SharedProps {
+export type SharedProps = {
   auth: { user: SharedUser | null };
   scope: SharedScope;
   environments: SharedEnvironment[];
   navigation: NavigationItem[];
   /** Capability name to allowed. The server always rechecks. */
-  can: Partial<Record<string, boolean>>;
+  can: Partial<Record<CapabilityName, boolean>>;
   flash: { toast: { message: string; tone: ToastTone } | null };
   requestId: string | null;
-}
+};

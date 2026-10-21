@@ -18,3 +18,5 @@ resources/js/actions
 resources/js/routes
 resources/js/wayfinder
 design/nocturne
+resources/js/types/capabilities.ts
+resources/js/types/ids.ts

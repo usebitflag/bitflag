@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Organizations\Models;
 
+use App\Shared\Capabilities\OrgRole;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
 use App\Shared\Tenancy\BelongsToOrganization;
 use Database\Factories\OrganizationMembershipFactory;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $organization_id
  * @property string $user_id
- * @property string $role
+ * @property OrgRole $role
  */
 #[UseFactory(OrganizationMembershipFactory::class)]
 class OrganizationMembership extends Model
@@ -27,4 +28,12 @@ class OrganizationMembership extends Model
     use BelongsToOrganization, HasFactory, HasUlids, UsesMicrosecondTimestamps;
 
     protected $fillable = ['organization_id', 'user_id', 'role'];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['role' => OrgRole::class];
+    }
 }

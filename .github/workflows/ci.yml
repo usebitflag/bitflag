@@ -114,6 +114,7 @@ jobs:
       - run: composer install --prefer-dist --no-interaction --no-progress
       - run: php artisan key:generate
       - run: php artisan wayfinder:generate
+      - run: php artisan bitflag:types --check
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc

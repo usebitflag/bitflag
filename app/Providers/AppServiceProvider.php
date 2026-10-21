@@ -4,10 +4,20 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Middleware\ResolveActor;
+use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditCatalog;
+use App\Shared\Capabilities\Console\GenerateTypesCommand;
+use App\Shared\Capabilities\EnvironmentProtection;
+use App\Shared\Capabilities\NoEnvironmentProtection;
+use App\Shared\Capabilities\NullTokenScopeMap;
+use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +31,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PortalNavigation::class);
         $this->app->singleton(AuditCatalog::class);
 
+        // Defaults until environments define protection and credentials define scopes.
+        $this->app->bind(EnvironmentProtection::class, NoEnvironmentProtection::class);
+        $this->app->bind(TokenScopeMap::class, NullTokenScopeMap::class);
+
+        // Controllers type-hint Actor to receive the signed-in person. Without a session there is none.
+        $this->app->bind(Actor::class, function (Application $app): Actor {
+            $request = $app->make(Request::class);
+            $actor = $request->attributes->get(ResolveActor::ATTRIBUTE);
+
+            return $actor instanceof Actor ? $actor : throw new AuthenticationException;
+        });
+
         // The organization in context is per request and per job, never shared between them.
         $this->app->scoped(TenantContext::class);
     }
@@ -31,5 +53,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TenantColumns::register();
+
+        $this->commands([GenerateTypesCommand::class]);
     }
 }
