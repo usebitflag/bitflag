@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "578aba85cdd76bc92692538273b81dbc",
+    "content-hash": "f469ca9160826d0909b192c2b5af08fa",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -125,6 +125,71 @@
                 "source": "https://github.com/Bacon/BaconQrCode/tree/v3.1.1"
             },
             "time": "2026-04-05T21:06:35+00:00"
+        },
+        {
+            "name": "bitflag/bitflag-php",
+            "version": "v0.1.0-alpha.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:usebitflag/bitflag-php.git",
+                "reference": "27072198202cecd335a83992cec3a7aa926d89d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/usebitflag/bitflag-php/zipball/27072198202cecd335a83992cec3a7aa926d89d3",
+                "reference": "27072198202cecd335a83992cec3a7aa926d89d3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.32",
+                "pestphp/pest": "^4.7",
+                "phpstan/phpstan": "^2.3"
+            },
+            "type": "library",
+            "extra": {
+                "bitflag": {
+                    "protocol": "0.1.0-alpha.1"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BitFlag\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "BitFlag\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ],
+                "lint": [
+                    "pint --test"
+                ],
+                "analyse": [
+                    "phpstan analyse --memory-limit=1G"
+                ],
+                "conformance": [
+                    "php scripts/conformance-report.php"
+                ],
+                "fetch-protocol": [
+                    "scripts/fetch-protocol-fixtures.sh"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "BitFlag evaluation core and PHP SDK",
+            "support": {
+                "source": "https://github.com/usebitflag/bitflag-php/tree/v0.1.0-alpha.1",
+                "issues": "https://github.com/usebitflag/bitflag-php/issues"
+            },
+            "time": "2026-10-22T16:26:53+00:00"
         },
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -13582,12 +13647,14 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "bitflag/bitflag-php": 15
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }
