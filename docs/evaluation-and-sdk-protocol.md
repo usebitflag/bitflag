@@ -46,6 +46,22 @@ Experiment assignment compiles into an explicit outcome at a defined point in th
 
 Predicate evaluation is strict: language coercion never makes `"20"` equal to `20`. Absent values fail comparisons, including negative comparisons; `not exists` explicitly tests absence. Null is an explicit JSON value, distinct from absence. Empty groups, array semantics, date parsing, semantic versions, case sensitivity and depth limits each have conformance fixtures.
 
+## Evaluation details
+
+The protocol's `spec/` directory states these exactly; the fixtures check them. The points below are the ones most likely to matter when reading a result.
+
+- **Outcome of a condition.** Every condition ends as `match`, `no_match`, `missing` (the attribute is absent), `null`, `wrong_type` or `invalid_value` (a string that is not a valid SemVer or date). Everything except `match` makes a positive operator false; a negated operator (`neq`, `not_in`, `semver_neq`) is also false unless the attribute is present and of the right type. An array matches a positive operator when any element does and a negated one when none does; an empty array is present. A group skips the members after the one that decides and a trace records them as `not_evaluated`.
+- **Numbers.** Numbers are binary64. An integer with magnitude above 2^53 − 1, however it is written, is a value of the wrong type in a context and is invalid in a snapshot; such values are sent as strings. `-0` equals `0`.
+- **Strings** are compared byte for byte, without normalization or case folding. `ignoreCase` folds the ASCII letters A to Z for `starts_with`, `ends_with` and `contains`, and does nothing elsewhere. Limits count UTF-8 bytes. Unpaired surrogates are invalid.
+- **Context.** `kind`, optional `key` (a string, never a number) and `attributes` are the only members. `kind` and `key` are also valid attribute names in conditions, where they read the context fields.
+- **Prerequisites** are checked in order and the first unmet one is reported; the chain is at most ten links deep, and a cycle, a missing flag or a deeper chain is a configuration error. A prerequisite that ends in an error makes the dependent flag end in the same error.
+- **Dangling references** (a variation, segment or prerequisite that does not exist) are detected lazily: they are errors when evaluation selects or evaluates them, and the publication-time validator reports every one.
+- **Capabilities** are checked for every flag evaluation visits, including prerequisites, before the enabled check. A flag that needs an unknown capability is an error; the other flags of the snapshot still evaluate.
+- **Traces** list the steps of the evaluated flag (capability, off, prerequisite, override, rule, default) with an outcome each, and for a rollout the bucket and its interval. They name attributes and outcomes, never context values.
+- **Snapshot problems** have an error kind, a JSON Pointer path and a code, so a rejected snapshot can be explained.
+
+Both evaluators are checked against the same fixture release, and a conformance report of each can be compared case by case.
+
 ## Result shape
 
 ```json
