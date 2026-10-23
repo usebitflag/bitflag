@@ -58,12 +58,12 @@ The package is tested against a pinned release of the `bitflag-protocol` fixture
 
 ```bash
 GH_TOKEN=… scripts/fetch-protocol-fixtures.sh   # downloads, verifies the SHA-256 and extracts to build/protocol/<version>
-GH_TOKEN=… scripts/pin-protocol.sh <version>       # pins a published release in protocol.lock.json
+GH_TOKEN=… scripts/pin-protocol.sh <version>    # pins a published release in protocol.lock.json
 ```
 
 The tests fail, they do not skip, when the fixtures are missing. `BITFLAG_PROTOCOL_DIR` points them at another extracted release.
 
-The lock must match the release the installed package was tested against: `tests/Conformance/ProtocolLockTest.php` compares it with the `extra.bitflag.protocol` entry of the package.
+The lock should name the protocol release that the installed package pins in its own `protocol.lock.json`; nothing checks this automatically, so compare them when upgrading.
 
 ### Changing `bitflag-php` together with the application
 
@@ -75,7 +75,19 @@ scripts/dev/unlink-bitflag-php.sh   # back to the pinned release
 
 Linking changes `composer.json` and `composer.lock`. Do not commit them while linked: CI runs `scripts/ci/no-path-repositories.php`, which fails on a path repository.
 
-Upgrading the package is a deliberate pull request that changes the version in `composer.json`, refreshes `composer.lock`, updates `protocol.lock.json` and links the package changelog. Dependabot ignores `bitflag/bitflag-php` for that reason.
+### Upgrading the package
+
+Upgrading is a deliberate pull request. Dependabot ignores `bitflag/bitflag-php` for that reason.
+
+1. A new `bitflag-php` version exists once its tag exists (`v0.1.0-alpha.2`). Check the `protocol.lock.json` of that tag to see which protocol release it was tested against.
+2. Change the version in `composer.json` to the exact new version and refresh the lock: `composer update bitflag/bitflag-php`. Commit `composer.json` and `composer.lock` together.
+3. If the package pins a new protocol release, run `GH_TOKEN=… scripts/pin-protocol.sh <protocol version>` and then `scripts/fetch-protocol-fixtures.sh`.
+4. Run `sail bin pest` (`tests/Conformance` runs the pinned fixtures through the installed package) and fix what fails.
+5. Open the pull request and link the package's changelog or release notes.
+
+### Access in CI
+
+CI needs one Actions secret, `PROTOCOL_READ_TOKEN`: a fine-grained personal access token with read-only Contents access to both `usebitflag/bitflag-php` (Composer installs it from GitHub) and `usebitflag/bitflag-protocol` (the fixture download). Tokens expire. A Composer `404` for a `bitflag-php` archive, or `release not found` in the fetch step, means the token is missing, expired or lacks one of the two repositories; replace the secret.
 
 ## End-to-end tests
 
