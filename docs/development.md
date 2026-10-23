@@ -58,6 +58,7 @@ The package is tested against a pinned release of the `bitflag-protocol` fixture
 
 ```bash
 GH_TOKEN=… scripts/fetch-protocol-fixtures.sh   # downloads, verifies the SHA-256 and extracts to build/protocol/<version>
+GH_TOKEN=… scripts/pin-protocol.sh <version>       # pins a published release in protocol.lock.json
 ```
 
 The tests fail, they do not skip, when the fixtures are missing. `BITFLAG_PROTOCOL_DIR` points them at another extracted release.

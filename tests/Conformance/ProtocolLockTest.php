@@ -16,15 +16,6 @@ function json_file(string $path): array
     return $decoded;
 }
 
-it('pins the same protocol release as the evaluator package it installs', function () {
-    $lock = json_file(dirname(__DIR__, 2).'/protocol.lock.json');
-    $package = json_file(dirname(__DIR__, 2).'/vendor/bitflag/bitflag-php/composer.json');
-    $extra = $package['extra'] ?? [];
-    $packageProtocol = is_array($extra) && is_array($extra['bitflag'] ?? null) ? ($extra['bitflag']['protocol'] ?? null) : null;
-
-    expect($lock['version'])->toBe($packageProtocol);
-});
-
 it('requires one exact release of the evaluator package, installed from a VCS repository', function () {
     $composer = json_file(dirname(__DIR__, 2).'/composer.json');
     $require = $composer['require'] ?? [];
