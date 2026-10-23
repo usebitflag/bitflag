@@ -50,6 +50,32 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.
 
+## The evaluator package
+
+The application evaluates flags with `bitflag-php`, installed from its private GitHub repository at one exact release (`composer.json` requires it by version, and `composer.lock` pins the commit). Composer needs a GitHub token with read access to that repository, supplied in `COMPOSER_AUTH` or `auth.json`.
+
+The package is tested against a pinned release of the `bitflag-protocol` fixtures, named in `protocol.lock.json`. `sail bin pest` runs those fixtures through the installed package (`tests/Conformance`), so a package upgrade that changes behavior fails here. Fetch the release once, and again whenever the lock changes:
+
+```bash
+GH_TOKEN=… scripts/fetch-protocol-fixtures.sh   # downloads, verifies the SHA-256 and extracts to build/protocol/<version>
+```
+
+The tests fail, they do not skip, when the fixtures are missing. `BITFLAG_PROTOCOL_DIR` points them at another extracted release.
+
+The lock must match the release the installed package was tested against: `tests/Conformance/ProtocolLockTest.php` compares it with the `extra.bitflag.protocol` entry of the package.
+
+### Changing `bitflag-php` together with the application
+
+```bash
+scripts/dev/link-bitflag-php.sh     # symlinks ../bitflag-php as a path repository and mounts it into the containers
+sail down && sail up -d             # picks up the mount
+scripts/dev/unlink-bitflag-php.sh   # back to the pinned release
+```
+
+Linking changes `composer.json` and `composer.lock`. Do not commit them while linked: CI runs `scripts/ci/no-path-repositories.php`, which fails on a path repository.
+
+Upgrading the package is a deliberate pull request that changes the version in `composer.json`, refreshes `composer.lock`, updates `protocol.lock.json` and links the package changelog. Dependabot ignores `bitflag/bitflag-php` for that reason.
+
 ## End-to-end tests
 
 The Cypress specs in `cypress/e2e` run in a real browser against the running application and the demo seed. Cypress runs on the host (Node 22 or newer), not in Sail, and needs Chrome.

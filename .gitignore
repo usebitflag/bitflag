@@ -17,6 +17,8 @@
 /.vscode
 /.zed
 /auth.json
+/build/
+/compose.override.yaml
 /coverage
 /node_modules
 /node_modules/

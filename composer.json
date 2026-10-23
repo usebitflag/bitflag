@@ -5,8 +5,15 @@
     "description": "BitFlag core application",
     "keywords": [],
     "license": "proprietary",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/usebitflag/bitflag-php.git"
+        }
+    ],
     "require": {
         "php": "^8.3",
+        "bitflag/bitflag-php": "0.1.0-alpha.1",
         "filament/filament": "^5.10",
         "inertiajs/inertia-laravel": "^3.5",
         "laravel/fortify": "^1.41",
