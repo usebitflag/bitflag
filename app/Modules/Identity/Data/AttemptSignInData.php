@@ -11,5 +11,7 @@ final readonly class AttemptSignInData
         public string $password,
         public ?string $ipAddress,
         public ?string $userAgent,
+        public ?string $trustedBrowserCookie = null,
+        public ?string $deviceCookie = null,
     ) {}
 }

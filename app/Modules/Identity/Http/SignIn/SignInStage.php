@@ -20,6 +20,18 @@ final class SignInStage
         $request->attributes->set(self::ATTRIBUTE, $user);
     }
 
+    public static function rememberDeviceToken(Request $request, string $token): void
+    {
+        $request->attributes->set('bitflag.sign_in.device_token', $token);
+    }
+
+    public static function deviceToken(Request $request): ?string
+    {
+        $token = $request->attributes->get('bitflag.sign_in.device_token');
+
+        return is_string($token) ? $token : null;
+    }
+
     public static function user(Request $request): ?User
     {
         $user = $request->attributes->get(self::ATTRIBUTE);

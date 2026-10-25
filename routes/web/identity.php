@@ -7,7 +7,10 @@ use App\Modules\Identity\Http\Controllers\Web\LoginController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordCheckController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordResetController;
+use App\Modules\Identity\Http\Controllers\Web\SecurityController;
 use App\Modules\Identity\Http\Controllers\Web\SignUpController;
+use App\Modules\Identity\Http\Controllers\Web\TwoFactorChallengeController;
+use App\Modules\Identity\Http\Controllers\Web\TwoFactorSettingsController;
 use App\Modules\Identity\Http\Controllers\Web\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -36,7 +39,16 @@ Route::middleware('guest:web')->group(function (): void {
     Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:10,1')->name('password.update');
 });
 
+// The second step of signing in belongs to a browser that is not signed in yet: it holds only a pending sign-in.
+Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'show'])->name('two-factor.challenge');
+Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:login')->name('two-factor.login');
+
 Route::middleware('auth:web')->group(function (): void {
+    Route::get('/account/security', [SecurityController::class, 'show'])->name('account.security');
+    Route::post('/account/two-factor', [TwoFactorSettingsController::class, 'start'])->middleware('throttle:10,1')->name('account.two-factor.start');
+    Route::post('/account/two-factor/confirm', [TwoFactorSettingsController::class, 'confirm'])->middleware('throttle:10,1')->name('account.two-factor.confirm');
+    Route::delete('/account/two-factor', [TwoFactorSettingsController::class, 'disable'])->middleware('throttle:10,1')->name('account.two-factor.disable');
+    Route::post('/account/recovery-codes', [TwoFactorSettingsController::class, 'regenerate'])->middleware('throttle:10,1')->name('account.recovery-codes');
     Route::put('/account/password', [PasswordController::class, 'update'])->middleware('throttle:10,1')->name('account.password.update');
     Route::post('/signup/change-email', [CheckEmailController::class, 'change'])->middleware('throttle:signup')->name('signup.change-email');
     Route::post('/email/verification-notification', [CheckEmailController::class, 'resend'])->middleware('throttle:verification')->name('verification.send');
