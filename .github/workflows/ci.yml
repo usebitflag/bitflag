@@ -121,7 +121,7 @@ jobs:
       - run: php artisan key:generate
       - run: php artisan wayfinder:generate
       - run: php artisan bitflag:types --check
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -164,12 +164,12 @@ jobs:
       - run: ./vendor/bin/sail artisan migrate:fresh --seed --seeder=DemoSeeder --force
       - run: ./vendor/bin/sail npm ci
       - run: ./vendor/bin/sail npm run build
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
       # Cypress 16 does not download its browser binary during npm ci, so install and cache it explicitly.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/Cypress
           key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -184,7 +184,7 @@ jobs:
       - name: Show the application log when a spec fails
         if: failure()
         run: ./vendor/bin/sail artisan about --only=environment; tail -n 100 storage/logs/laravel.log || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: cypress-failures
