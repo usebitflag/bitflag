@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
@@ -11,6 +11,7 @@ import AuthLayout from '../../layouts/AuthLayout.vue';
 const props = defineProps<{ token: string; user: string; usable: boolean }>();
 
 const form = useForm({ token: props.token, user: props.user, password: '' });
+const confirmation = ref('');
 const common = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -43,14 +44,23 @@ watch(
   },
 );
 
+const canSave = computed(
+  () => [...form.password].length >= 12 && !common.value && confirmation.value === form.password,
+);
+
 function submit(): void {
-  form.post('/reset-password', { onFinish: () => form.reset('password') });
+  form.post('/reset-password', {
+    onFinish: () => {
+      form.reset('password');
+      confirmation.value = '';
+    },
+  });
 }
 </script>
 
 <template>
-  <Head title="Choose a new password" />
-  <AuthLayout title="Choose a new password">
+  <Head title="Set a new password" />
+  <AuthLayout title="Set a new password" subtitle="You'll be signed out of other sessions.">
     <InlineNotice v-if="!usable" tone="warning" title="This link has expired or was already used.">
       <Link href="/forgot-password" class="underline" data-test="reset-request-new">
         Request a new one
@@ -73,21 +83,32 @@ function submit(): void {
           v-model="form.password"
           type="password"
           autocomplete="new-password"
+          placeholder="At least 12 characters"
           :invalid="invalid"
           :described-by="describedBy"
           data-test="reset-password"
         />
       </Field>
-      <PasswordChecklist :password="form.password" email="" :common="common" />
-      <p class="text-muted text-xs">You'll be signed out of other sessions.</p>
+      <PasswordChecklist reset class="-mt-1" :password="form.password" email="" :common="common" />
+      <Field v-slot="{ id }" label="Confirm password">
+        <Input
+          :id="id"
+          v-model="confirmation"
+          type="password"
+          autocomplete="new-password"
+          data-test="reset-confirm"
+        />
+      </Field>
       <Button
         type="submit"
         variant="primary"
+        size="lg"
         block
         :loading="form.processing"
+        :disabled="!canSave"
         data-test="reset-submit"
       >
-        Update password
+        Save password
       </Button>
     </form>
   </AuthLayout>

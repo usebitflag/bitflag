@@ -65,7 +65,7 @@ function onPaste(event: ClipboardEvent): void {
       :aria-label="`Digit ${index + 1} of ${length}`"
       :aria-invalid="invalid ? 'true' : undefined"
       :class="[
-        'bg-surface h-11 w-10 rounded-md border text-center font-mono text-lg',
+        'bg-surface focus:border-primary h-14 w-12 rounded-md border text-center text-[22px] tabular-nums focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--bf-primary)_25%,transparent)]',
         invalid ? 'border-danger' : 'border-control-border',
       ]"
       :data-test="`otp-digit-${index}`"

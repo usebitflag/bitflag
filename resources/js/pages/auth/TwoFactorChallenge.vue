@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { PhArrowLeft } from '@phosphor-icons/vue';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Checkbox from '../../components/ui/Checkbox.vue';
@@ -27,15 +28,32 @@ function toggle(): void {
 <template>
   <Head title="Two-factor code" />
   <AuthLayout title="Enter your code">
+    <template #before>
+      <Button
+        variant="ghost"
+        href="/signin"
+        class="self-start !text-[13px]"
+        data-test="challenge-back"
+      >
+        <template #icon><PhArrowLeft :size="16" aria-hidden="true" /></template>
+        Back
+      </Button>
+    </template>
+    <template #subtitle>
+      {{
+        useRecovery
+          ? 'Enter one of your recovery codes.'
+          : 'Open your authenticator app and enter the 6-digit code for BitFlag.'
+      }}
+      <span class="sr-only" data-test="challenge-account">Signing in as {{ maskedEmail }}</span>
+    </template>
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
-      <p class="text-muted text-sm" data-test="challenge-account">
-        Signing in as {{ maskedEmail }}
-      </p>
-
-      <template v-if="!useRecovery">
-        <p class="text-sm">Enter the 6-digit code from your authenticator app.</p>
-        <OtpInput v-model="form.code" :invalid="Boolean(form.errors.code)" @complete="submit" />
-      </template>
+      <OtpInput
+        v-if="!useRecovery"
+        v-model="form.code"
+        :invalid="Boolean(form.errors.code)"
+        @complete="submit"
+      />
       <Field v-else v-slot="{ id, describedBy, invalid }" label="Recovery code">
         <Input
           :id="id"
@@ -51,7 +69,7 @@ function toggle(): void {
 
       <p
         v-if="form.errors.code"
-        class="text-danger-text text-xs"
+        class="text-danger-text -mt-2 text-xs"
         role="alert"
         data-test="challenge-error"
       >
@@ -67,27 +85,23 @@ function toggle(): void {
       <Button
         type="submit"
         variant="primary"
+        size="lg"
         block
         :loading="form.processing"
         data-test="challenge-submit"
       >
-        Continue
+        Verify
       </Button>
 
-      <div class="flex justify-between text-sm">
-        <button
-          v-if="canUseRecovery"
-          type="button"
-          class="text-muted underline"
-          data-test="challenge-toggle"
-          @click="toggle"
-        >
-          {{ useRecovery ? 'Use an authenticator code instead' : 'Use a recovery code instead' }}
-        </button>
-        <Link href="/signin" class="text-muted underline" data-test="challenge-back"
-          >Start again</Link
-        >
-      </div>
+      <button
+        v-if="canUseRecovery"
+        type="button"
+        class="text-primary-ink self-start text-sm hover:underline"
+        data-test="challenge-toggle"
+        @click="toggle"
+      >
+        {{ useRecovery ? 'Use an authenticator code instead' : 'Use a recovery code instead' }}
+      </button>
     </form>
   </AuthLayout>
 </template>

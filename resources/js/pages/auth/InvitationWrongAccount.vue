@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import Button from '../../components/ui/Button.vue';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
@@ -18,22 +18,16 @@ function switchAccount(): void {
 <template>
   <Head title="Wrong account" />
   <AuthLayout title="This invitation is for someone else">
-    <div class="flex flex-col gap-4">
-      <p class="text-sm" data-test="wrong-account-message">
+    <template #subtitle>
+      <span data-test="wrong-account-message">
         This invitation was sent to {{ invitedEmail }}. You're signed in as {{ signedInAs }}.
-      </p>
-      <div class="flex gap-2">
-        <Button variant="primary" data-test="wrong-account-switch" @click="switchAccount">
-          Sign out and continue
-        </Button>
-        <Link
-          href="/"
-          class="border-control-border inline-flex h-9 items-center rounded-md border px-3 text-sm"
-          data-test="wrong-account-back"
-        >
-          Back to BitFlag
-        </Link>
-      </div>
+      </span>
+    </template>
+    <div class="flex gap-2">
+      <Button variant="primary" data-test="wrong-account-switch" @click="switchAccount">
+        Sign out and continue
+      </Button>
+      <Button href="/" data-test="wrong-account-back">Back to BitFlag</Button>
     </div>
   </AuthLayout>
 </template>

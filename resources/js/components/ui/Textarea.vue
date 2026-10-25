@@ -22,7 +22,7 @@ const model = defineModel<string>({ default: '' });
     :aria-invalid="invalid ? 'true' : undefined"
     :aria-describedby="describedBy"
     :class="[
-      'bg-surface w-full rounded-md border px-3 py-2 text-sm outline-none',
+      'bg-surface focus:border-primary w-full rounded-md border px-3 py-2 text-[14px] shadow-xs outline-none focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--bf-primary)_18%,transparent)]',
       invalid ? 'border-danger' : 'border-control-border',
     ]"
     data-test="textarea"

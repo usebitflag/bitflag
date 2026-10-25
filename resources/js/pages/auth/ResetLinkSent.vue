@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { PhEnvelopeSimple } from '@phosphor-icons/vue';
+import { Head, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import { useCountdown } from '../../features/auth/useCountdown';
 import AuthLayout from '../../layouts/AuthLayout.vue';
@@ -7,6 +9,9 @@ import AuthLayout from '../../layouts/AuthLayout.vue';
 const props = defineProps<{ email: string; resendSeconds: number }>();
 
 const { remaining, restart } = useCountdown(props.resendSeconds);
+const clock = computed(
+  () => `${Math.floor(remaining.value / 60)}:${String(remaining.value % 60).padStart(2, '0')}`,
+);
 
 function resend(): void {
   router.post('/forgot-password/resend', {}, { onSuccess: restart });
@@ -16,17 +21,20 @@ function resend(): void {
 <template>
   <Head title="Check your email" />
   <AuthLayout title="Check your email">
-    <div class="flex flex-col gap-4">
-      <p class="text-sm" data-test="reset-sent-message">
-        If an account exists for {{ email }}, a reset link is on its way. The link works for 60
-        minutes.
-      </p>
-      <Button :disabled="remaining > 0" data-test="reset-resend" @click="resend">
-        {{ remaining > 0 ? `Send again in ${remaining}s` : 'Send again' }}
+    <template #before>
+      <PhEnvelopeSimple :size="28" class="text-primary" aria-hidden="true" />
+    </template>
+    <template #subtitle>
+      <span data-test="reset-sent-message">
+        If an account exists for <span class="text-text">{{ email }}</span
+        >, a reset link is on its way. The link works for 60 minutes.
+      </span>
+    </template>
+    <div class="flex gap-2">
+      <Button href="/signin">Back to sign in</Button>
+      <Button variant="ghost" :disabled="remaining > 0" data-test="reset-resend" @click="resend">
+        {{ remaining > 0 ? `Resend in ${clock}` : 'Resend' }}
       </Button>
-      <p class="text-muted text-center text-sm">
-        <Link href="/signin" class="text-text underline">Back to sign in</Link>
-      </p>
     </div>
   </AuthLayout>
 </template>

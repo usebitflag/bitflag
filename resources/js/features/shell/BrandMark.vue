@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // A pole and six bits; the last bit is drawn as an outline. Colors come from the theme.
+withDefaults(defineProps<{ size?: number }>(), { size: 18 });
 </script>
 
 <template>
-  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" data-test="brand-mark">
+  <svg viewBox="0 0 24 24" :width="size" :height="size" aria-hidden="true" data-test="brand-mark">
     <defs>
       <linearGradient id="bf-brand-gradient" x1="0" x2="1" y1="0" y2="1">
         <stop offset="0" stop-color="var(--bf-primary)" />

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { PhClockCountdown } from '@phosphor-icons/vue';
+import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import Button from '../../components/ui/Button.vue';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
 const props = defineProps<{
@@ -8,6 +10,13 @@ const props = defineProps<{
   organizationName: string | null;
   inviterName: string | null;
 }>();
+
+const title = computed(() => {
+  if (props.reason === 'expired') return 'This invitation has expired';
+  if (props.reason === 'revoked') return 'This invitation was withdrawn';
+  if (props.reason === 'used') return 'This invitation was already used';
+  return "This invitation can't be used";
+});
 
 const message = computed(() => {
   if (props.reason === 'used') return 'This invitation was already used.';
@@ -26,16 +35,15 @@ const message = computed(() => {
 
 <template>
   <Head title="Invitation unavailable" />
-  <AuthLayout title="This invitation can't be used">
-    <div class="flex flex-col gap-4">
-      <p class="text-sm" data-test="invitation-unavailable-message">{{ message }}</p>
-      <Link
-        href="/signin"
-        class="text-text text-sm underline"
-        data-test="invitation-unavailable-signin"
-      >
-        Sign in
-      </Link>
+  <AuthLayout :title="title">
+    <template #before>
+      <PhClockCountdown :size="28" class="text-primary" aria-hidden="true" />
+    </template>
+    <template #subtitle>
+      <span data-test="invitation-unavailable-message">{{ message }}</span>
+    </template>
+    <div class="flex gap-2">
+      <Button href="/signin" data-test="invitation-unavailable-signin">Go to sign in</Button>
     </div>
   </AuthLayout>
 </template>

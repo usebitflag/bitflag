@@ -68,7 +68,7 @@ describe('Input, Textarea and Select', () => {
     const select = mount(Select, {
       props: { options: [{ value: 'a', label: 'A' }], invalid: true, mono: true },
     });
-    expect(select.attributes('aria-invalid')).toBe('true');
+    expect(select.get('select').attributes('aria-invalid')).toBe('true');
     expect(select.findAll('option')).toHaveLength(1);
   });
 });

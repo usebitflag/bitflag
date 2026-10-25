@@ -23,8 +23,8 @@ describe('sign-in page', () => {
   it('shows the fields and posts them to /signin', async () => {
     const page = mount(SignIn);
 
-    await page.get('[data-test="login-email"]').setValue('maya@acme.dev');
-    await page.get('[data-test="login-password"]').setValue('secret');
+    await page.get('[data-test="login-email"] input').setValue('maya@acme.dev');
+    await page.get('[data-test="login-password"] input').setValue('secret');
     await page.get('form').trigger('submit');
 
     expect(form.email).toBe('maya@acme.dev');
@@ -36,7 +36,7 @@ describe('sign-in page', () => {
     const page = mount(SignIn);
 
     expect(page.get('[data-test="login-error"]').text()).toContain("don't match");
-    expect(page.get('[data-test="login-email"]').attributes('aria-invalid')).toBe('true');
+    expect(page.get('[data-test="login-email"] input').attributes('aria-invalid')).toBe('true');
   });
 
   it('links to the password reset', () => {

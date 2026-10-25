@@ -3,8 +3,8 @@ export const sel = (name: string): string => `[data-test="${name}"]`;
 
 export const selectors = {
   login: {
-    email: sel('login-email'),
-    password: sel('login-password'),
+    email: `${sel('login-email')} input`,
+    password: `${sel('login-password')} input`,
     submit: sel('login-submit'),
     error: sel('login-error'),
   },
