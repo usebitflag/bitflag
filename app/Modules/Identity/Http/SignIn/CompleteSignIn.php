@@ -23,6 +23,7 @@ final class CompleteSignIn
 
         if ($user !== null) {
             $this->guard->login($user, false);
+            $request->session()->put(PostSignIn::CHOOSE_ORGANIZATION, true);
 
             $device = SignInStage::deviceToken($request);
 

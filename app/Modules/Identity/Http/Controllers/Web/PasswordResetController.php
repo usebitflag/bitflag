@@ -12,6 +12,7 @@ use App\Modules\Identity\Domain\Exceptions\InvalidResetToken;
 use App\Modules\Identity\Http\Requests\ForgotPasswordRequest;
 use App\Modules\Identity\Http\Requests\ResetPasswordRequest;
 use App\Modules\Identity\Http\SignIn\PendingSignIn;
+use App\Modules\Identity\Http\SignIn\PostSignIn;
 use App\Modules\Identity\Queries\PasswordResetToken;
 use App\Shared\Errors\ResourceNotFound;
 use App\Shared\Ids\IdPrefix;
@@ -122,6 +123,7 @@ final class PasswordResetController
 
         $guard->login($result->user);
         $request->session()->regenerate();
+        $request->session()->put(PostSignIn::CHOOSE_ORGANIZATION, true);
 
         return redirect('/')->with('toast', $toast);
     }

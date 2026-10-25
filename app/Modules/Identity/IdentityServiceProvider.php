@@ -14,9 +14,9 @@ use App\Modules\Identity\Http\SignIn\RedirectIfTwoFactorRequired;
 use App\Modules\Identity\Http\SignIn\ValidateCredentials;
 use App\Modules\Identity\Jobs\SendAccountEmail;
 use App\Modules\Identity\Support\BundledCommonPasswords;
-use App\Modules\Identity\Support\NoOrganizationMfaPolicy;
-use App\Modules\Identity\Support\NoOrganizationSessionPolicy;
 use App\Modules\Identity\Support\NullGeoLocator;
+use App\Modules\Identity\Support\OrganizationsMfaPolicy;
+use App\Modules\Identity\Support\OrganizationsSessionPolicy;
 use App\Modules\Identity\Support\TrackedDatabaseSessionHandler;
 use App\Shared\Outbox\ConsumerRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -42,9 +42,9 @@ final class IdentityServiceProvider extends ServiceProvider
         // No GeoIP source is chosen yet, so sessions show an unknown location.
         $this->app->bind(GeoLocator::class, NullGeoLocator::class);
 
-        // No organization can require two-factor yet.
-        $this->app->bind(OrganizationMfaPolicy::class, NoOrganizationMfaPolicy::class);
-        $this->app->bind(SessionPolicyLookup::class, NoOrganizationSessionPolicy::class);
+        // Organizations decide whether their members need two-factor and how long an idle session lasts.
+        $this->app->bind(OrganizationMfaPolicy::class, OrganizationsMfaPolicy::class);
+        $this->app->bind(SessionPolicyLookup::class, OrganizationsSessionPolicy::class);
 
         $this->app->singleton(CommonPasswords::class, fn (): CommonPasswords => new BundledCommonPasswords(resource_path('security/common-passwords.txt')));
     }

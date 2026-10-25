@@ -23,12 +23,19 @@ final class HomeController
     ) {}
 
     /** GET / */
-    public function root(): RedirectResponse
+    public function root(Request $request): RedirectResponse
     {
         $person = $this->currentPerson->find();
 
         if ($person === null) {
             return redirect()->route('login');
+        }
+
+        // Right after signing in, a person in several organizations picks one, unless they asked not to be asked again.
+        $justSignedIn = $request->session()->pull('signin.choose_organization') === true;
+
+        if ($justSignedIn && ! $person->rememberOrgChoice && count($this->memberships->organizationsFor($person->id)) > 1) {
+            return redirect()->route('organizations.choose');
         }
 
         // The remembered scope first, then the first organization the person can work in.

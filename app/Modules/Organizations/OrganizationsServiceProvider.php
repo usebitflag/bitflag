@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Organizations;
 
 use App\Modules\Organizations\Queries\MembershipCapabilityResolver;
+use App\Shared\Audit\AuditCatalog;
 use App\Shared\Capabilities\CapabilityResolver;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,10 @@ final class OrganizationsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        $this->app->make(AuditCatalog::class)->register(
+            'organization.created',
+            'organization.updated',
+            'organization.security_changed',
+        );
     }
 }

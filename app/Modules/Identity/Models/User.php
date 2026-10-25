@@ -43,6 +43,9 @@ class User extends Authenticatable
 
     protected $hidden = ['password'];
 
+    /** @var array<string, mixed> */
+    protected $attributes = ['remember_org_choice' => false];
+
     /**
      * There is no "remember me": a session already lasts up to thirty days, so there is no token to store.
      */
