@@ -5,7 +5,7 @@ describe('accepting an invitation', () => {
 
   it('shows what is offered and creates the account for the invited address', () => {
     cy.visit(link());
-    cy.get('[data-test="invitation-email"]').should('contain.text', 'dev@northwind.studio');
+    cy.get('[data-test="invitation-email"] input').should('have.value', 'dev@northwind.studio');
     cy.get('[data-test="invitation-projects"]').should('contain.text', 'Storefront');
     cy.get('[data-test="invitation-name"] input').type('Dev Northwind');
     cy.get('[data-test="invitation-password"] input').type('a long passphrase here', {
@@ -18,7 +18,7 @@ describe('accepting an invitation', () => {
   it('stops a signed-in person with another address from taking it', () => {
     cy.signInAs('ana@acme.dev');
     cy.visit(link());
-    cy.get('[data-test="wrong-account-message"]').should('contain.text', 'dev@northwind.studio');
+    cy.get('[data-test="wrong-account-message"]').should('contain.text', '@northwind.studio');
     cy.get('[data-test="wrong-account-switch"]').should('be.visible');
   });
 

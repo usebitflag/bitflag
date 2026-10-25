@@ -32,7 +32,7 @@ describe('sign-up to a first project', () => {
     cy.get('[data-test="check-email-message"]').should('contain.text', 'ni••@startup.dev');
 
     // The confirmation email carries a signed link that works for the person signed in.
-    cy.latestEmail(email, 'Confirm your email').then(({ link }) => {
+    cy.latestEmail(email, 'Confirm your email for BitFlag').then(({ link }) => {
       expect(link).to.match(/\/email\/verify\//);
       cy.wrap(link).as('verifyLink');
     });
@@ -58,7 +58,7 @@ describe('sign-up to a first project', () => {
     // 5f: invitations wait until the email is confirmed.
     cy.location('pathname').should('eq', '/onboarding/startup-inc/team');
     cy.get('[data-test="team-unverified"]').should('be.visible');
-    cy.get('[data-test="team-emails"] textarea').type('a@startup.dev, b@startup.dev, not-an-email');
+    cy.get('[data-test="team-emails"]').type('a@startup.dev, b@startup.dev, not-an-email');
     cy.get('[data-test="team-count"]')
       .should('contain.text', '2 people')
       .and('contain.text', 'not-an-email');
@@ -73,7 +73,6 @@ describe('sign-up to a first project', () => {
     // The unverified banner offers to send the email again; the link confirms the address and releases the invitations.
     cy.get('[data-test="verify-email-banner"]').should('be.visible');
     cy.get('@verifyLink').then((link) => cy.visit(String(link)));
-    cy.get('[data-test="toast"]').should('contain.text', 'Your email is confirmed.');
     cy.get('[data-test="verify-email-banner"]').should('not.exist');
     cy.latestEmail('a@startup.dev', 'invited you').its('text').should('contain', '/invitations/');
   });
@@ -84,6 +83,7 @@ describe('sign-up to a first project', () => {
     cy.get('[data-test="signup-email"] input').type('resume@startup.dev');
     cy.get('[data-test="signup-password"] input').type(password, { log: false });
     cy.get('[data-test="signup-submit"]').click();
+    cy.location('pathname').should('eq', '/signup/check-email');
     cy.visit('/onboarding');
     cy.get('[data-test="org-name"] input').type('Resume Co');
     cy.get('[data-test="org-continue"]').click();

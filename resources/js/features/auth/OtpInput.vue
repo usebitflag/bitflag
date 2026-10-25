@@ -17,8 +17,10 @@ function focusBox(index: number): void {
 }
 
 function set(value: string): void {
-  model.value = value.replace(/\D/g, '').slice(0, props.length);
-  if (model.value.length === props.length) emit('complete', model.value);
+  // The model reads the parent's value, which is not updated until the parent renders again, so use the new value here.
+  const cleaned = value.replace(/\D/g, '').slice(0, props.length);
+  model.value = cleaned;
+  if (cleaned.length === props.length) emit('complete', cleaned);
 }
 
 function onInput(index: number, event: Event): void {

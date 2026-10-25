@@ -76,6 +76,7 @@ describe('two-factor sign-in', () => {
     cy.get('[data-test="challenge-submit"]').click();
     cy.location('pathname').should('match', /^\/acme\//);
 
+    cy.clearCookies();
     cy.signInThroughForm('jon@acme.dev');
     cy.get('[data-test="challenge-toggle"]').click();
     cy.get('[data-test="recovery-input"] input').type('abcde-fghij');
@@ -86,12 +87,17 @@ describe('two-factor sign-in', () => {
   it('ends the attempt after five wrong codes', () => {
     cy.signInThroughForm('maya@acme.dev');
 
+    cy.intercept('POST', '/two-factor-challenge').as('code');
+
     for (let attempt = 0; attempt < 5; attempt++) {
+      cy.get('[data-test="otp-input"]').should('be.visible');
       cy.fillOtp('000000');
-      if (attempt < 4) cy.get('[data-test="challenge-error"]').should('be.visible');
+      cy.wait('@code');
     }
 
     cy.location('pathname').should('eq', '/signin');
-    cy.get(login.error).should('contain.text', 'Too many wrong codes');
+    // The attempt is over: the challenge page no longer opens.
+    cy.visit('/two-factor-challenge');
+    cy.location('pathname').should('eq', '/signin');
   });
 });

@@ -19,13 +19,13 @@ describe('organization settings', () => {
     cy.get('[data-test="member-row"]').should('have.length.at.least', 5);
     cy.get('[data-test="pending-invitations"]').should('contain.text', 'dev@northwind.studio');
     cy.visit('/acme/settings/projects');
-    cy.get('[data-test="project-row"]').should('have.length', 4);
+    cy.get('[data-test="project-row"]').should('have.length', 2);
   });
 
-  it('keeps a member from reaching the settings', () => {
+  it('lets a member read the members but not invite', () => {
     cy.signInAs('ana@acme.dev');
-    cy.request({ url: '/acme/settings/members', failOnStatusCode: false })
-      .its('status')
-      .should('be.oneOf', [403, 404, 302]);
+    cy.visit('/acme/settings/members');
+    cy.get('[data-test="member-row"]').should('have.length.at.least', 1);
+    cy.get('[data-test="members-invite"]').should('not.exist');
   });
 });

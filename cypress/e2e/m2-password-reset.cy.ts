@@ -17,14 +17,16 @@ describe('password reset', () => {
     cy.get('[data-test="forgot-email"] input').type('ana@acme.dev');
     cy.get('[data-test="forgot-submit"]').click();
 
-    cy.latestEmail('ana@acme.dev', 'Reset your password').then(({ link }) => {
+    cy.latestEmail('ana@acme.dev', 'Reset your BitFlag password').then(({ link }) => {
       cy.visit(String(link));
       cy.get('[data-test="reset-password"] input').type('a brand new passphrase', { log: false });
       cy.get('[data-test="reset-submit"]').click();
-      cy.location('pathname').should('eq', '/signin');
+      // Resetting signs the person in.
+      cy.location('pathname').should('match', /^\/acme\//);
+      cy.clearCookies();
 
       cy.visit(String(link));
-      cy.get('[data-test="reset-token-error"]').should('be.visible');
+      cy.contains('already used').should('be.visible');
     });
 
     cy.signInThroughForm('ana@acme.dev', 'a brand new passphrase');

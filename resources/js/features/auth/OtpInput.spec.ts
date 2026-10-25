@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { defineComponent, ref } from 'vue';
 import { describe, expect, it } from 'vitest';
 import OtpInput from './OtpInput.vue';
 
@@ -53,5 +54,21 @@ describe('one-time code input', () => {
 
     expect(digitBoxes(page)[0]?.attributes('aria-invalid')).toBe('true');
     expect(digitBoxes(page)[0]?.element.value).toBe('1');
+  });
+
+  it('reports completion to a parent that holds the value with v-model', async () => {
+    const completed: string[] = [];
+    const Host = defineComponent({
+      components: { OtpInput },
+      setup: () => ({ code: ref(''), completed }),
+      template: '<OtpInput v-model="code" @complete="(value) => completed.push(value)" />',
+    });
+    const page = mount(Host, { attachTo: document.body });
+
+    await page
+      .get('[role="group"]')
+      .trigger('paste', { clipboardData: { getData: () => '123456' } });
+
+    expect(completed).toEqual(['123456']);
   });
 });
