@@ -52,6 +52,16 @@ it('builds a route pattern that matches valid names and excludes reserved ones',
         ->and(preg_match($pattern, '1acme'))->toBe(0);
 });
 
+it('keeps reserved words out of the organization segment of longer addresses too', function () {
+    $route = '#^/(?P<organization>'.SlugRules::routePattern().')/(?P<project>[a-z0-9][a-z0-9-]{0,39})$#';
+
+    expect(preg_match($route, '/acme/storefront'))->toBe(1)
+        ->and(preg_match($route, '/invitations/abc'))->toBe(0)
+        ->and(preg_match($route, '/account/security'))->toBe(0)
+        ->and(preg_match($route, '/signup/check-email'))->toBe(0)
+        ->and(preg_match($route, '/invitations-team/abc'))->toBe(1);
+});
+
 it('cleans a list of allowed domains', function () {
     $result = AllowedDomains::clean(['@Acme.dev', ' acme.dev ', 'Example.CO.UK', '', 'not a domain', 'nodot', 'a..b.com']);
 

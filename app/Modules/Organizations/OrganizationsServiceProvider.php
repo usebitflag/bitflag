@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\Organizations;
 
+use App\Modules\Identity\Events\EmailVerified;
+use App\Modules\Organizations\Actions\ReleaseQueuedInvitations;
+use App\Modules\Organizations\Console\ExpireInvitationsCommand;
+use App\Modules\Organizations\Jobs\SendInvitationEmail;
 use App\Modules\Organizations\Queries\MembershipCapabilityResolver;
 use App\Shared\Audit\AuditCatalog;
 use App\Shared\Capabilities\CapabilityResolver;
+use App\Shared\Outbox\ConsumerRegistry;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -23,10 +29,23 @@ final class OrganizationsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(ConsumerRegistry::class)->register(SendInvitationEmail::class);
+        $this->commands([ExpireInvitationsCommand::class]);
+
+        // An invitation queued by someone who had not confirmed their email goes out when they do.
+        Event::listen(EmailVerified::class, static function (EmailVerified $event): void {
+            app(ReleaseQueuedInvitations::class)->handle($event->userId);
+        });
+
         $this->app->make(AuditCatalog::class)->register(
             'organization.created',
             'organization.updated',
             'organization.security_changed',
+            'invitation.created',
+            'invitation.resent',
+            'invitation.revoked',
+            'invitation.accepted',
+            'project_member.added',
         );
     }
 }
