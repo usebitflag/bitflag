@@ -4,10 +4,12 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { installNavigationGuard } from './composables/useNavigationGuard';
+import { installSessionExpiry } from './features/auth/useSessionExpiry';
 import { initTheme } from './composables/useTheme';
 
 initTheme();
 installNavigationGuard();
+installSessionExpiry();
 
 const appName = import.meta.env.VITE_APP_NAME ?? 'BitFlag';
 

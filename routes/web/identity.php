@@ -8,6 +8,7 @@ use App\Modules\Identity\Http\Controllers\Web\PasswordCheckController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\Web\SecurityController;
+use App\Modules\Identity\Http\Controllers\Web\SessionsController;
 use App\Modules\Identity\Http\Controllers\Web\SignUpController;
 use App\Modules\Identity\Http\Controllers\Web\TwoFactorChallengeController;
 use App\Modules\Identity\Http\Controllers\Web\TwoFactorSettingsController;
@@ -49,6 +50,9 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/account/two-factor/confirm', [TwoFactorSettingsController::class, 'confirm'])->middleware('throttle:10,1')->name('account.two-factor.confirm');
     Route::delete('/account/two-factor', [TwoFactorSettingsController::class, 'disable'])->middleware('throttle:10,1')->name('account.two-factor.disable');
     Route::post('/account/recovery-codes', [TwoFactorSettingsController::class, 'regenerate'])->middleware('throttle:10,1')->name('account.recovery-codes');
+    Route::delete('/account/sessions', [SessionsController::class, 'destroyOthers'])->name('account.sessions.destroy-others');
+    Route::delete('/account/sessions/{ref}', [SessionsController::class, 'destroy'])->where('ref', '[a-f0-9]{32}')->name('account.sessions.destroy');
+    Route::delete('/account/trusted-browsers/{id}', [SessionsController::class, 'destroyTrustedBrowser'])->where('id', '[0-9a-z]{26}')->name('account.trusted-browsers.destroy');
     Route::put('/account/password', [PasswordController::class, 'update'])->middleware('throttle:10,1')->name('account.password.update');
     Route::post('/signup/change-email', [CheckEmailController::class, 'change'])->middleware('throttle:signup')->name('signup.change-email');
     Route::post('/email/verification-notification', [CheckEmailController::class, 'resend'])->middleware('throttle:verification')->name('verification.send');

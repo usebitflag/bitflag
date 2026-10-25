@@ -13,9 +13,11 @@ use App\Modules\Identity\Http\SignIn\PendingSignIn;
 use App\Modules\Identity\Http\SignIn\SignInCookies;
 use App\Modules\Identity\Queries\PersonLookup;
 use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use LogicException;
@@ -46,11 +48,11 @@ final class TwoFactorChallengeController
         PendingSignIn $pending,
         CompleteTwoFactorChallenge $complete,
         StatefulGuard $guard,
-    ): RedirectResponse {
+    ): RedirectResponse|JsonResponse {
         $current = $pending->current($request->session());
 
         if ($current === null) {
-            return redirect('/signin');
+            return $this->startOver($request, SignInMessages::FAILED);
         }
 
         $result = $complete->handle(new CompleteTwoFactorChallengeData(
@@ -75,6 +77,10 @@ final class TwoFactorChallengeController
                     Cookie::queue(SignInCookies::device($request, $result->deviceToken));
                 }
 
+                if ($request->wantsJson()) {
+                    return new JsonResponse(['ok' => true]);
+                }
+
                 $response = redirect()->intended('/');
 
                 return $result->recoveryCodesLeft !== null && $result->recoveryCodesLeft <= 2
@@ -83,20 +89,31 @@ final class TwoFactorChallengeController
 
             case ChallengeOutcome::WrongCode:
                 if ($pending->recordFailure($request->session())) {
-                    return redirect('/signin')->withErrors(['email' => SignInMessages::TOO_MANY_CODES]);
+                    return $this->startOver($request, SignInMessages::TOO_MANY_CODES);
                 }
 
-                return back()->withErrors(['code' => 'That code is not right.']);
-
+                throw ValidationException::withMessages(['code' => 'That code is not right.']);
             case ChallengeOutcome::Locked:
                 $pending->clear($request->session());
 
-                return redirect('/signin')->withErrors(['email' => SignInMessages::LOCKED]);
+                return $this->startOver($request, SignInMessages::LOCKED);
 
             case ChallengeOutcome::Unavailable:
                 $pending->clear($request->session());
 
-                return redirect('/signin')->withErrors(['email' => SignInMessages::FAILED]);
+                return $this->startOver($request, SignInMessages::FAILED);
         }
+    }
+
+    /**
+     * The attempt is over: a page goes back to the password, and a background request is told why.
+     */
+    private function startOver(Request $request, string $message): RedirectResponse
+    {
+        if ($request->wantsJson()) {
+            throw ValidationException::withMessages(['email' => $message]);
+        }
+
+        return redirect('/signin')->withErrors(['email' => $message]);
     }
 }

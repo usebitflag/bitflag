@@ -4,6 +4,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import Banner from '../components/ui/Banner.vue';
 import ToastViewport from '../components/ui/ToastViewport.vue';
 import VerifyEmailBanner from '../components/ui/VerifyEmailBanner.vue';
+import SessionExpiredDialog from '../features/auth/SessionExpiredDialog.vue';
 import CommandPalette from '../features/shell/CommandPalette.vue';
 import EnvironmentPicker from '../features/shell/EnvironmentPicker.vue';
 import ProjectSwitcher from '../features/shell/ProjectSwitcher.vue';
@@ -139,5 +140,6 @@ watch(
 
     <CommandPalette :navigation="navigation" />
     <ToastViewport />
+    <SessionExpiredDialog />
   </div>
 </template>

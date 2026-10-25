@@ -7,6 +7,8 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ResolveActor;
 use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Middleware\SecurityHeaders;
+use App\Modules\Identity\Http\Middleware\EnforceSessionPolicy;
+use App\Modules\Identity\Http\Middleware\TouchLastActive;
 use App\Shared\Errors\ExceptionRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -42,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/');
         $middleware->alias(['portal' => ResolvePortalScope::class]);
         $middleware->append(SecurityHeaders::class);
-        $middleware->web(append: [ResolveActor::class, HandleInertiaRequests::class]);
+        $middleware->web(append: [EnforceSessionPolicy::class, ResolveActor::class, TouchLastActive::class, HandleInertiaRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         ExceptionRenderer::register($exceptions);
