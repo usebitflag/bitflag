@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity;
 
-use App\Modules\Identity\Actions\Fortify\AuthenticateUser;
 use App\Modules\Identity\Domain\GeoLocator;
-use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Http\SignIn\CompleteSignIn;
+use App\Modules\Identity\Http\SignIn\RedirectIfTwoFactorRequired;
+use App\Modules\Identity\Http\SignIn\ValidateCredentials;
 use App\Modules\Identity\Support\NullGeoLocator;
 use App\Modules\Identity\Support\TrackedDatabaseSessionHandler;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Fortify;
 
 /**
@@ -48,25 +49,16 @@ final class IdentityServiceProvider extends ServiceProvider
             );
         });
 
-        Fortify::authenticateUsing(function (Request $request): ?User {
-            $email = $request->input(Fortify::username());
-            $password = $request->input('password');
+        // A correct password does not sign anyone in: the last stage does, and only when no second factor is owed.
+        Fortify::authenticateThrough(fn (): array => [
+            ValidateCredentials::class,
+            RedirectIfTwoFactorRequired::class,
+            CompleteSignIn::class,
+            PrepareAuthenticatedSession::class,
+        ]);
 
-            return is_string($email) && is_string($password)
-                ? $this->app->make(AuthenticateUser::class)->handle($email, $password)
-                : null;
-        });
-
-        // Five attempts a minute for one address from one network, and thirty a minute from one network whatever the
-        // address, so trying many different accounts from one place is slowed too.
-        RateLimiter::for('login', function (Request $request): array {
-            $email = $request->input(Fortify::username());
-            $key = Str::transliterate(Str::lower(is_string($email) ? $email : '').'|'.$request->ip());
-
-            return [
-                Limit::perMinute(5)->by($key),
-                Limit::perMinute(30)->by('ip|'.$request->ip()),
-            ];
-        });
+        // Thirty attempts a minute from one network whatever the address, so trying many accounts from one place is
+        // slowed. Guessing at one address is limited by the sign-in lock, which also covers addresses with no account.
+        RateLimiter::for('login', fn (Request $request): Limit => Limit::perMinute(30)->by('ip|'.$request->ip()));
     }
 }

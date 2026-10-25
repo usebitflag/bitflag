@@ -6,15 +6,17 @@ use App\Modules\Identity\Models\User;
 use App\Modules\Support\Models\StaffUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Sleep;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
+    Sleep::fake();
     $this->user = User::factory()->create(['email' => 'maya@acme.dev', 'password' => 'correct horse']);
-    RateLimiter::clear('maya@acme.dev|127.0.0.1');
+    RateLimiter::clear('ip|127.0.0.1');
 });
 
 it('shows the sign-in screen to a guest', function () {
-    $this->get('/signin')->assertOk()->assertInertia(fn (Assert $page) => $page->component('auth/Login'));
+    $this->get('/signin')->assertOk()->assertInertia(fn (Assert $page) => $page->component('auth/SignIn'));
 });
 
 it('signs a person in with the right password', function () {
@@ -48,15 +50,6 @@ it('gives the same answer for a wrong password, an unknown address and a deactiv
     expect(array_unique($messages))->toHaveCount(1);
 });
 
-it('slows repeated failures down', function () {
-    foreach (range(1, 5) as $attempt) {
-        $this->post('/signin', ['email' => 'maya@acme.dev', 'password' => 'wrong'.$attempt]);
-    }
-
-    $this->post('/signin', ['email' => 'maya@acme.dev', 'password' => 'correct horse'])->assertStatus(429);
-    $this->assertGuest('web');
-});
-
 it('slows trying many different accounts from one network', function () {
     RateLimiter::clear('ip|127.0.0.1');
 
@@ -81,6 +74,10 @@ it('signs a person out', function () {
 
 it('does not let a guest sign out', function () {
     $this->post('/signout')->assertRedirect('/signin');
+});
+
+it('sends the old login address to sign-in', function () {
+    $this->get('/login')->assertRedirect('/signin');
 });
 
 it('serves sign-in on the portal host only', function () {

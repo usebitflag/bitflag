@@ -43,7 +43,9 @@ it('rejects a staff session on the portal host', function () {
 
 it('does not serve portal routes on the admin host or admin routes on the portal host', function () {
     $this->get(adminUrl('/signin'))->assertNotFound();
-    $this->get(portalUrl('/login'))->assertNotFound();
+    // The portal's /login only sends people on to /signin; it is not the admin sign-in.
+    $this->get(portalUrl('/login'))->assertRedirect(portalUrl('/signin'));
+    $this->get(adminUrl('/login'))->assertOk();
 });
 
 it('keeps the Horizon dashboard on the admin host and behind the staff session', function () {
