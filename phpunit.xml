@@ -30,6 +30,8 @@
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="BITFLAG_CREDENTIAL_PEPPER_1" value="dGVzdC1wZXBwZXItMS10ZXN0LXBlcHBlci0xLXRlc3Q="/>
+        <env name="BITFLAG_CREDENTIAL_PEPPER_2" value="dGVzdC1wZXBwZXItMi10ZXN0LXBlcHBlci0yLXRlc3Q="/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_DATABASE" value="testing"/>
