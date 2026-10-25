@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Projects;
 
+use App\Shared\Audit\AuditCatalog;
 use App\Shared\Navigation\NavigationEntry;
 use App\Shared\Navigation\NavigationGroup;
 use App\Shared\Navigation\PortalNavigation;
@@ -22,6 +23,8 @@ final class ProjectsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(AuditCatalog::class)->register('project.created');
+
         // The Overview is the first page of every project.
         $this->app->make(PortalNavigation::class)->register(
             new NavigationEntry('overview', 'Overview', 'house', NavigationGroup::Project, 10, 'project.overview'),

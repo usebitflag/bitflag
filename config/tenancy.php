@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 use App\Modules\Environments\Models\Environment;
+use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Models\ProjectMembership;
 use App\Modules\Projects\Models\Project;
@@ -24,6 +25,7 @@ return [
     'tenant' => [
         'projects' => Project::class,
         'environments' => Environment::class,
+        'environment_policies' => EnvironmentPolicy::class,
         'organization_memberships' => OrganizationMembership::class,
         'project_memberships' => ProjectMembership::class,
         'audit_events' => 'App\Shared\Audit\AuditEvent',

@@ -25,6 +25,8 @@ use App\Shared\Outbox\Console\OutboxStatusCommand;
 use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
+use App\Shared\Plans\EnforcePlanLimit;
+use App\Shared\Plans\NoPlanLimits;
 use App\Shared\Security\SecretHasher;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
@@ -63,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
             );
         });
         $this->app->bind(TransactionGuard::class, fn (): TransactionGuard => new TransactionGuard(DB::connection()));
+
+        // Billing supplies the real plan limits; until it does, nothing is limited.
+        $this->app->bind(EnforcePlanLimit::class, NoPlanLimits::class);
 
         // Defaults until environments define protection and credentials define scopes.
         $this->app->bind(EnvironmentProtection::class, NoEnvironmentProtection::class);

@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property EnvironmentColor $color
  * @property int $position
  * @property EnvironmentStatus $status
+ * @property string|null $current_policy_id
  */
 #[UseFactory(EnvironmentFactory::class)]
 class Environment extends Model
@@ -32,7 +33,7 @@ class Environment extends Model
     /** @use HasFactory<EnvironmentFactory> */
     use BelongsToOrganization, HasFactory, HasPublicId, HasUlids, UsesMicrosecondTimestamps;
 
-    protected $fillable = ['organization_id', 'project_id', 'name', 'key', 'color', 'position', 'status'];
+    protected $fillable = ['organization_id', 'project_id', 'name', 'key', 'color', 'position', 'status', 'current_policy_id'];
 
     public static function publicIdPrefix(): IdPrefix
     {
