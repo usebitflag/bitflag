@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Testing\ClockController;
 use App\Http\Controllers\Testing\FailController;
 use App\Http\Controllers\Testing\LoginController;
+use App\Http\Controllers\Testing\MailpitController;
 use App\Http\Controllers\Testing\ResetController;
 use App\Http\Middleware\RequireTestingToken;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -18,6 +19,9 @@ Route::prefix('_testing')
     ->group(function (): void {
         Route::post('/reset', ResetController::class)->name('testing.reset');
         Route::post('/login', LoginController::class)->name('testing.login');
+        Route::get('/clock', [ClockController::class, 'show'])->name('testing.clock.show');
         Route::post('/clock', ClockController::class)->name('testing.clock');
+        Route::get('/mailpit', [MailpitController::class, 'index'])->name('testing.mailpit');
+        Route::delete('/mailpit', [MailpitController::class, 'destroy'])->name('testing.mailpit.clear');
         Route::match(['get', 'post'], '/fail', FailController::class)->name('testing.fail');
     });

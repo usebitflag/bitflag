@@ -24,6 +24,10 @@ final class DemoIds
 
     private const STAFF = 7;
 
+    private const POLICY = 8;
+
+    private const INVITATION = 9;
+
     public static function organization(int $number): string
     {
         return self::make(self::ORGANIZATION, $number);
@@ -52,6 +56,16 @@ final class DemoIds
     public static function projectMembership(int $number): string
     {
         return self::make(self::PROJECT_MEMBERSHIP, $number);
+    }
+
+    public static function policy(int $project, int $position): string
+    {
+        return self::make(self::POLICY, $project * 10 + $position);
+    }
+
+    public static function invitation(int $number): string
+    {
+        return self::make(self::INVITATION, $number);
     }
 
     public static function staff(int $number): string

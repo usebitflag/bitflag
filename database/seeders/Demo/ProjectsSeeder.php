@@ -17,12 +17,15 @@ final class ProjectsSeeder extends Seeder
 
     public const BILLING = 3;
 
+    public const PORTFOLIO = 4;
+
     public function run(): void
     {
         $projects = [
             self::STOREFRONT => [OrganizationsSeeder::ACME, 'Storefront', 'storefront', 'Web checkout, catalog and account pages.'],
             self::CHECKOUT_API => [OrganizationsSeeder::ACME, 'Checkout API', 'checkout-api', null],
             self::BILLING => [OrganizationsSeeder::GLOBEX, 'Billing', 'billing', null],
+            self::PORTFOLIO => [OrganizationsSeeder::STUDIO, 'Portfolio', 'portfolio', null],
         ];
 
         foreach ($projects as $number => [$organization, $name, $key, $description]) {

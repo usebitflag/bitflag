@@ -22,6 +22,6 @@ it('rebuilds the demo world and releases the clock', function () {
         ->assertOk()->assertJsonPath('data.reset', true);
 
     expect(User::query()->where('email', 'maya@acme.dev')->exists())->toBeTrue()
-        ->and(Tenancy::crossTenant('reset check', fn () => Project::query()->count()))->toBe(3)
+        ->and(Tenancy::crossTenant('reset check', fn () => Project::query()->count()))->toBe(4)
         ->and(Cache::has(ApplyTestingClock::CACHE_KEY))->toBeFalse();
 });

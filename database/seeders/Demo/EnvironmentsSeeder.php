@@ -7,6 +7,7 @@ namespace Database\Seeders\Demo;
 use App\Modules\Environments\Domain\EnvironmentColor;
 use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
+use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Shared\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
 
@@ -27,6 +28,7 @@ final class EnvironmentsSeeder extends Seeder
             ProjectsSeeder::STOREFRONT => OrganizationsSeeder::ACME,
             ProjectsSeeder::CHECKOUT_API => OrganizationsSeeder::ACME,
             ProjectsSeeder::BILLING => OrganizationsSeeder::GLOBEX,
+            ProjectsSeeder::PORTFOLIO => OrganizationsSeeder::STUDIO,
         ];
 
         foreach ($owners as $project => $organization) {
@@ -46,6 +48,23 @@ final class EnvironmentsSeeder extends Seeder
                         'position' => $position,
                         'status' => EnvironmentStatus::Active,
                     ])->save();
+
+                    // Production starts protected, like a project made through CreateProject.
+                    $protected = $key === 'production';
+                    $policy = EnvironmentPolicy::query()->find(DemoIds::policy($project, $position)) ?? new EnvironmentPolicy;
+                    $policy->forceFill([
+                        'id' => DemoIds::policy($project, $position),
+                        'organization_id' => $organizationId,
+                        'project_id' => DemoIds::project($project),
+                        'environment_id' => $id,
+                        'version' => 1,
+                        'is_protected' => $protected,
+                        'require_reason' => $protected,
+                        'required_approvals' => 0,
+                        'allow_self_approval' => false,
+                    ])->save();
+
+                    $environment->forceFill(['current_policy_id' => $policy->id])->save();
                 }
             });
         }
