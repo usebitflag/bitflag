@@ -8,6 +8,7 @@ import type { SharedUser } from '../../types/shared';
 const props = defineProps<{ user: SharedUser; organizationSettingsHref?: string }>();
 
 const items = [
+  { key: 'account', label: 'Account settings' },
   ...(props.organizationSettingsHref
     ? [{ key: 'organization', label: 'Organization settings' }]
     : []),
@@ -18,6 +19,7 @@ function select(key: string): void {
   if (!confirmLeave()) return;
   if (key === 'organization' && props.organizationSettingsHref)
     router.visit(props.organizationSettingsHref);
+  if (key === 'account') router.visit('/account/profile');
   if (key === 'signout') router.post('/signout');
 }
 </script>

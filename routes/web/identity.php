@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Modules\Identity\Http\Controllers\Web\AccountDeletionController;
 use App\Modules\Identity\Http\Controllers\Web\CheckEmailController;
 use App\Modules\Identity\Http\Controllers\Web\LoginController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordCheckController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordResetController;
+use App\Modules\Identity\Http\Controllers\Web\ProfileController;
 use App\Modules\Identity\Http\Controllers\Web\SecurityController;
 use App\Modules\Identity\Http\Controllers\Web\SessionsController;
 use App\Modules\Identity\Http\Controllers\Web\SignUpController;
@@ -45,6 +47,12 @@ Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'show'
 Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:login')->name('two-factor.login');
 
 Route::middleware('auth:web')->group(function (): void {
+    Route::get('/account/profile', [ProfileController::class, 'show'])->name('account.profile');
+    Route::put('/account/profile', [ProfileController::class, 'update'])->name('account.profile.update');
+    Route::post('/account/email', [ProfileController::class, 'requestEmailChange'])->middleware('throttle:5,1')->name('account.email.request');
+    Route::get('/account/email/confirm/{id}/{hash}', [ProfileController::class, 'confirmEmailChange'])->middleware('signed')->name('email.change.confirm');
+    Route::get('/account/delete', [AccountDeletionController::class, 'show'])->name('account.delete');
+    Route::delete('/account', [AccountDeletionController::class, 'destroy'])->middleware('throttle:5,1')->name('account.destroy');
     Route::get('/account/security', [SecurityController::class, 'show'])->name('account.security');
     Route::post('/account/two-factor', [TwoFactorSettingsController::class, 'start'])->middleware('throttle:10,1')->name('account.two-factor.start');
     Route::post('/account/two-factor/confirm', [TwoFactorSettingsController::class, 'confirm'])->middleware('throttle:10,1')->name('account.two-factor.confirm');

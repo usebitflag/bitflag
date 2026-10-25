@@ -76,6 +76,14 @@ final class AccountEmail extends Notification
                 'Two-factor sign-in is off for BitFlag',
                 'Two-factor sign-in was turned off for your account. If this was not you, secure your account now.',
             ],
+            AccountEmailTemplate::ConfirmNewEmail => [
+                'Confirm your new email for BitFlag',
+                'Confirm this address to use it for your BitFlag account. The link works for 24 hours. Until you confirm, your account keeps its current address.',
+            ],
+            AccountEmailTemplate::EmailChanged => [
+                'Your BitFlag email address was changed',
+                'The email address of your BitFlag account was just changed to '.$this->detail('new_email', 'a new address').'. If this was not you, reset your password now and contact support.',
+            ],
             AccountEmailTemplate::AccountLocked => [
                 'Too many sign-in attempts on BitFlag',
                 'Sign-in to your account is paused for 15 minutes after too many failed attempts. If this was not you, reset your password.',

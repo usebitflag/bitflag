@@ -11,8 +11,8 @@ use Psr\Clock\ClockInterface;
 
 /**
  * Daily housekeeping for security data: security events older than 90 days, sessions past their absolute lifetime or
- * idle past the platform limit, trusted browsers that expired or were revoked, and second-factor enrollments left
- * unconfirmed for a day. Returns how many rows went, by kind.
+ * idle past the platform limit, trusted browsers that expired or were revoked, second-factor enrollments left
+ * unconfirmed for a day, and the previous email address 30 days after a change. Returns how many rows went, by kind.
  */
 final class PruneSecurityState
 {
@@ -21,7 +21,7 @@ final class PruneSecurityState
     public function __construct(private readonly ClockInterface $clock) {}
 
     /**
-     * @return array{security_events: int, sessions: int, trusted_browsers: int, enrollments: int}
+     * @return array{security_events: int, sessions: int, trusted_browsers: int, enrollments: int, previous_emails: int}
      */
     public function handle(): array
     {
@@ -39,6 +39,7 @@ final class PruneSecurityState
                 ->where(fn (Builder $query) => $query->where('expires_at', '<', $now)->orWhere('revoked_at', '<', $now->modify('-1 day')))
                 ->delete(),
             'enrollments' => DB::table('mfa_factors')->whereNull('confirmed_at')->where('created_at', '<', $now->modify('-1 day'))->delete(),
+            'previous_emails' => DB::table('users')->whereNotNull('previous_email')->where('email_changed_at', '<', $now->modify('-30 days'))->update(['previous_email' => null]),
         ];
     }
 }

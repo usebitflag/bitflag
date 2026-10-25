@@ -28,6 +28,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $last_project_id
  * @property string|null $last_environment_id
  * @property string|null $pending_email
+ * @property string|null $previous_email
+ * @property Carbon|null $email_changed_at
  * @property Carbon $password_changed_at
  * @property bool $remember_org_choice
  * @property Carbon|null $last_active_at
@@ -70,6 +72,7 @@ class User extends Authenticatable
             'password_changed_at' => 'datetime',
             'remember_org_choice' => 'boolean',
             'last_active_at' => 'datetime',
+            'email_changed_at' => 'datetime',
             'status' => AccountStatus::class,
         ];
     }

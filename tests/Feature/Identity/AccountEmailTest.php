@@ -80,11 +80,43 @@ it('keeps addresses, links and tokens out of the queued message', function (Acco
     expect($payload)->not->toContain('maya@acme.dev')->not->toContain('http')->not->toContain('token')->not->toContain('signature');
 })->with(AccountEmailTemplate::cases());
 
-it('sends every template to the person', function (AccountEmailTemplate $template) {
+it('sends every template to the right address', function (AccountEmailTemplate $template) {
+    $this->user->forceFill(['pending_email' => 'new@acme.dev', 'previous_email' => 'old@acme.dev'])->save();
+
     app(SendAccountEmail::class)->consume(request_email($template, $this->user));
 
-    Notification::assertSentTo($this->user, AccountEmail::class);
-    expect(mail_for($this->user))->toContain('http');
+    match ($template) {
+        // The new address is asked to confirm itself and the old one is told it was replaced.
+        AccountEmailTemplate::ConfirmNewEmail => Notification::assertSentOnDemand(AccountEmail::class, fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'new@acme.dev'),
+        AccountEmailTemplate::EmailChanged => Notification::assertSentOnDemand(AccountEmail::class, fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'old@acme.dev'),
+        default => Notification::assertSentTo($this->user, AccountEmail::class),
+    };
+})->with(AccountEmailTemplate::cases());
+
+it('sends nothing for an email change that is no longer waiting', function (AccountEmailTemplate $template) {
+    app(SendAccountEmail::class)->consume(request_email($template, $this->user));
+
+    Notification::assertNothingSent();
+})->with([AccountEmailTemplate::ConfirmNewEmail, AccountEmailTemplate::EmailChanged]);
+
+it('puts a link in every email', function (AccountEmailTemplate $template) {
+    $this->user->forceFill(['pending_email' => 'new@acme.dev', 'previous_email' => 'old@acme.dev'])->save();
+    $body = null;
+    $capture = function (AccountEmail $notification, $notifiable) use (&$body): bool {
+        $mail = $notification->toMail($notifiable);
+        $body = view($mail->view['text'], $mail->viewData)->render();
+
+        return true;
+    };
+
+    app(SendAccountEmail::class)->consume(request_email($template, $this->user));
+
+    match ($template) {
+        AccountEmailTemplate::ConfirmNewEmail, AccountEmailTemplate::EmailChanged => Notification::assertSentOnDemand(AccountEmail::class, fn ($n, $channels, $notifiable) => $capture($n, $notifiable)),
+        default => Notification::assertSentTo($this->user, AccountEmail::class, fn ($n) => $capture($n, $this->user)),
+    };
+
+    expect($body)->toContain('http');
 })->with(AccountEmailTemplate::cases());
 
 it('puts a signed link that works for 24 hours in the verification email', function () {

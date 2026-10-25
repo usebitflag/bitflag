@@ -11,7 +11,7 @@ import SessionsPanel, {
 } from '../../features/auth/SessionsPanel.vue';
 import TwoFactorPanel from '../../features/auth/TwoFactorPanel.vue';
 import { sendJson } from '../../features/auth/sendJson';
-import PortalLayout from '../../layouts/PortalLayout.vue';
+import AccountLayout from '../../layouts/AccountLayout.vue';
 
 defineProps<{
   twoFactor: { enabled: boolean; recoveryCodesLeft: number };
@@ -51,10 +51,8 @@ function changePassword(): void {
 
 <template>
   <Head title="Account security" />
-  <PortalLayout context="Account security">
+  <AccountLayout title="Security">
     <div class="flex max-w-xl flex-col gap-8">
-      <h1 class="font-heading text-2xl">Account security</h1>
-
       <section class="flex flex-col gap-4" aria-labelledby="password-heading">
         <div>
           <h2 id="password-heading" class="font-heading text-lg">Password</h2>
@@ -113,5 +111,5 @@ function changePassword(): void {
 
       <SessionsPanel :sessions="sessions" :trusted-browsers="trustedBrowsers" />
     </div>
-  </PortalLayout>
+  </AccountLayout>
 </template>
