@@ -16,6 +16,7 @@ final readonly class SignedInPerson
         public ?string $lastOrganizationId = null,
         public ?string $lastProjectId = null,
         public ?string $lastEnvironmentId = null,
+        public bool $emailVerified = true,
     ) {}
 
     public function initials(): string

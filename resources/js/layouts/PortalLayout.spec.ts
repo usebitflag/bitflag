@@ -31,7 +31,15 @@ function setProps(
   flash: SharedProps['flash'] = { toast: null },
 ): void {
   page.props = {
-    auth: { user: { id: 'usr_1', name: 'Maya Chen', email: 'maya@acme.test', initials: 'MC' } },
+    auth: {
+      user: {
+        id: 'usr_1',
+        name: 'Maya Chen',
+        email: 'maya@acme.test',
+        initials: 'MC',
+        emailVerified: true,
+      },
+    },
     scope: {
       organization: { id: 'org_1', slug: 'acme', name: 'Acme' },
       project: { id: 'prj_1', key: 'storefront', name: 'Storefront' },
