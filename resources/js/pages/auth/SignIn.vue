@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
 const form = useForm({ email: '', password: '' });
@@ -37,7 +37,16 @@ function submit(): void {
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="password" class="text-sm font-medium">Password</label>
+        <div class="flex items-baseline justify-between">
+          <label for="password" class="text-sm font-medium">Password</label>
+          <Link
+            href="/forgot-password"
+            class="text-muted text-xs underline"
+            data-test="login-forgot"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <input
           id="password"
           v-model="form.password"

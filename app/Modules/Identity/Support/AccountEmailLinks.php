@@ -6,6 +6,8 @@ namespace App\Modules\Identity\Support;
 
 use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Models\User;
+use App\Shared\Ids\IdPrefix;
+use App\Shared\Ids\PublicId;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
 use Psr\Clock\ClockInterface;
@@ -28,7 +30,7 @@ final class AccountEmailLinks
                 $this->clock->now()->modify('+'.self::VERIFICATION_HOURS.' hours'),
                 ['id' => $user->id, 'hash' => sha1($user->email)],
             ),
-            AccountEmailTemplate::PasswordReset => route('password.reset', ['token' => Password::broker()->createToken($user)]),
+            AccountEmailTemplate::PasswordReset => route('password.reset', ['token' => Password::broker()->createToken($user), 'user' => PublicId::encode(IdPrefix::User, $user->id)]),
             AccountEmailTemplate::SignupAttemptExisting => url('/signin'),
             AccountEmailTemplate::PasswordChanged, AccountEmailTemplate::AccountLocked => url('/forgot-password'),
             AccountEmailTemplate::NewSignIn,

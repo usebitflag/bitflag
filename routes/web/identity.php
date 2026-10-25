@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Modules\Identity\Http\Controllers\Web\CheckEmailController;
 use App\Modules\Identity\Http\Controllers\Web\LoginController;
 use App\Modules\Identity\Http\Controllers\Web\PasswordCheckController;
+use App\Modules\Identity\Http\Controllers\Web\PasswordController;
+use App\Modules\Identity\Http\Controllers\Web\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\Web\SignUpController;
 use App\Modules\Identity\Http\Controllers\Web\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +27,17 @@ Route::middleware('guest:web')->group(function (): void {
 Route::get('/signup/check-email', [CheckEmailController::class, 'show'])->name('signup.check-email');
 Route::post('/password/check', PasswordCheckController::class)->middleware('throttle:password-check')->name('password.check');
 
+Route::middleware('guest:web')->group(function (): void {
+    Route::get('/forgot-password', [PasswordResetController::class, 'forgot'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'send'])->middleware('throttle:password-reset')->name('password.email');
+    Route::get('/forgot-password/sent', [PasswordResetController::class, 'sent'])->name('password.sent');
+    Route::post('/forgot-password/resend', [PasswordResetController::class, 'resend'])->middleware('throttle:password-reset')->name('password.resend');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'show'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:10,1')->name('password.update');
+});
+
 Route::middleware('auth:web')->group(function (): void {
+    Route::put('/account/password', [PasswordController::class, 'update'])->middleware('throttle:10,1')->name('account.password.update');
     Route::post('/signup/change-email', [CheckEmailController::class, 'change'])->middleware('throttle:signup')->name('signup.change-email');
     Route::post('/email/verification-notification', [CheckEmailController::class, 'resend'])->middleware('throttle:verification')->name('verification.send');
     Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)->middleware('signed')->name('verification.verify');

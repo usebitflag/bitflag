@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Identity\Http\Controllers\Web;
+
+use App\Modules\Identity\Actions\ChangePassword;
+use App\Modules\Identity\Data\ChangePasswordData;
+use App\Modules\Identity\Http\Requests\ChangePasswordRequest;
+use App\Modules\Identity\Queries\CurrentPerson;
+use Illuminate\Http\RedirectResponse;
+
+/**
+ * Changing the password from account settings.
+ */
+final class PasswordController
+{
+    public function update(ChangePasswordRequest $request, ChangePassword $change, CurrentPerson $current): RedirectResponse
+    {
+        $person = $current->find();
+        abort_if($person === null, 403);
+
+        $change->handle(new ChangePasswordData(
+            $person->id,
+            $request->string('current_password')->toString(),
+            $request->string('password')->toString(),
+            $request->session()->getId(),
+            $request->ip(),
+            $request->userAgent(),
+        ));
+
+        // The id of the session that made the change is replaced, and the old one destroyed, so an id someone saw earlier
+        // is worthless.
+        $request->session()->regenerate(true);
+
+        return back()->with('toast', ['message' => 'Your password was changed. Other sessions were signed out.', 'tone' => 'neutral']);
+    }
+}

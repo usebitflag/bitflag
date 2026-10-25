@@ -17,15 +17,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
     Cache::flush();
     Notification::fake();
-    // The pages these links open are registered by the sign-up and password features.
-    Route::get('/email/verify/{id}/{hash}', fn () => '')->name('verification.verify');
-    Route::get('/reset-password/{token}', fn () => '')->name('password.reset');
-    app('router')->getRoutes()->refreshNameLookups();
     $this->user = User::factory()->create(['email' => 'maya@acme.dev']);
 });
 
