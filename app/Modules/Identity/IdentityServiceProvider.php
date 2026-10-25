@@ -8,8 +8,10 @@ use App\Modules\Identity\Domain\GeoLocator;
 use App\Modules\Identity\Http\SignIn\CompleteSignIn;
 use App\Modules\Identity\Http\SignIn\RedirectIfTwoFactorRequired;
 use App\Modules\Identity\Http\SignIn\ValidateCredentials;
+use App\Modules\Identity\Jobs\SendAccountEmail;
 use App\Modules\Identity\Support\NullGeoLocator;
 use App\Modules\Identity\Support\TrackedDatabaseSessionHandler;
+use App\Shared\Outbox\ConsumerRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
@@ -36,6 +38,8 @@ final class IdentityServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(ConsumerRegistry::class)->register(SendAccountEmail::class);
+
         // The "database" session driver, plus device and location details for the sessions list.
         Session::extend('database', function (Application $app): TrackedDatabaseSessionHandler {
             $connection = config('session.connection');

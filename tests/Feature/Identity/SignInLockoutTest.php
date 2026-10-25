@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Models\SecurityEvent;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Notifications\AccountEmail;
+use App\Shared\Outbox\Dispatcher;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Sleep;
 
@@ -129,4 +132,18 @@ it('never stores the address or password of a failed attempt', function () {
     $row = json_encode(SecurityEvent::query()->firstOrFail()->getAttributes(), JSON_INVALID_UTF8_SUBSTITUTE);
 
     expect($row)->not->toContain('nobody@acme.dev')->not->toContain('hunter2');
+});
+
+it('emails the owner once when a real account locks, and nobody for an unknown address', function () {
+    Notification::fake();
+
+    foreach (['maya@acme.dev', 'nobody@acme.dev'] as $email) {
+        foreach (range(1, 8) as $n) {
+            attempt($email);
+        }
+    }
+    app(Dispatcher::class)->dispatchBatch('test-worker');
+
+    Notification::assertSentToTimes($this->user, AccountEmail::class, 1);
+    Notification::assertCount(1);
 });
