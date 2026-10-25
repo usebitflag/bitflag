@@ -85,4 +85,18 @@ return [
         'max_per_user' => (int) env('BITFLAG_MAX_ORGANIZATIONS_PER_USER', 5),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Onboarding
+    |--------------------------------------------------------------------------
+    |
+    | Whether the sign-up wizard has a plan step. Billing turns it on when it
+    | registers one; until then every organization is on the Free plan.
+    |
+    */
+
+    'onboarding' => [
+        'plan_step' => false,
+    ],
+
 ];

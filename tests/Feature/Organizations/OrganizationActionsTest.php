@@ -30,7 +30,7 @@ function creator(): array
     return ['user' => $user, 'actor' => Actor::user($user->id, $user->name, Channel::Dashboard)];
 }
 
-function create_org(Actor $actor, string $name = 'Acme', string $slug = 'acme', ?TeamSize $size = null)
+function create_org(Actor $actor, string $name = 'Acme', string $slug = 'acme', ?string $size = null)
 {
     return app(CreateOrganization::class)->handle($actor, new CreateOrganizationData($name, $slug, $size));
 }
@@ -44,7 +44,7 @@ describe('creating an organization', function () {
     it('creates it with the person as its Org Owner and records it', function () {
         $c = creator();
 
-        $result = create_org($c['actor'], 'Acme Corp', 'acme-corp', TeamSize::Small);
+        $result = create_org($c['actor'], 'Acme Corp', 'acme-corp', 'small');
 
         $organization = Organization::query()->findOrFail($result->organizationId);
         $membership = Tenancy::crossTenant('inspect', fn () => OrganizationMembership::query()->where('organization_id', $organization->id)->firstOrFail());

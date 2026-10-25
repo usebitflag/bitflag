@@ -7,6 +7,7 @@ namespace App\Modules\Organizations\Actions;
 use App\Modules\Organizations\Data\CreateOrganizationData;
 use App\Modules\Organizations\Data\CreateOrganizationResult;
 use App\Modules\Organizations\Domain\OrganizationStatus;
+use App\Modules\Organizations\Domain\TeamSize;
 use App\Modules\Organizations\Models\Organization;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Queries\OrganizationSlugs;
@@ -70,7 +71,7 @@ final class CreateOrganization
                     'name' => $name,
                     'slug' => $slug,
                     'status' => OrganizationStatus::Active,
-                    'team_size_hint' => $data->teamSize,
+                    'team_size_hint' => $data->teamSize === null ? null : TeamSize::tryFrom($data->teamSize),
                     'created_by' => $userId,
                 ]);
 

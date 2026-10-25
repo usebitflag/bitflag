@@ -8,6 +8,7 @@ use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Portal\PortalScopeResolver;
 use App\Modules\Identity\Queries\CurrentPerson;
 use App\Modules\Organizations\Queries\MembershipLookup;
+use App\Modules\Organizations\Queries\OnboardingState;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,7 @@ final class HomeController
         private readonly CurrentPerson $currentPerson,
         private readonly PortalScopeResolver $resolver,
         private readonly MembershipLookup $memberships,
+        private readonly OnboardingState $onboarding,
     ) {}
 
     /** GET / */
@@ -29,6 +31,13 @@ final class HomeController
 
         if ($person === null) {
             return redirect()->route('login');
+        }
+
+        // Someone still setting up goes back to the step they were on; someone with no organization starts the wizard.
+        $onboarding = $this->onboarding->for($person->id);
+
+        if ($onboarding->step !== null) {
+            return redirect($onboarding->path());
         }
 
         // Right after signing in, a person in several organizations picks one, unless they asked not to be asked again.
