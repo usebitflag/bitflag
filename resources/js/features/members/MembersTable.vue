@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { PhUserMinus } from '@phosphor-icons/vue';
 import Button from '../../components/ui/Button.vue';
+import IconButton from '../../components/ui/IconButton.vue';
+import Select from '../../components/ui/Select.vue';
+import PersonCell from './PersonCell.vue';
 import type { ProjectRoleName } from './RoleCards.vue';
 
 export interface ProjectMember {
@@ -35,59 +39,55 @@ function lastActive(seconds: number | null): string {
 </script>
 
 <template>
-  <div class="border-divider overflow-x-auto rounded-lg border">
-    <table class="w-full border-collapse text-sm">
+  <div class="bg-surface border-divider overflow-hidden rounded-lg border">
+    <table class="w-full border-collapse text-[13px]">
       <caption class="sr-only">
         Project members
       </caption>
       <thead>
-        <tr class="border-divider text-muted border-b text-left">
-          <th scope="col" class="px-4 py-2">Person</th>
-          <th scope="col" class="px-4 py-2">Role</th>
-          <th scope="col" class="px-4 py-2">Two-factor</th>
-          <th scope="col" class="px-4 py-2">Last active</th>
-          <th scope="col" class="px-4 py-2"><span class="sr-only">Actions</span></th>
+        <tr class="text-text/55 border-divider border-b text-left">
+          <th scope="col" class="py-1.5 pr-4 pl-4 font-medium">Member</th>
+          <th scope="col" class="px-4 py-1.5 font-medium">Role</th>
+          <th scope="col" class="px-4 py-1.5 font-medium">Two-factor</th>
+          <th scope="col" class="px-4 py-1.5 font-medium">Last active</th>
+          <th scope="col" class="px-4 py-1.5"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody>
         <tr
           v-for="member in members"
           :key="member.membershipId"
-          class="border-divider border-b last:border-0"
+          class="border-divider hover:bg-text/[0.025] border-b last:border-0"
           data-test="member-row"
         >
-          <td class="px-4 py-2">
-            <div class="font-medium">
-              {{ member.name
-              }}<span v-if="member.userId === currentUserId" class="text-muted font-normal">
-                · You</span
-              >
-            </div>
-            <div class="text-muted text-xs">{{ member.email }}</div>
+          <td class="py-1.5 pr-4 pl-4">
+            <PersonCell
+              :name="member.name"
+              :email="member.email"
+              :you="member.userId === currentUserId"
+            />
           </td>
-          <td class="px-4 py-2">
-            <select
-              :value="member.role"
+          <td class="px-4 py-1.5">
+            <Select
+              class="w-[150px]"
+              :model-value="member.role"
+              :options="roles"
               :disabled="!canManage || member.userId === currentUserId"
-              class="border-control-border bg-surface h-8 rounded-md border px-2 disabled:opacity-70"
               :aria-label="`Role of ${member.name}`"
               data-test="member-role"
-              @change="
-                emit('role', member, ($event.target as HTMLSelectElement).value as ProjectRoleName)
-              "
-            >
-              <option v-for="role in roles" :key="role.value" :value="role.value">
-                {{ role.label }}
-              </option>
-            </select>
+              @update:model-value="emit('role', member, $event as ProjectRoleName)"
+            />
           </td>
-          <td class="px-4 py-2" data-test="member-two-factor">
+          <td
+            :class="['px-4 py-1.5', member.twoFactor ? 'text-text/75' : 'text-primary-ink']"
+            data-test="member-two-factor"
+          >
             {{ member.twoFactor ? 'On' : 'Off' }}
           </td>
-          <td class="px-4 py-2" data-test="member-last-active">
+          <td class="text-text/65 px-4 py-1.5" data-test="member-last-active">
             {{ lastActive(member.lastActiveAt) }}
           </td>
-          <td class="px-4 py-2 text-right">
+          <td class="px-4 py-1.5 text-right">
             <Button
               v-if="member.userId === currentUserId"
               size="sm"
@@ -96,14 +96,15 @@ function lastActive(seconds: number | null): string {
               @click="emit('leave')"
               >Leave project</Button
             >
-            <Button
+            <IconButton
               v-else-if="canManage"
-              size="sm"
-              variant="ghost"
+              label="Remove"
+              class="!text-text !h-7 !w-7"
               data-test="member-remove"
               @click="emit('remove', member)"
-              >Remove</Button
             >
+              <PhUserMinus :size="16" aria-hidden="true" />
+            </IconButton>
           </td>
         </tr>
       </tbody>

@@ -25,8 +25,10 @@ const palette = useCommandPalette();
       <PhList :size="16" aria-hidden="true" />
     </IconButton>
     <div class="flex min-w-0 flex-1 items-center gap-2 text-sm" data-test="top-bar-context">
-      <span class="truncate font-medium">{{ context }}</span>
-      <span v-if="environmentName" class="text-muted truncate">· {{ environmentName }}</span>
+      <slot name="context">
+        <span class="truncate font-medium">{{ context }}</span>
+        <span v-if="environmentName" class="text-muted truncate">· {{ environmentName }}</span>
+      </slot>
     </div>
     <button
       type="button"

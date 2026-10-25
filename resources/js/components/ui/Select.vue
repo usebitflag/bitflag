@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { PhCaretDown } from '@phosphor-icons/vue';
+import { computed, useAttrs } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -20,12 +21,19 @@ withDefaults(
 );
 
 const model = defineModel<string>({ default: '' });
+const attrs = useAttrs();
+// A class or style belongs to the whole control, the rest to the select element.
+const outer = computed(() => ({ class: attrs.class, style: attrs.style }));
+const inner = computed(() =>
+  Object.fromEntries(
+    Object.entries(attrs).filter(([name]) => name !== 'class' && name !== 'style'),
+  ),
+);
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative" v-bind="outer">
     <select
-      v-bind="$attrs"
       :id="id"
       v-model="model"
       :aria-invalid="invalid ? 'true' : undefined"
@@ -36,6 +44,7 @@ const model = defineModel<string>({ default: '' });
         mono ? 'font-mono text-xs' : '',
       ]"
       data-test="select"
+      v-bind="inner"
     >
       <option v-for="option in options" :key="option.value" :value="option.value">
         {{ option.label }}

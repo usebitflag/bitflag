@@ -37,7 +37,7 @@ final class OrganizationsServiceProvider extends ServiceProvider
 
         // Project members are managed from the project's own settings.
         $this->app->make(PortalNavigation::class)->register(
-            new NavigationEntry('members', 'Members', 'users-three', NavigationGroup::Administration, 20, 'project.settings.members'),
+            new NavigationEntry('settings', 'Settings', 'gear-six', NavigationGroup::Administration, 20, 'project.settings.members'),
         );
 
         // An invitation queued by someone who had not confirmed their email goes out when they do.

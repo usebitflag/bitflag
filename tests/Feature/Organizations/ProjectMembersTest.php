@@ -207,7 +207,7 @@ describe('the Members tab', function () {
 
     it('appears in the sidebar for people who can open the project', function () {
         $this->actingAs($this->maya)->get('/acme/storefront/production/overview')->assertInertia(fn (Assert $page) => $page
-            ->where('navigation', fn ($navigation) => collect($navigation)->contains(fn ($item) => $item['key'] === 'members' && $item['href'] === '/acme/storefront/production/settings/members' && $item['group'] === 'Administration')));
+            ->where('navigation', fn ($navigation) => collect($navigation)->contains(fn ($item) => $item['key'] === 'settings' && $item['href'] === '/acme/storefront/production/settings/members' && $item['group'] === 'Administration')));
     });
 });
 

@@ -15,16 +15,16 @@ const id = useId();
       v-model="model"
       :disabled="disabled"
       :aria-describedby="help ? `${id}-help` : undefined"
-      class="border-control-border data-[state=checked]:bg-primary bg-hover relative mt-0.5 h-5 w-9 shrink-0 rounded-full border"
+      class="border-control-border data-[state=checked]:bg-selection data-[state=checked]:border-primary bg-hover relative mt-px h-5 w-[34px] shrink-0 rounded-[10px] border"
       data-test="switch-root"
     >
       <SwitchThumb
-        class="bg-surface border-control-border block h-4 w-4 translate-x-0.5 rounded-full border transition-transform data-[state=checked]:translate-x-[18px]"
+        class="bg-muted data-[state=checked]:bg-primary block h-3 w-3 translate-x-[3px] rounded-full transition-transform data-[state=checked]:translate-x-[17px]"
       />
     </SwitchRoot>
     <div class="flex flex-col">
-      <label :for="id" class="text-sm">{{ label }}</label>
-      <span v-if="help" :id="`${id}-help`" class="text-muted text-xs">{{ help }}</span>
+      <label :for="id" class="text-[14px]">{{ label }}</label>
+      <span v-if="help" :id="`${id}-help`" class="text-text/62 text-[12.5px]">{{ help }}</span>
     </div>
   </div>
 </template>
