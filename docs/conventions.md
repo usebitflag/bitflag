@@ -65,7 +65,7 @@ final class SaveFlagDraft
 - Optimistic concurrency uses an integer `version` column (or `draft_version`). A mismatch throws `VersionConflict`, which maps to HTTP 409 with code `VERSION_CONFLICT`.
 - Audit event names are `{object}.{verb}` in past tense, for example `flag.created`, `revision.published`, `key.revoked`.
 - Outbox messages use the webhook event names where one exists (`revision.published`, `review.requested`, `review.decided`, `flag.changed`, `key.revoked`, `experiment.started`, `experiment.stopped`). Internal-only messages are prefixed `internal.`.
-- Email message style: account and security emails use `internal.email.requested{template, …}`. Notification, billing and support emails come from domain messages (the webhook event names and other `internal.*` messages) that the notifications module maps to its email catalog. New producers follow the same split.
+- Email message style: account and security emails use `internal.email.requested{template, user_id, details}`, an account-scoped message that carries no address, link or token (the consumer makes the link when it sends, and sends once per message). Notification, billing and support emails come from domain messages (the webhook event names and other `internal.*` messages) that the notifications module maps to its email catalog. New producers follow the same split.
 
 ## Capabilities
 
