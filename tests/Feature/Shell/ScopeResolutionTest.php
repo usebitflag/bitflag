@@ -50,8 +50,8 @@ describe('redirects', function () {
         $this->actingAs($this->world['leo'])->get('/no-access')->assertOk()->assertInertia(fn (Assert $page) => $page->component('account/NoAccess'));
     });
 
-    it('sends the organization settings link back to the organization for now', function () {
-        $this->actingAs($this->world['maya'])->get('/acme/settings')->assertRedirect('/acme');
+    it('sends the organization settings link to the General page', function () {
+        $this->actingAs($this->world['maya'])->get('/acme/settings')->assertRedirect('/acme/settings/general');
     });
 });
 

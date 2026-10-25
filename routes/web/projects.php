@@ -26,10 +26,6 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
     Route::middleware(['portal', 'org.mfa'])->group(function () use ($slug, $key): void {
         Route::get('/{organization}', [HomeController::class, 'organization'])->where('organization', $slug)->name('organization.home');
 
-        // Placeholder for the "Organization settings" link until the organization pages exist.
-        Route::get('/{organization}/settings', fn () => redirect()->route('organization.home', ['organization' => request()->route('organization')]))
-            ->where('organization', $slug)->name('organization.settings');
-
         Route::get('/{organization}/{project}', [HomeController::class, 'project'])
             ->where(['organization' => $slug, 'project' => $key])->name('project.home');
 

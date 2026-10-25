@@ -23,6 +23,22 @@ final class ProjectLookup
     }
 
     /**
+     * Every active project of the organization, by name.
+     *
+     * @return list<ProjectSummary>
+     */
+    public function allIn(string $organizationId): array
+    {
+        return Tenancy::crossTenant('project lookup lists an organization\'s projects', fn (): array => array_values(Project::query()
+            ->where('organization_id', $organizationId)
+            ->where('status', ProjectStatus::Active->value)
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Project $project): ProjectSummary => $this->summary($project))
+            ->all()));
+    }
+
+    /**
      * The organization's oldest project, or null if it has none. Setup uses it to attach the first invitations to the first
      * project.
      */

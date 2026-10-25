@@ -15,4 +15,23 @@ final class TwoFactorStatus
     {
         return MfaFactor::query()->where('user_id', $userId)->whereNotNull('confirmed_at')->exists();
     }
+
+    /**
+     * Which of these people have two-factor on.
+     *
+     * @param  list<string>  $userIds
+     * @return list<string>
+     */
+    public function enrolledAmong(array $userIds): array
+    {
+        if ($userIds === []) {
+            return [];
+        }
+
+        $enrolled = MfaFactor::query()->whereIn('user_id', $userIds)->whereNotNull('confirmed_at')->get()
+            ->map(static fn (MfaFactor $factor): string => $factor->user_id)
+            ->all();
+
+        return array_values($enrolled);
+    }
 }
