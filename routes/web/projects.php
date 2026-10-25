@@ -23,7 +23,7 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
     Route::post('/organizations/choose', [ChooseOrganizationController::class, 'store'])->name('organizations.choose.store');
     Route::post('/scope/remember', [RememberScopeController::class, 'store'])->name('scope.remember');
 
-    Route::middleware('portal')->group(function () use ($slug, $key): void {
+    Route::middleware(['portal', 'org.mfa'])->group(function () use ($slug, $key): void {
         Route::get('/{organization}', [HomeController::class, 'organization'])->where('organization', $slug)->name('organization.home');
 
         // Placeholder for the "Organization settings" link until the organization pages exist.

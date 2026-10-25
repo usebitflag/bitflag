@@ -37,6 +37,14 @@ final class OrganizationSecurityPolicies
     }
 
     /**
+     * Whether the organization requires two-factor sign-in of its members.
+     */
+    public function requiresMfa(string $organizationId): bool
+    {
+        return Organization::query()->whereKey($organizationId)->where('require_mfa', true)->exists();
+    }
+
+    /**
      * The idle limit the organization chose, in minutes, or null for the platform's.
      */
     public function idleMinutesFor(string $slug): ?int
