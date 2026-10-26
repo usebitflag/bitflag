@@ -32,7 +32,7 @@ function toggle(): void {
       <Button
         variant="ghost"
         href="/signin"
-        class="self-start !text-[13px]"
+        class="!text-primary-ink self-start !text-[13px]"
         data-test="challenge-back"
       >
         <template #icon><PhArrowLeft :size="16" aria-hidden="true" /></template>

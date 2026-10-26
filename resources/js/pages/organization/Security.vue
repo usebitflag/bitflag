@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Card from '../../components/ui/Card.vue';
@@ -20,6 +20,8 @@ const props = defineProps<{
   };
   membersWithoutTwoFactor: number;
 }>();
+
+const page = usePage<{ scope: { organization: { name: string } | null } }>();
 
 const form = useForm({
   require_mfa: props.settings.requireMfa,
@@ -61,7 +63,10 @@ function save(): void {
 
 <template>
   <Head title="Organization security" />
-  <OrgSettingsLayout title="Security" :description="`Rules for everyone in ${settings.slug}.`">
+  <OrgSettingsLayout
+    title="Security"
+    :description="`Rules for everyone in ${page.props.scope.organization?.name ?? settings.slug}.`"
+  >
     <form class="flex max-w-[860px] flex-col gap-4" novalidate @submit.prevent="save">
       <InlineNotice
         v-if="form.errors.version"
