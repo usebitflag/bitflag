@@ -73,7 +73,7 @@ describe('sign-in with a provider', () => {
     expect(page.get('[data-test="social-github"]').attributes('href')).toBe(
       '/auth/github/redirect',
     );
-    expect(page.get('[data-test="social-google"]').text()).toBe('Google');
+    expect(page.get('[data-test="social-google"]').text()).toBe('Continue with Google');
   });
 
   it('shows no buttons when no provider is set up', () => {
