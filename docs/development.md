@@ -53,6 +53,22 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.
 
+## Email and background workers
+
+Nothing sends mail during a web request. A request that needs an email writes an outbox message in the same transaction as the change. The `outbox` service reads those messages and hands each one to its consumers, and the consumer that sends account email builds the message (including links) and delivers it over SMTP. Locally SMTP points at Mailpit, so no mail ever reaches a real inbox: open http://localhost:8025 to read it.
+
+```
+request ──► outbox_messages (same transaction) ──► outbox worker ──► consumer ──► Mailpit
+                                                      │
+                                              outbox_receipts: pending → succeeded | failed
+```
+
+- The `outbox`, `horizon` and `scheduler` services are long-running PHP processes. They load the application code once, when they start. After you change PHP, switch branches or pull, restart them, or they keep running the old code: `sail restart outbox horizon scheduler`. Symptoms of stale workers are failed receipts with errors such as `Route [...] not defined` or `No consumer named ... is registered`, and mail that never shows up in Mailpit.
+- `sail artisan outbox:status` shows the backlog, failed receipts and the age of the oldest overdue work. `sail artisan outbox:recover` releases expired leases and signals receipts that are due.
+- A receipt marked `failed` has used its attempts. After fixing the cause, set the receipt back to `pending` with a due time of now and run `outbox:recover`. Do this only in local development; in production, failures are investigated, not reset by hand.
+- Mail that does not arrive: check `outbox:status`, then the `last_error` column of the failed row in `outbox_receipts`, then whether the workers are running the current code.
+- The end-to-end specs clear the Mailpit inbox before they read mail, so an inbox you were using can empty while they run. Run them against a separate database and stack when you need the dev data (see below).
+
 ## Checks before a push, and CI
 
 Pull requests do not run GitHub Actions: the organization is on the Free plan and its minutes are limited. The checks run on your machine instead, in the `pre-push` hook, and CI runs after a merge to `main` (and by hand from the Actions tab, with "Run workflow").
