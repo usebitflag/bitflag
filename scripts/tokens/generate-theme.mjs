@@ -19,7 +19,8 @@ const sha256 = (text) => createHash('sha256').update(text).digest('hex');
 export function resolveTheme(theme) {
   const colors = { ...theme.colors };
   for (const [name, value] of Object.entries(colors)) {
-    if (typeof value !== 'string') throw new Error(`Color "${name}" must be a hex string; derived colors belong under "mix".`);
+    if (typeof value !== 'string')
+      throw new Error(`Color "${name}" must be a hex string; derived colors belong under "mix".`);
   }
 
   for (const [name, spec] of Object.entries(theme.mix ?? {})) {
