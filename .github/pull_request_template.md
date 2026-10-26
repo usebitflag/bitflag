@@ -14,5 +14,6 @@
 
 ## Checks
 
+- [ ] The pre-push checks passed (`scripts/check.sh`), or the push is a draft
 - [ ] Tests added or updated
 - [ ] Docs updated where behavior or contracts changed

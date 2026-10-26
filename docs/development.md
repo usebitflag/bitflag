@@ -51,6 +51,16 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.
 
+## Checks before a push, and CI
+
+Pull requests do not run GitHub Actions: the organization is on the Free plan and its minutes are limited. The checks run on your machine instead, in the `pre-push` hook, and CI runs after a merge to `main` (and by hand from the Actions tab, with "Run workflow").
+
+- Turn the hook on once per clone: `git config core.hooksPath .githooks`.
+- On every push of a branch it runs `scripts/check.sh` in Sail (what the `backend-lint`, `backend-test`, `arch-canary` and `frontend` jobs run: Composer audit, Pint, PHPStan, Pest, architecture canaries, theme and type checks, ESLint, Prettier, Stylelint, Vitest with coverage) and a gitleaks scan of the repository. It stops at the first failure. Sail must be running (`sail up -d`).
+- A push that only changes `docs/`, `.github/` or Markdown files skips `check.sh` and still runs the secret scan.
+- `SKIP_CHECKS=1 git push` skips both. Use it rarely. The end-to-end specs, the production build checks and the weekly security audit are not part of the hook; they run in CI after the merge.
+- The hook also blocks pushes to `main`.
+
 ## The evaluator package
 
 The application evaluates flags with `bitflag-php`, installed from its private GitHub repository at one exact release (`composer.json` requires it by version, and `composer.lock` pins the commit). Composer needs a GitHub token with read access to that repository, supplied in `COMPOSER_AUTH` or `auth.json`.
