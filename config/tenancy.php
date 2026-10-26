@@ -51,6 +51,7 @@ return [
         'mfa_recovery_codes',
         'trusted_browsers',
         'known_devices',
+        'social_identities',
         'security_events',
         'password_reset_tokens',
         'cache',

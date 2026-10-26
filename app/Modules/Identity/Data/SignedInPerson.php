@@ -18,6 +18,8 @@ final readonly class SignedInPerson
         public ?string $lastEnvironmentId = null,
         public bool $emailVerified = true,
         public bool $rememberOrgChoice = false,
+        /** False for a person who signed up with a provider and has not set a password. */
+        public bool $hasPassword = true,
     ) {}
 
     public function initials(): string

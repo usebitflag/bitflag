@@ -37,6 +37,18 @@ return [
         ],
     ],
 
+    // Sign-up and sign-in with Google and GitHub. A provider with no client id or secret is not offered. The redirect URL to
+    // register at each provider is `{APP_URL}/auth/google/callback` and `{APP_URL}/auth/github/callback`.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+    ],
+
     // Where Mailpit's HTTP API is, for the end-to-end test routes. Mailpit catches all mail in local development.
     'mailpit' => [
         'url' => env('MAILPIT_URL', 'http://mailpit:8025'),

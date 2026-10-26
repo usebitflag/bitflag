@@ -15,7 +15,6 @@ use App\Modules\Identity\Models\MfaFactor;
 use App\Modules\Identity\Models\MfaRecoveryCode;
 use App\Modules\Identity\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Psr\Clock\ClockInterface;
 
@@ -40,7 +39,7 @@ final class DisableTwoFactor
     {
         $user = User::query()->findOrFail($data->userId);
 
-        if (! Hash::check($data->password, $user->password)) {
+        if (! $user->passwordMatches($data->password)) {
             throw ValidationException::withMessages(['password' => 'That is not your password.']);
         }
 

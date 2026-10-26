@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import InlineNotice from '../../components/ui/InlineNotice.vue';
 import Input from '../../components/ui/Input.vue';
+import SetPasswordNotice from '../../features/auth/SetPasswordNotice.vue';
 import AccountLayout from '../../layouts/AccountLayout.vue';
 
 const props = defineProps<{ email: string; soleOwnerOf: string[] }>();
 
 const form = useForm({ email: '', password: '' });
+const page = usePage<{ auth: { user: { hasPassword?: boolean } | null } }>();
+const hasPassword = computed(() => page.props.auth.user?.hasPassword !== false);
 const blocked = computed(() => props.soleOwnerOf.length > 0);
 const accountError = computed(() => (form.errors as Record<string, string | undefined>).account);
 
@@ -21,6 +24,7 @@ function submit(): void {
 <template>
   <Head title="Delete account" />
   <AccountLayout title="Delete account">
+    <SetPasswordNotice class="mb-4 max-w-md" />
     <section class="flex max-w-md flex-col gap-4" aria-labelledby="delete-heading">
       <div>
         <h2 id="delete-heading" class="font-heading text-lg">Delete your account</h2>
@@ -74,7 +78,7 @@ function submit(): void {
             autocomplete="current-password"
             :invalid="invalid"
             :described-by="describedBy"
-            :disabled="blocked"
+            :disabled="blocked || !hasPassword"
             data-test="delete-password"
           />
         </Field>
@@ -83,7 +87,7 @@ function submit(): void {
             type="submit"
             variant="destructive"
             :loading="form.processing"
-            :disabled="blocked || form.email === '' || form.password === ''"
+            :disabled="blocked || !hasPassword || form.email === '' || form.password === ''"
             data-test="delete-submit"
           >
             Delete my account

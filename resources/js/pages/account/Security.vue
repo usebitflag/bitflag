@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
 import PasswordChecklist from '../../features/auth/PasswordChecklist.vue';
+import SetPasswordNotice from '../../features/auth/SetPasswordNotice.vue';
 import SessionsPanel, {
   type SessionRow,
   type TrustedBrowserRow,
@@ -12,6 +13,7 @@ import SessionsPanel, {
 import TwoFactorPanel from '../../features/auth/TwoFactorPanel.vue';
 import { sendJson } from '../../features/auth/sendJson';
 import AccountLayout from '../../layouts/AccountLayout.vue';
+import type { SharedProps } from '../../types/shared';
 
 defineProps<{
   twoFactor: { enabled: boolean; recoveryCodesLeft: number };
@@ -19,6 +21,9 @@ defineProps<{
   sessions: SessionRow[];
   trustedBrowsers: TrustedBrowserRow[];
 }>();
+
+const page = usePage<SharedProps>();
+const hasPassword = computed(() => page.props.auth.user?.hasPassword !== false);
 
 const form = useForm({ current_password: '', password: '' });
 const common = ref(false);
@@ -53,7 +58,8 @@ function changePassword(): void {
   <Head title="Account security" />
   <AccountLayout title="Security">
     <div class="flex max-w-xl flex-col gap-8">
-      <section class="flex flex-col gap-4" aria-labelledby="password-heading">
+      <SetPasswordNotice />
+      <section v-if="hasPassword" class="flex flex-col gap-4" aria-labelledby="password-heading">
         <div>
           <h2 id="password-heading" class="font-heading text-lg">Password</h2>
           <p class="text-muted text-sm">Changing it signs you out of your other sessions.</p>
@@ -104,6 +110,7 @@ function changePassword(): void {
       </section>
 
       <TwoFactorPanel
+        :has-password="hasPassword"
         :enabled="twoFactor.enabled"
         :recovery-codes-left="twoFactor.recoveryCodesLeft"
         :required-by="requiredBy"

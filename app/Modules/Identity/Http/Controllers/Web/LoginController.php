@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Http\Controllers\Web;
 
+use App\Modules\Identity\Support\OAuth\OAuthProviders;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -12,8 +13,8 @@ use Inertia\Response;
  */
 final class LoginController
 {
-    public function create(): Response
+    public function create(OAuthProviders $providers): Response
     {
-        return Inertia::render('auth/SignIn');
+        return Inertia::render('auth/SignIn', ['providers' => SocialProviderOptions::from($providers)]);
     }
 }

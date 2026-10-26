@@ -77,6 +77,24 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.
 
+## Signing in with Google and GitHub
+
+The sign-up and sign-in pages show a Google and a GitHub button for each provider that has credentials, and hide the whole row when neither does. To try it locally, register an OAuth app at each provider and put its id and secret in `.env`:
+
+| Setting | Where to get it |
+| --- | --- |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | GitHub, Settings, Developer settings, OAuth Apps, New OAuth App |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google Cloud console, APIs and services, Credentials, OAuth client ID (Web application) |
+
+Register `APP_URL` followed by `/auth/github/callback` and `/auth/google/callback` as the redirect URLs (for the default setup, `http://localhost:8080/auth/github/callback` and `http://localhost:8080/auth/google/callback`), then `sail artisan config:clear`. A provider is offered only when both its id and secret are set. Use a different OAuth app for each environment; never reuse production credentials locally.
+
+How it behaves:
+
+- The provider replaces the password only. Two-factor and an organization's "require two-factor" still apply.
+- The provider's email counts only when the provider says it is verified. A verified email with no account creates one (email confirmed, no password); an email that already has an account links nothing and tells the person to sign in with their password.
+- A person who signed up this way has no password until they set one. Account settings shows a notice with a button that emails the usual reset link, and the settings that ask for a password stay off until then.
+- The specs never call the providers. `.env.e2e` and `scripts/dev/e2e-stack.sh` set fake credentials so the buttons show, and the Pest tests fake the HTTP calls.
+
 ## Email and background workers
 
 Nothing sends mail during a web request. A request that needs an email writes an outbox message in the same transaction as the change. The `outbox` service reads those messages and hands each one to its consumers, and the consumer that sends account email builds the message (including links) and delivers it over SMTP. Locally SMTP points at Mailpit, so no mail ever reaches a real inbox: open http://localhost:8025 to read it.

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import InlineNotice from '../../components/ui/InlineNotice.vue';
 import Input from '../../components/ui/Input.vue';
+import SetPasswordNotice from '../../features/auth/SetPasswordNotice.vue';
 import AccountLayout from '../../layouts/AccountLayout.vue';
 
 const props = defineProps<{
@@ -19,6 +21,8 @@ const props = defineProps<{
 
 const details = useForm({ name: props.profile.name, timezone: props.profile.timezone });
 const email = useForm({ email: '', password: '' });
+const page = usePage<{ auth: { user: { hasPassword?: boolean } | null } }>();
+const hasPassword = computed(() => page.props.auth.user?.hasPassword !== false);
 
 function saveDetails(): void {
   details.put('/account/profile', { preserveScroll: true });
@@ -36,6 +40,7 @@ function changeEmail(): void {
 <template>
   <Head title="Profile" />
   <AccountLayout title="Profile">
+    <SetPasswordNotice class="mb-4 max-w-md" />
     <form class="flex max-w-md flex-col gap-4" novalidate @submit.prevent="saveDetails">
       <h2 class="font-heading text-lg">Profile</h2>
       <Field v-slot="{ id, describedBy, invalid }" label="Name" :error="details.errors.name">
@@ -114,11 +119,16 @@ function changeEmail(): void {
           autocomplete="current-password"
           :invalid="invalid"
           :described-by="describedBy"
+          :disabled="!hasPassword"
           data-test="profile-email-password"
         />
       </Field>
       <div>
-        <Button type="submit" :loading="email.processing" data-test="profile-email-submit"
+        <Button
+          type="submit"
+          :loading="email.processing"
+          :disabled="!hasPassword"
+          data-test="profile-email-submit"
           >Change email</Button
         >
       </div>

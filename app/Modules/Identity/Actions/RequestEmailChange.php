@@ -9,7 +9,6 @@ use App\Modules\Identity\Data\RequestEmailChangeData;
 use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -29,7 +28,7 @@ final class RequestEmailChange
         $user = User::query()->findOrFail($data->userId);
         $email = mb_strtolower(trim($data->newEmail));
 
-        if (! Hash::check($data->password, $user->password)) {
+        if (! $user->passwordMatches($data->password)) {
             throw ValidationException::withMessages(['password' => 'That is not your password.']);
         }
 

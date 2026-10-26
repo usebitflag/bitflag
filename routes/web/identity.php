@@ -12,6 +12,7 @@ use App\Modules\Identity\Http\Controllers\Web\ProfileController;
 use App\Modules\Identity\Http\Controllers\Web\SecurityController;
 use App\Modules\Identity\Http\Controllers\Web\SessionsController;
 use App\Modules\Identity\Http\Controllers\Web\SignUpController;
+use App\Modules\Identity\Http\Controllers\Web\SocialAuthController;
 use App\Modules\Identity\Http\Controllers\Web\TwoFactorChallengeController;
 use App\Modules\Identity\Http\Controllers\Web\TwoFactorSettingsController;
 use App\Modules\Identity\Http\Controllers\Web\VerifyEmailController;
@@ -22,6 +23,11 @@ Route::middleware('guest:web')->group(function (): void {
     Route::redirect('/login', '/signin');
     Route::get('/signin', [LoginController::class, 'create'])->name('login');
     Route::post('/signin', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login')->name('login.store');
+});
+
+Route::middleware('guest:web')->prefix('auth/{provider}')->where(['provider' => 'google|github'])->group(function (): void {
+    Route::get('/redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:30,1')->name('social.redirect');
+    Route::get('/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:30,1')->name('social.callback');
 });
 
 Route::middleware('guest:web')->group(function (): void {
@@ -53,6 +59,7 @@ Route::middleware('auth:web')->group(function (): void {
     Route::get('/account/email/confirm/{id}/{hash}', [ProfileController::class, 'confirmEmailChange'])->middleware('signed')->name('email.change.confirm');
     Route::get('/account/delete', [AccountDeletionController::class, 'show'])->name('account.delete');
     Route::delete('/account', [AccountDeletionController::class, 'destroy'])->middleware('throttle:5,1')->name('account.destroy');
+    Route::post('/account/password/link', [PasswordController::class, 'sendLink'])->middleware('throttle:5,1')->name('account.password.link');
     Route::get('/account/security', [SecurityController::class, 'show'])->name('account.security');
     Route::post('/account/two-factor', [TwoFactorSettingsController::class, 'start'])->middleware('throttle:10,1')->name('account.two-factor.start');
     Route::post('/account/two-factor/confirm', [TwoFactorSettingsController::class, 'confirm'])->middleware('throttle:10,1')->name('account.two-factor.confirm');

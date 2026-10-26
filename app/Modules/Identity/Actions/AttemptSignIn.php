@@ -12,13 +12,9 @@ use App\Modules\Identity\Data\TrackKnownDeviceData;
 use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Domain\SignInThrottle;
-use App\Modules\Identity\Models\MfaFactor;
-use App\Modules\Identity\Models\TrustedBrowser;
 use App\Modules\Identity\Models\User;
-use App\Shared\Security\SecretHasher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Sleep;
-use Psr\Clock\ClockInterface;
 
 /**
  * Checks an email and password. It never signs anyone in: a right password only says who the person is and whether a
@@ -38,8 +34,7 @@ final class AttemptSignIn
         private readonly CountSignInFailure $failures,
         private readonly RecordSecurityEvent $securityLog,
         private readonly TrackKnownDevice $devices,
-        private readonly SecretHasher $hasher,
-        private readonly ClockInterface $clock,
+        private readonly SecondFactorOwed $secondFactor,
     ) {}
 
     public function handle(AttemptSignInData $data): SignInResult
@@ -59,7 +54,7 @@ final class AttemptSignIn
             return $this->fail($data, $email, $user);
         }
 
-        if ($this->hasConfirmedSecondFactor($user) && ! $this->browserIsTrusted($user, $data->trustedBrowserCookie)) {
+        if ($this->secondFactor->handle($user, $data->trustedBrowserCookie)) {
             return SignInResult::twoFactorRequired($user);
         }
 
@@ -80,38 +75,5 @@ final class AttemptSignIn
         }
 
         return SignInResult::failed();
-    }
-
-    private function hasConfirmedSecondFactor(User $user): bool
-    {
-        return MfaFactor::query()->where('user_id', $user->id)->whereNotNull('confirmed_at')->exists();
-    }
-
-    /**
-     * The cookie is `{id}.{secret}`. It counts only for this person, unrevoked and unexpired, and only if the secret matches
-     * the stored hash.
-     */
-    private function browserIsTrusted(User $user, ?string $cookie): bool
-    {
-        if ($cookie === null || substr_count($cookie, '.') !== 1) {
-            return false;
-        }
-
-        [$id, $secret] = explode('.', $cookie);
-
-        $browser = TrustedBrowser::query()
-            ->where('id', $id)
-            ->where('user_id', $user->id)
-            ->whereNull('revoked_at')
-            ->where('expires_at', '>', $this->clock->now())
-            ->first();
-
-        if ($browser === null || ! $this->hasher->matches($secret, $browser->token_hash)) {
-            return false;
-        }
-
-        $browser->forceFill(['last_used_at' => $this->clock->now()])->save();
-
-        return true;
     }
 }

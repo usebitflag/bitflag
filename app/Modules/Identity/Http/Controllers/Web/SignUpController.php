@@ -7,6 +7,7 @@ namespace App\Modules\Identity\Http\Controllers\Web;
 use App\Modules\Identity\Actions\RegisterAccount;
 use App\Modules\Identity\Data\RegisterAccountData;
 use App\Modules\Identity\Http\Requests\SignUpRequest;
+use App\Modules\Identity\Support\OAuth\OAuthProviders;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -20,9 +21,9 @@ final class SignUpController
 {
     public const SESSION_EMAIL = 'signup.email';
 
-    public function create(): Response
+    public function create(OAuthProviders $providers): Response
     {
-        return Inertia::render('auth/SignUp');
+        return Inertia::render('auth/SignUp', ['providers' => SocialProviderOptions::from($providers)]);
     }
 
     public function store(SignUpRequest $request, RegisterAccount $register, StatefulGuard $guard): RedirectResponse

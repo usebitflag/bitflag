@@ -15,6 +15,8 @@ const props = withDefaults(
     block?: boolean;
     /** Renders a link that looks like the button. */
     href?: string;
+    /** The link leaves the app, so the browser follows it instead of Inertia. */
+    external?: boolean;
   }>(),
   {
     variant: 'secondary',
@@ -47,7 +49,17 @@ const classes = computed(() => [
 </script>
 
 <template>
-  <Link v-if="href" :href="href" :class="classes" :data-variant="variant" data-test="button">
+  <a
+    v-if="href && external"
+    :href="href"
+    :class="classes"
+    :data-variant="variant"
+    data-test="button"
+  >
+    <slot name="icon" />
+    <slot />
+  </a>
+  <Link v-else-if="href" :href="href" :class="classes" :data-variant="variant" data-test="button">
     <slot name="icon" />
     <slot />
   </Link>

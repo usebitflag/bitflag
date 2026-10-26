@@ -15,6 +15,8 @@ export interface SharedUser {
   email: string;
   initials: string;
   emailVerified: boolean;
+  /** False for a person who signed up with a provider and has not set a password. */
+  hasPassword: boolean;
 }
 
 export interface SharedEnvironment {

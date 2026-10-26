@@ -7,7 +7,6 @@ namespace App\Modules\Identity\Actions;
 use App\Modules\Identity\Data\RegenerateRecoveryCodesData;
 use App\Modules\Identity\Models\MfaFactor;
 use App\Modules\Identity\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -26,7 +25,7 @@ final class RegenerateRecoveryCodes
     {
         $user = User::query()->findOrFail($data->userId);
 
-        if (! Hash::check($data->password, $user->password)) {
+        if (! $user->passwordMatches($data->password)) {
             throw ValidationException::withMessages(['password' => 'That is not your password.']);
         }
 

@@ -5,7 +5,10 @@ import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
 import PasswordChecklist from '../../features/auth/PasswordChecklist.vue';
+import SocialButtons, { type SocialProviderOption } from '../../features/auth/SocialButtons.vue';
 import AuthLayout from '../../layouts/AuthLayout.vue';
+
+defineProps<{ providers: SocialProviderOption[] }>();
 
 const form = useForm({ name: '', email: '', password: '' });
 const common = ref(false);
@@ -58,6 +61,7 @@ function submit(): void {
         >
       </span>
     </template>
+    <SocialButtons :providers="providers" />
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
       <Field v-slot="{ id, describedBy, invalid }" label="Work email" :error="form.errors.email">
         <Input

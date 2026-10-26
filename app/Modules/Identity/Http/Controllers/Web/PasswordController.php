@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Identity\Http\Controllers\Web;
 
 use App\Modules\Identity\Actions\ChangePassword;
+use App\Modules\Identity\Actions\RequestPasswordReset;
 use App\Modules\Identity\Data\ChangePasswordData;
+use App\Modules\Identity\Data\RequestPasswordResetData;
 use App\Modules\Identity\Http\Requests\ChangePasswordRequest;
 use App\Modules\Identity\Queries\CurrentPerson;
 use Illuminate\Http\RedirectResponse;
@@ -34,5 +36,19 @@ final class PasswordController
         $request->session()->regenerate(true);
 
         return back()->with('toast', ['message' => 'Your password was changed. Other sessions were signed out.', 'tone' => 'neutral']);
+    }
+
+    /**
+     * Emails the signed-in person the usual reset link. It is how someone who signed up with a provider, and so has no
+     * password, sets one.
+     */
+    public function sendLink(RequestPasswordReset $request, CurrentPerson $current): RedirectResponse
+    {
+        $person = $current->find();
+        abort_if($person === null, 403);
+
+        $request->handle(new RequestPasswordResetData($person->email));
+
+        return back()->with('toast', ['message' => "We sent a link to {$person->email} to set a password.", 'tone' => 'neutral']);
     }
 }

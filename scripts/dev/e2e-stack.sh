@@ -48,6 +48,8 @@ case "${1:-}" in
       -e TESTING_E2E=true -e TESTING_E2E_TOKEN=e2e-local-token \
       -e BITFLAG_CREDENTIAL_PEPPER_CURRENT=1 -e "BITFLAG_CREDENTIAL_PEPPER_1=$pepper" \
       -e PHP_CLI_SERVER_WORKERS=24 \
+      -e GOOGLE_CLIENT_ID=e2e-google-id -e GOOGLE_CLIENT_SECRET=e2e-google-secret \
+      -e GITHUB_CLIENT_ID=e2e-github-id -e GITHUB_CLIENT_SECRET=e2e-github-secret \
       --entrypoint sh laravel.test -c "php artisan migrate:fresh --seed --seeder=DemoSeeder --force && (php artisan outbox:work &) && exec php -S 0.0.0.0:$port -t public" >/dev/null
 
     for _ in $(seq 1 60); do
