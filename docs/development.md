@@ -23,14 +23,36 @@ cp .env.example .env
 docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html composer:2 composer install --ignore-platform-reqs
 ./vendor/bin/sail up -d --build
 ./vendor/bin/sail artisan key:generate
-./vendor/bin/sail artisan migrate
 ./vendor/bin/sail npm install
 ./vendor/bin/sail npm run build
 ```
 
-Recovery codes, invitation tokens and trusted-browser tokens are stored as HMAC-SHA256 hashes under a pepper that stays outside the database. Set `BITFLAG_CREDENTIAL_PEPPER_1` in `.env` to 32 random bytes, base64-encoded (`openssl rand -base64 32`). To rotate, add a second pepper, make it current with `BITFLAG_CREDENTIAL_PEPPER_CURRENT`, and name the old one in `BITFLAG_CREDENTIAL_PEPPER_PREVIOUS` until stored secrets have expired. Hashing fails with a message naming the setting when the pepper is missing or malformed.
+Before the first request, set the credential pepper in `.env`. Recovery codes, invitation tokens and trusted-browser tokens are stored as HMAC-SHA256 hashes under a pepper that stays outside the database. Set `BITFLAG_CREDENTIAL_PEPPER_1` to 32 random bytes, base64-encoded (`openssl rand -base64 32`), and leave `BITFLAG_CREDENTIAL_PEPPER_CURRENT=1`. To rotate, add a second pepper, make it current with `BITFLAG_CREDENTIAL_PEPPER_CURRENT`, and name the old one in `BITFLAG_CREDENTIAL_PEPPER_PREVIOUS` until stored secrets have expired. Hashing fails with a message naming the setting when the pepper is missing or malformed.
 
-The demo seed creates Acme, Globex and Maya Studio, five Acme people and one Globex person, and the staff user `support@bitflag.test`. Maya and Jon have two-factor on (the fixed secret and recovery codes are in `database/seeders/Demo/DemoSecrets.php`), and one invitation to Acme is waiting. Everyone signs in with `DEMO_PASSWORD` (default `password`). The seeder uses fixed identifiers and refuses to run in production.
+Then migrate and seed the demo world:
+
+```bash
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed --class=DemoSeeder
+```
+
+Open http://localhost (or the `APP_PORT` you chose) and sign in at `/signin`.
+
+### The demo world
+
+The demo seed creates three organizations (Acme, Globex and Maya Studio), five Acme people, one Globex person and the staff user `support@bitflag.test`. The seeder uses fixed identifiers, can be run again, and refuses to run in production. Everyone signs in with `DEMO_PASSWORD` (default `password`).
+
+| Person | Sign-in | Notes |
+| --- | --- | --- |
+| `maya@acme.dev` | password, then a code | Org Owner and project Owner in Acme; also in Maya Studio. Asked for a code at sign-in. |
+| `jon@acme.dev` | password, then a code | Member, Publisher on Storefront, Developer on Checkout API. Asked for a code at sign-in. |
+| `priya@acme.dev` | password | Developer on Storefront |
+| `ana@acme.dev` | password | Viewer on Storefront (read-only screens) |
+| `leo@acme.dev` | password | Member of Acme without a project |
+| `gina@globex.dev` | password | Org Owner of Globex, for isolation checks |
+| `support@bitflag.test` | password, on `admin.localhost` | Staff |
+
+Maya and Jon's authenticator secret is the fixed value `JBSWY3DPEHPK3PXP` (add it to any authenticator app), and their recovery codes are listed in `database/seeders/Demo/DemoSecrets.php`. One invitation to Acme for `dev@northwind.studio` is waiting at `/invitations/` followed by the token in the same file.
 
 The portal is served on `APP_HOST` (default `localhost`) and the admin console on `ADMIN_HOST` (default `admin.localhost`). Cookies are host-only, so signing in on one host never signs you in on the other.
 
@@ -44,11 +66,13 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | PHP style and static analysis | `sail bin pint --test`, `sail bin phpstan analyse` |
 | Regenerate the theme | `sail npm run tokens` (`tokens:check` verifies it) |
 | Frontend checks | `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test` |
-| End-to-end specs | `npm run e2e` on the host (see below) |
+| End-to-end specs | `scripts/dev/e2e-stack.sh up`, then `npm run e2e` on the host against it (see below) |
 | Seed the demo world | `sail artisan db:seed --class=DemoSeeder` (safe to repeat; `migrate:fresh --seed --seeder=DemoSeeder` starts over) |
 | Artisan | `sail artisan …` |
 | Frontend dev server | `sail npm run dev` |
 | Mail inbox | http://localhost:8025 |
+| Restart the workers after changing PHP | `sail restart outbox horizon scheduler` (see below) |
+| Outbox backlog, failures and retry | `sail artisan outbox:status`, `outbox:retry --all` |
 | Admin console | http://admin.localhost (staff sign-in; the Horizon dashboard is at /horizon on the same host) |
 
 Tests use the `testing` database on the same MySQL service, created on first start. The application user may also create `testing_*` databases, which parallel test runs use. If the MySQL volume already existed before that grant was added, run `sail down -v` once to recreate it.
@@ -65,9 +89,9 @@ request ──► outbox_messages (same transaction) ──► outbox worker ─
 
 - The `outbox`, `horizon` and `scheduler` services are long-running PHP processes. They load the application code once, when they start. After you change PHP, switch branches or pull, restart them, or they keep running the old code: `sail restart outbox horizon scheduler`. Symptoms of stale workers are failed receipts with errors such as `Route [...] not defined` or `No consumer named ... is registered`, and mail that never shows up in Mailpit.
 - `sail artisan outbox:status` shows the backlog, failed receipts and the age of the oldest overdue work. `sail artisan outbox:recover` releases expired leases and signals receipts that are due.
-- A receipt marked `failed` has used its attempts. After fixing the cause, set the receipt back to `pending` with a due time of now and run `outbox:recover`. Do this only in local development; in production, failures are investigated, not reset by hand.
+- A receipt marked `failed` or `exhausted` has used its attempts. After fixing the cause, run `sail artisan outbox:retry --id=<receipt>`, `--consumer=<name>` or `--all`. It puts those receipts back to pending from the first attempt and signals them; it never touches receipts that succeeded or are running, and in production it needs `--force`. Do not edit receipts by hand.
 - Mail that does not arrive: check `outbox:status`, then the `last_error` column of the failed row in `outbox_receipts`, then whether the workers are running the current code.
-- The end-to-end specs clear the Mailpit inbox before they read mail, so an inbox you were using can empty while they run. Run them against a separate database and stack when you need the dev data (see below).
+- The end-to-end specs clear the Mailpit inbox before they read mail, so an inbox you were using can empty while they run. Run them against the separate stack described below, never against your development stack.
 
 ## Checks before a push, and CI
 
@@ -120,14 +144,19 @@ CI needs one Actions secret, `PROTOCOL_READ_TOKEN`: a fine-grained personal acce
 
 ## End-to-end tests
 
-The Cypress specs in `cypress/e2e` run in a real browser against the running application and the demo seed. Cypress runs on the host (Node 22 or newer), not in Sail, and needs Chrome.
+The Cypress specs in `cypress/e2e` run in a real browser against a running application and the demo seed. Cypress runs on the host (Node 22 or newer), not in Sail, and needs Chrome.
 
-1. In `.env` set `TESTING_E2E=true`, `TESTING_E2E_TOKEN=e2e-local-token`, `APP_DEBUG=false` and `VITE_INCLUDE_DEV_PAGES=true` (`.env.e2e` has these values, including the credential pepper), then `sail artisan config:clear`. The last one keeps the component gallery in the build, which production builds leave out.
-2. `sail npm run build` so the application serves built assets, and `sail artisan migrate:fresh --seed --seeder=DemoSeeder`.
-3. `npm ci` on the host, then `npm run e2e`. When Sail listens on a port other than 80, point Cypress at it:
+**The specs reset the database.** Each one starts with `POST /_testing/reset`, which runs `migrate:fresh` and re-seeds, clears the cache and empties the Mailpit inbox. Never point them at the development stack: they would erase your data. Use the separate stack:
 
 ```bash
-CYPRESS_BASE_URL=http://localhost:8080 npm run e2e -- --expose ADMIN_ORIGIN=http://admin.localhost:8080
+scripts/dev/e2e-stack.sh up        # a second app container on http://localhost:8081, its own database bitflag_e2e
+npm ci                             # once, on the host
+CYPRESS_BASE_URL=http://localhost:8081 npm run e2e -- --expose ADMIN_ORIGIN=http://admin.localhost:8081
+scripts/dev/e2e-stack.sh down      # removes the container and the database, and rebuilds the normal assets
 ```
 
+`up` needs the Sail services running. It builds the assets with the component gallery (`VITE_INCLUDE_DEV_PAGES=true`, which production builds leave out), creates and seeds the database, turns the testing routes on, and starts a mail worker. Both stacks share `public/build`, so the development app shows the gallery build until `down` rebuilds it. `E2E_PORT` changes the port. Use `npm run e2e:open` instead of `npm run e2e` to watch a spec run. CI does not use the script: it copies `.env.e2e` over `.env` in a clean checkout.
+
 Specs start from known data. `POST /_testing/reset` rebuilds the database from the demo seed, `POST /_testing/login` signs a seeded person in without the form, `POST /_testing/clock` freezes the server clock and `GET /_testing/clock` reads it, `GET`/`DELETE /_testing/mailpit` read and clear the captured mail, and `/_testing/fail` raises an error to show the 500 page. These routes load only when `TESTING_E2E` is true in the local or testing environment, and every request needs the `X-Testing-Token` header; anything else gets the ordinary 404. In production they do not exist.
+
+Tips: wait for a request with `cy.intercept(...).as(...)` and `cy.wait`, not a fixed delay, before you assert on its result; read the confirmation or reset link from the mail with `cy.latestEmail`; and use `cy.freezeServerClock` to move time, for example past the session limit.

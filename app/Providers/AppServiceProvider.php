@@ -20,6 +20,7 @@ use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Outbox\Console\OutboxPruneCommand;
 use App\Shared\Outbox\Console\OutboxReclaimCommand;
 use App\Shared\Outbox\Console\OutboxRecoverCommand;
+use App\Shared\Outbox\Console\OutboxRetryCommand;
 use App\Shared\Outbox\Console\OutboxStatusCommand;
 use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
@@ -114,6 +115,7 @@ class AppServiceProvider extends ServiceProvider
             OutboxPruneCommand::class,
             OutboxStatusCommand::class,
             OutboxRecoverCommand::class,
+            OutboxRetryCommand::class,
         ]);
     }
 }

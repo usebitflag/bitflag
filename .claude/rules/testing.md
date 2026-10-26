@@ -37,7 +37,7 @@
 - Specs run against the demo seed (Acme with Storefront and Checkout API; Maya, Jon, Priya, Ana, Leo; Globex for isolation).
 - Use `data-test` selectors. Freeze server time with the testing clock route and browser timers with `cy.clock()` rather than waiting.
 - Start a spec from known data with `cy.resetDemo()`; sign in with `cy.signInAs(email)` unless the spec is about signing in.
-- Run them with `npm run e2e` on the host; see `docs/development.md`.
+- Run them with `npm run e2e` on the host against the stack from `scripts/dev/e2e-stack.sh up`, never against the development stack: they reset the database. See `docs/development.md`.
 - Testing routes exist only locally and in CI; a production-boot test asserts they are absent.
 
 ## What to test
