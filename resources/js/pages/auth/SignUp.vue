@@ -49,12 +49,7 @@ function submit(): void {
 
 <template>
   <Head title="Create your account" />
-  <AuthLayout
-    variant="start"
-    :width="400"
-    title="Create your account"
-    subtitle="Free plan. No card needed."
-  >
+  <AuthLayout :width="400" title="Create your account" subtitle="Free plan. No card needed.">
     <template #aside>
       <span class="text-text/65 text-sm">
         Have an account?

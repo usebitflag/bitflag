@@ -5,21 +5,16 @@ withDefaults(
   defineProps<{
     title: string;
     subtitle?: string;
-    /** `start` puts the brand at the left with room for a note or the setup steps on the right; `center` centers it. */
-    variant?: 'start' | 'center';
     /** Width of the content column in pixels. */
     width?: number;
   }>(),
-  { variant: 'center', width: 380 },
+  { width: 400 },
 );
 </script>
 
 <template>
   <div
-    :class="[
-      'text-text flex min-h-screen flex-col',
-      variant === 'start' ? 'px-10 py-7' : 'items-center px-10 py-8',
-    ]"
+    class="text-text flex min-h-screen flex-col px-10 py-7"
     style="
       background:
         radial-gradient(
@@ -31,16 +26,14 @@ withDefaults(
     "
     data-test="auth-layout"
   >
-    <header class="flex items-center gap-2.5 self-stretch text-lg font-medium">
-      <div :class="['flex items-center gap-2.5', variant === 'center' ? 'mx-auto' : '']">
-        <BrandMark :size="22" />
-        BitFlag
-      </div>
-      <div v-if="variant === 'start'" class="ml-auto"><slot name="aside" /></div>
+    <header class="flex items-center gap-2.5 text-lg font-medium">
+      <BrandMark :size="22" />
+      BitFlag
+      <div class="ml-auto"><slot name="aside" /></div>
     </header>
 
     <main
-      class="m-auto flex w-full flex-col gap-4"
+      class="m-auto flex w-full flex-col gap-4 py-8"
       :style="{ maxWidth: `${width}px` }"
       data-test="auth-main"
     >
@@ -53,12 +46,5 @@ withDefaults(
       </div>
       <slot />
     </main>
-
-    <footer
-      v-if="variant === 'center'"
-      class="text-text/50 flex min-h-[18px] gap-4 self-stretch text-xs"
-    >
-      <slot name="footer" />
-    </footer>
   </div>
 </template>
