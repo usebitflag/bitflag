@@ -1,31 +1,25 @@
 <script setup lang="ts">
-// A pole and six bits; the last bit is drawn as an outline. Colors come from the theme.
+// The BitFlag mark: a flagpole with six bits for a flag, the last one off. Colors come from the theme.
 withDefaults(defineProps<{ size?: number }>(), { size: 18 });
 </script>
 
 <template>
   <svg viewBox="0 0 24 24" :width="size" :height="size" aria-hidden="true" data-test="brand-mark">
-    <defs>
-      <linearGradient id="bf-brand-gradient" x1="0" x2="1" y1="0" y2="1">
-        <stop offset="0" stop-color="var(--bf-primary)" />
-        <stop offset="1" stop-color="var(--bf-primary-ink)" />
-      </linearGradient>
-    </defs>
     <rect x="3" y="2" width="2" height="20" rx="1" fill="var(--bf-text)" />
-    <rect x="7" y="3" width="4" height="3" rx="1" fill="url(#bf-brand-gradient)" />
-    <rect x="13" y="3" width="4" height="3" rx="1" fill="url(#bf-brand-gradient)" />
-    <rect x="7" y="9" width="4" height="3" rx="1" fill="url(#bf-brand-gradient)" />
-    <rect x="13" y="9" width="4" height="3" rx="1" fill="url(#bf-brand-gradient)" />
-    <rect x="7" y="15" width="4" height="3" rx="1" fill="url(#bf-brand-gradient)" />
+    <rect x="7" y="3" width="4" height="4" rx="1" fill="var(--bf-primary)" />
+    <rect x="12" y="3" width="4" height="4" rx="1" fill="var(--bf-primary)" />
+    <rect x="17" y="3" width="4" height="4" rx="1" fill="var(--bf-primary)" />
+    <rect x="7" y="8" width="4" height="4" rx="1" fill="var(--bf-primary)" />
+    <rect x="12" y="8" width="4" height="4" rx="1" fill="var(--bf-primary)" />
     <rect
-      x="13"
-      y="15"
-      width="4"
+      x="17.5"
+      y="8.5"
+      width="3"
       height="3"
-      rx="1"
+      rx="0.75"
       fill="none"
       stroke="var(--bf-primary)"
-      stroke-width="1.5"
+      stroke-width="1"
     />
   </svg>
 </template>
