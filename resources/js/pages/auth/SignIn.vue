@@ -4,7 +4,6 @@ import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
 import InlineNotice from '../../components/ui/InlineNotice.vue';
-import PasswordInput from '../../features/auth/PasswordInput.vue';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
 const form = useForm({ email: '', password: '' });
@@ -47,9 +46,10 @@ function submit(): void {
           </Link>
         </template>
         <template #default="{ id, describedBy }">
-          <PasswordInput
+          <Input
             :id="id"
             v-model="form.password"
+            type="password"
             autocomplete="current-password"
             :invalid="Boolean(form.errors.email)"
             :described-by="describedBy"
@@ -68,8 +68,11 @@ function submit(): void {
       >
         Sign in
       </Button>
-      <p v-if="!form.errors.email" class="text-text/60 mt-1 text-sm">
-        Invited by a teammate? Open the link in your invitation email.
+      <p class="text-text/70 text-[13.5px]">
+        New to BitFlag?
+        <Link href="/signup" class="text-primary-ink underline" data-test="login-signup"
+          >Create an account</Link
+        >
       </p>
     </form>
   </AuthLayout>
