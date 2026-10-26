@@ -11,6 +11,7 @@ use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Domain\PasswordRules;
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,7 @@ final class ChangePassword
         private readonly PasswordRules $rules,
         private readonly RecordSecurityEvent $securityLog,
         private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
         private readonly ClockInterface $clock,
     ) {}
 
@@ -54,7 +56,7 @@ final class ChangePassword
             DB::table('trusted_browsers')->where('user_id', $user->id)->whereNull('revoked_at')->update(['revoked_at' => $this->clock->now()]);
 
             $this->securityLog->handle(new RecordSecurityEventData(SecurityEventType::PasswordChanged, $user->id, null, $data->ipAddress, $data->userAgent));
-            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordChanged, $user->id));
+            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordChanged, $user->id, $this->origin->describe($data->ipAddress, $data->userAgent)));
         });
     }
 }

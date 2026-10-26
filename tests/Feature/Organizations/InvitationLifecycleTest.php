@@ -108,7 +108,7 @@ describe('the email', function () {
         Notification::assertSentOnDemand(InvitationEmail::class, function (InvitationEmail $notification, array $channels, $notifiable) {
             $mail = $notification->toMail($notifiable);
 
-            return str_contains(view($mail->view['text'], $mail->viewData)->render(), $this->owner['project']->name.' (developer)');
+            return str_contains(view($mail->view['text'], $mail->viewData)->render(), $this->owner['project']->name.' · developer');
         });
     });
 

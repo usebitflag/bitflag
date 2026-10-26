@@ -35,7 +35,7 @@ describe('sign-in lockout', () => {
       });
     cy.location('pathname').should('eq', '/signin');
 
-    cy.latestEmail('leo@acme.dev', 'Too many sign-in attempts')
+    cy.latestEmail('leo@acme.dev', 'temporarily locked')
       .its('text')
       .should('contain', '/forgot-password');
   });

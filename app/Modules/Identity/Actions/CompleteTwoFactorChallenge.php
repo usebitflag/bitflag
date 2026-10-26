@@ -18,6 +18,7 @@ use App\Modules\Identity\Domain\SecondFactorUsed;
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Domain\SignInThrottle;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -35,6 +36,7 @@ final class CompleteTwoFactorChallenge
         private readonly TrackKnownDevice $devices,
         private readonly RecordSecurityEvent $securityLog,
         private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
     ) {}
 
     public function handle(CompleteTwoFactorChallengeData $data): TwoFactorChallengeResult
@@ -64,7 +66,7 @@ final class CompleteTwoFactorChallenge
 
             if ($result->used === SecondFactorUsed::RecoveryCode) {
                 $this->securityLog->handle(new RecordSecurityEventData(SecurityEventType::MfaRecoveryCodeUsed, $user->id, null, $data->ipAddress, $data->userAgent));
-                $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::RecoveryCodeUsed, $user->id, ['codes_left' => $result->recoveryCodesLeft]));
+                $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::RecoveryCodeUsed, $user->id, ['codes_left' => $result->recoveryCodesLeft] + $this->origin->describe($data->ipAddress, $data->userAgent)));
             }
         });
 

@@ -32,7 +32,7 @@ describe('sign-up to a first project', () => {
     cy.get('[data-test="check-email-message"]').should('contain.text', 'ni••@startup.dev');
 
     // The confirmation email carries a signed link that works for the person signed in.
-    cy.latestEmail(email, 'Confirm your email for BitFlag').then(({ link }) => {
+    cy.latestEmail(email, 'Verify your email for BitFlag').then(({ link }) => {
       expect(link).to.match(/\/email\/verify\//);
       cy.wrap(link).as('verifyLink');
     });
@@ -102,7 +102,7 @@ describe('sign-up to a first project', () => {
 
     cy.location('pathname').should('eq', '/signup/check-email');
     cy.get('[data-test="continue-setup"]').should('not.exist');
-    cy.latestEmail('ana@acme.dev', 'already have a BitFlag account')
+    cy.latestEmail('ana@acme.dev', 'Someone tried to create a BitFlag account')
       .its('text')
       .should('contain', '/signin');
   });

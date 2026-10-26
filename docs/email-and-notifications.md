@@ -30,6 +30,8 @@ Each person controls their own in-app and optional email notifications. Security
 
 **Content rules:** no secrets, key values, rule contents, or targeting attributes in any email. Emails link into the portal, where the viewer's permissions apply. Review-request emails show the environment, project, requester, and change count only; the requester's reason is shown in the portal behind permissions. Links in security emails are single-use and expire.
 
+**How an email is built:** every email is one `EmailMessage` (`App\Shared\Mail`): a subject, a preview line, a label (Account, Security alert or Team), a heading, a greeting and paragraphs, optional facts (When, Device, Location), an optional boxed list, one button, a small note and an optional callout. One layout draws it as HTML and as plain text, so all emails look alike and every email has a text version. The words of the account and security emails live in `AccountEmailContent`; the invitation email builds its own message. The layout is made of tables and inline styles for mail clients, uses the light theme's colors (`EmailTheme`, kept equal to `design/bitflag/tokens.json` by a test) and a PNG logo, and has no icons because mail clients strip inline SVG. Times are shown in the person's time zone with UTC beside them. A fact that was not known when the email was asked for, such as a place, is left out, never guessed. To see them all, send each template to Mailpit from `sail artisan tinker` (build a message with `AccountEmailContent::for(...)` and notify an address with `AccountEmail`), or trigger the flows in the app and open http://localhost:8025.
+
 ## 3. In-app notifications
 
 A bell in the top bar opens a list grouped by day, with unread state and "mark all read".

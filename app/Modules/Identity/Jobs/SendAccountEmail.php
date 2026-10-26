@@ -8,12 +8,14 @@ use App\Modules\Identity\Actions\RequestAccountEmail;
 use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Models\User;
 use App\Modules\Identity\Notifications\AccountEmail;
+use App\Modules\Identity\Support\AccountEmailContent;
 use App\Modules\Identity\Support\AccountEmailLinks;
 use App\Shared\Outbox\OutboxConsumer;
 use App\Shared\Outbox\OutboxMessage;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Notification;
 use InvalidArgumentException;
+use Psr\Clock\ClockInterface;
 
 /**
  * Sends the account and security emails asked for by `internal.email.requested`. It builds the link at send time, so no
@@ -26,7 +28,9 @@ final class SendAccountEmail implements OutboxConsumer
 
     public function __construct(
         private readonly AccountEmailLinks $links,
+        private readonly AccountEmailContent $content,
         private readonly Repository $cache,
+        private readonly ClockInterface $clock,
     ) {}
 
     public function name(): string
@@ -80,7 +84,6 @@ final class SendAccountEmail implements OutboxConsumer
 
         $details = $message->payload['details'] ?? [];
 
-        $email = new AccountEmail($template, $this->links->for($template, $user), is_array($details) ? $details : []);
         $address = match ($template) {
             // A new address is asked to confirm itself, and the old one is told it was replaced.
             AccountEmailTemplate::ConfirmNewEmail => $user->pending_email,
@@ -88,11 +91,23 @@ final class SendAccountEmail implements OutboxConsumer
             default => null,
         };
 
-        if ($address !== null) {
-            Notification::route('mail', $address)->notify($email);
-        } elseif ($template === AccountEmailTemplate::ConfirmNewEmail || $template === AccountEmailTemplate::EmailChanged) {
+        if ($address === null && ($template === AccountEmailTemplate::ConfirmNewEmail || $template === AccountEmailTemplate::EmailChanged)) {
             // The address is gone: the change was cancelled or the 30 days have passed.
             return;
+        }
+
+        $recipient = $address ?? $user->email;
+        $email = new AccountEmail($this->content->for(
+            $template,
+            $user,
+            $this->links->for($template, $user),
+            is_array($details) ? $details : [],
+            $recipient,
+            $this->clock->now(),
+        ));
+
+        if ($address !== null) {
+            Notification::route('mail', $address)->notify($email);
         } else {
             $user->notify($email);
         }
