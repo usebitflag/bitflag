@@ -62,12 +62,8 @@ function projects(count: number): string {
       </li>
     </ul>
     <Checkbox v-model="form.remember" label="Remember my choice" data-test="choose-remember" />
-    <template #aside>
-      <button
-        type="button"
-        class="text-text/65 hover:text-text text-sm"
-        @click="router.post('/signout')"
-      >
+    <template #footer>
+      <button type="button" class="hover:text-text" @click="router.post('/signout')">
         Sign out
       </button>
     </template>

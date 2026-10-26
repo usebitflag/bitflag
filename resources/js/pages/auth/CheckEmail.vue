@@ -30,7 +30,7 @@ function change(): void {
 
 <template>
   <Head title="Check your email" />
-  <AuthLayout :width="400" title="Check your email">
+  <AuthLayout variant="start" :width="400" title="Check your email">
     <template #before>
       <IconTile><PhEnvelopeSimpleOpen :size="22" aria-hidden="true" /></IconTile>
     </template>

@@ -24,7 +24,7 @@ const current = computed(() => steps.findIndex((step) => step.key === props.step
 </script>
 
 <template>
-  <AuthLayout :title="title" :subtitle="subtitle" :width="width">
+  <AuthLayout variant="start" :title="title" :subtitle="subtitle" :width="width">
     <template #aside>
       <ol
         v-if="step !== 'ready'"
