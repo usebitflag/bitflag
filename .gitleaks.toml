@@ -4,5 +4,14 @@ title = "BitFlag gitleaks configuration"
 useDefault = true
 
 [allowlist]
-description = "Generated files that list SHA-256 checksums of design inputs, which are public and not credentials"
+description = "Generated checksums, and public test values that look like secrets"
 paths = ['''resources/css/theme\.generated\.css''']
+
+# Values that look like secrets and are not: the published test vector of RFC 6238 and the public pepper and fake provider
+# credentials of the end-to-end stack and CI. A real secret in the same files would still be found, because only these exact
+# values are allowed.
+regexes = [
+  '''GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ''',
+  '''ZTJlLXBlcHBlci1mb3ItdGVzdHMtb25seS0zMmJ5dGU=''',
+  '''e2e-(google|github)-secret''',
+]
