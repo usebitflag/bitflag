@@ -43,8 +43,10 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             Route::get('/environments', [EnvironmentSettingsController::class, 'index'])->name('project.settings.environments');
             Route::post('/environments', [EnvironmentSettingsController::class, 'store'])->name('project.settings.environments.store');
             Route::put('/environments/order', [EnvironmentSettingsController::class, 'reorder'])->name('project.settings.environments.order');
+            Route::put('/environments/{target}/settings', [EnvironmentSettingsController::class, 'update'])
+                ->where(['target' => $key])->name('project.settings.environments.update');
             Route::get('/environments/{target}/{tab?}', [EnvironmentSettingsController::class, 'show'])
-                ->where(['target' => $key, 'tab' => 'overview|delivery|history'])->name('project.settings.environments.show');
+                ->where(['target' => $key, 'tab' => 'overview|delivery|history|settings'])->name('project.settings.environments.show');
         });
     });
 });
