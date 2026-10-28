@@ -8,7 +8,9 @@ import {
   DialogTitle,
 } from 'reka-ui';
 
-defineProps<{ title: string; description?: string }>();
+withDefaults(defineProps<{ title: string; description?: string; dismissable?: boolean }>(), {
+  dismissable: true,
+});
 
 const open = defineModel<boolean>('open', { default: false });
 </script>
@@ -20,6 +22,9 @@ const open = defineModel<boolean>('open', { default: false });
       <DialogContent
         class="bg-surface border-divider shadow-lg fixed top-1/2 left-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border p-6"
         data-test="dialog"
+        @escape-key-down="(event) => !dismissable && event.preventDefault()"
+        @pointer-down-outside="(event) => !dismissable && event.preventDefault()"
+        @interact-outside="(event) => !dismissable && event.preventDefault()"
       >
         <DialogTitle class="font-heading text-lg">{{ title }}</DialogTitle>
         <DialogDescription v-if="description" class="text-muted mt-1 text-sm">{{

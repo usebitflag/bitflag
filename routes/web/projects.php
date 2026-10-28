@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Http\Controllers\Web\EnvironmentKeysController;
 use App\Modules\Environments\Http\Controllers\Web\EnvironmentSettingsController;
 use App\Modules\Identity\Http\Controllers\Web\NoAccessController;
 use App\Modules\Identity\Http\Controllers\Web\RememberScopeController;
@@ -43,10 +44,13 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             Route::get('/environments', [EnvironmentSettingsController::class, 'index'])->name('project.settings.environments');
             Route::post('/environments', [EnvironmentSettingsController::class, 'store'])->name('project.settings.environments.store');
             Route::put('/environments/order', [EnvironmentSettingsController::class, 'reorder'])->name('project.settings.environments.order');
+            Route::post('/environments/{target}/keys', [EnvironmentKeysController::class, 'store'])->where(['target' => $key])->middleware('throttle:30,1')->name('project.settings.environments.keys.store');
+            Route::post('/environments/{target}/keys/{credential}/rotate', [EnvironmentKeysController::class, 'rotate'])->where(['target' => $key, 'credential' => 'key_[0-9a-z]{26}'])->middleware('throttle:30,1')->name('project.settings.environments.keys.rotate');
+            Route::post('/environments/{target}/keys/{credential}/revoke', [EnvironmentKeysController::class, 'revoke'])->where(['target' => $key, 'credential' => 'key_[0-9a-z]{26}'])->name('project.settings.environments.keys.revoke');
             Route::put('/environments/{target}/settings', [EnvironmentSettingsController::class, 'update'])
                 ->where(['target' => $key])->name('project.settings.environments.update');
             Route::get('/environments/{target}/{tab?}', [EnvironmentSettingsController::class, 'show'])
-                ->where(['target' => $key, 'tab' => 'overview|delivery|history|settings'])->name('project.settings.environments.show');
+                ->where(['target' => $key, 'tab' => 'overview|keys|delivery|history|settings'])->name('project.settings.environments.show');
         });
     });
 });

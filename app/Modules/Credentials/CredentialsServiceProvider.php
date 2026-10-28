@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Credentials;
 
+use App\Modules\Credentials\Console\CompleteCredentialRotationsCommand;
+use App\Modules\Credentials\Console\ExpireCredentialsCommand;
 use App\Modules\Credentials\Console\FlushCredentialLastUsedCommand;
 use App\Modules\Credentials\Jobs\RepairCredentialCache;
 use App\Modules\Credentials\Support\CredentialCache;
+use App\Shared\Audit\AuditCatalog;
 use App\Shared\Outbox\ConsumerRegistry;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,10 +26,11 @@ final class CredentialsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(AuditCatalog::class)->register('key.created', 'key.rotated', 'key.revoked', 'key.expired', 'token.created', 'token.revoked');
         $this->app->make(ConsumerRegistry::class)->register(RepairCredentialCache::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([FlushCredentialLastUsedCommand::class]);
+            $this->commands([FlushCredentialLastUsedCommand::class, CompleteCredentialRotationsCommand::class, ExpireCredentialsCommand::class]);
         }
     }
 }
