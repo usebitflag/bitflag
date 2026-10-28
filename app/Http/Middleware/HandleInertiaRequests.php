@@ -197,7 +197,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * The organizations the person belongs to with the projects they can open, for the switcher.
      *
-     * @return array{organizations: list<array{id: string, slug: string, name: string, projects: list<array{id: string, key: string, name: string}>}>}
+     * @return array{organizations: list<array{id: string, slug: string, name: string, role: string, projectCount: int, projects: list<array{id: string, key: string, name: string}>}>}
      */
     private function switcher(): array
     {
@@ -216,12 +216,18 @@ class HandleInertiaRequests extends Middleware
                 'id' => PublicId::encode(IdPrefix::Organization, $access->organization->id),
                 'slug' => $access->organization->slug,
                 'name' => $access->organization->name,
+                'role' => $access->role->value,
+                'projectCount' => 0,
                 'projects' => array_map(static fn ($project): array => [
                     'id' => PublicId::encode(IdPrefix::Project, $project->id),
                     'key' => $project->key,
                     'name' => $project->name,
                 ], $projects->activeAmong($access->organization->id, $memberships->projectIdsFor($person->id, $access->organization->id))),
             ];
+        }
+
+        foreach ($organizations as $index => $organization) {
+            $organizations[$index]['projectCount'] = count($organization['projects']);
         }
 
         return ['organizations' => $organizations];

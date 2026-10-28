@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Organizations\Models;
 
 use App\Modules\Organizations\Domain\OrganizationStatus;
+use App\Modules\Organizations\Domain\TeamSize;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
@@ -21,6 +22,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $slug
  * @property OrganizationStatus $status
+ * @property bool $require_mfa
+ * @property int|null $session_idle_timeout_minutes
+ * @property list<string> $allowed_email_domains
+ * @property TeamSize|null $team_size_hint
+ * @property array<string, mixed> $onboarding
+ * @property int $version
+ * @property string|null $created_by
  */
 #[UseFactory(OrganizationFactory::class)]
 class Organization extends Model
@@ -28,7 +36,10 @@ class Organization extends Model
     /** @use HasFactory<OrganizationFactory> */
     use HasFactory, HasPublicId, HasUlids, UsesMicrosecondTimestamps;
 
-    protected $fillable = ['name', 'slug', 'status'];
+    protected $fillable = ['name', 'slug', 'status', 'require_mfa', 'session_idle_timeout_minutes', 'allowed_email_domains', 'team_size_hint', 'onboarding', 'created_by'];
+
+    /** @var array<string, mixed> */
+    protected $attributes = ['require_mfa' => false, 'allowed_email_domains' => '[]', 'onboarding' => '[]', 'version' => 1];
 
     public static function publicIdPrefix(): IdPrefix
     {
@@ -42,6 +53,12 @@ class Organization extends Model
     {
         return [
             'status' => OrganizationStatus::class,
+            'require_mfa' => 'boolean',
+            'session_idle_timeout_minutes' => 'integer',
+            'allowed_email_domains' => 'array',
+            'team_size_hint' => TeamSize::class,
+            'onboarding' => 'array',
+            'version' => 'integer',
         ];
     }
 }

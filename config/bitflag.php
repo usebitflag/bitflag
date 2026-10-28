@@ -70,4 +70,19 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Organizations
+    |--------------------------------------------------------------------------
+    |
+    | How many organizations one person may create. It guards against one
+    | account filling the system with organizations, not against a team that
+    | has several.
+    |
+    */
+
+    'organizations' => [
+        'max_per_user' => (int) env('BITFLAG_MAX_ORGANIZATIONS_PER_USER', 5),
+    ],
+
 ];

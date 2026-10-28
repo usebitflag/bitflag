@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 use App\Modules\Identity\Http\Controllers\Web\NoAccessController;
 use App\Modules\Identity\Http\Controllers\Web\RememberScopeController;
+use App\Modules\Organizations\Http\Controllers\Web\ChooseOrganizationController;
+use App\Modules\Organizations\Queries\OrganizationSlugs;
 use App\Modules\Projects\Http\Controllers\Web\HomeController;
 use App\Modules\Projects\Http\Controllers\Web\OverviewController;
 use Illuminate\Support\Facades\Route;
 
 // Portal URLs lead with the organization slug: /{organization}/{project}/{environment}/{page}. Slugs start with a letter,
 // so they can never collide with the underscore-prefixed development and testing paths. Words that are application
-// paths are reserved and can never be organization slugs.
-$slug = '(?!(?:up|horizon|signin|signout|login|logout|scope|no-access)$)[a-z][a-z0-9-]{1,38}';
+// paths are reserved and can never be organization slugs (see the organization slug rules).
+$slug = app(OrganizationSlugs::class)->routePattern();
 $key = '[a-z0-9][a-z0-9-]{0,39}';
 
 Route::middleware('auth:web')->group(function () use ($slug, $key): void {
     Route::get('/', [HomeController::class, 'root'])->name('home');
     Route::get('/no-access', [NoAccessController::class, 'show'])->name('account.no-access');
+    Route::get('/organizations/choose', [ChooseOrganizationController::class, 'show'])->name('organizations.choose');
+    Route::post('/organizations/choose', [ChooseOrganizationController::class, 'store'])->name('organizations.choose.store');
     Route::post('/scope/remember', [RememberScopeController::class, 'store'])->name('scope.remember');
 
     Route::middleware('portal')->group(function () use ($slug, $key): void {

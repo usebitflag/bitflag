@@ -62,6 +62,8 @@ export interface SwitcherData {
     id: string;
     slug: string;
     name: string;
+    role: OrgRole;
+    projectCount: number;
     projects: Array<{ id: string; key: string; name: string }>;
   }>;
 }

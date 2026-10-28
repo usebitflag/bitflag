@@ -10,6 +10,7 @@ use App\Modules\Identity\Data\CompleteTwoFactorChallengeData;
 use App\Modules\Identity\Data\SignInMessages;
 use App\Modules\Identity\Http\Requests\TwoFactorChallengeRequest;
 use App\Modules\Identity\Http\SignIn\PendingSignIn;
+use App\Modules\Identity\Http\SignIn\PostSignIn;
 use App\Modules\Identity\Http\SignIn\SignInCookies;
 use App\Modules\Identity\Queries\PersonLookup;
 use Illuminate\Contracts\Auth\StatefulGuard;
@@ -68,6 +69,7 @@ final class TwoFactorChallengeController
             case ChallengeOutcome::Authenticated:
                 $guard->login($result->user ?? throw new LogicException('An authenticated challenge has a person.'));
                 $request->session()->regenerate();
+                $request->session()->put(PostSignIn::CHOOSE_ORGANIZATION, true);
                 $pending->clear($request->session());
 
                 if ($result->trustedBrowserCookie !== null) {
