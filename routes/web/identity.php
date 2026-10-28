@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 Route::middleware('guest:web')->group(function (): void {
+    Route::redirect('/login', '/signin');
     Route::get('/signin', [LoginController::class, 'create'])->name('login');
     Route::post('/signin', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login')->name('login.store');
 });

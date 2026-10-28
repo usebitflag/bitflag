@@ -14,6 +14,6 @@ final class LoginController
 {
     public function create(): Response
     {
-        return Inertia::render('auth/Login');
+        return Inertia::render('auth/SignIn');
     }
 }

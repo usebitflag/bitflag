@@ -2,7 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
-const form = useForm({ email: '', password: '', remember: false });
+const form = useForm({ email: '', password: '' });
 
 function submit(): void {
   form.post('/signin', { onFinish: () => form.reset('password') });
@@ -48,11 +48,6 @@ function submit(): void {
           data-test="login-password"
         />
       </div>
-
-      <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.remember" type="checkbox" data-test="login-remember" />
-        Keep me signed in
-      </label>
 
       <button
         type="submit"
