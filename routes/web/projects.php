@@ -8,6 +8,7 @@ use App\Modules\Organizations\Http\Controllers\Web\ChooseOrganizationController;
 use App\Modules\Organizations\Queries\OrganizationSlugs;
 use App\Modules\Projects\Http\Controllers\Web\HomeController;
 use App\Modules\Projects\Http\Controllers\Web\OverviewController;
+use App\Modules\Projects\Http\Controllers\Web\ProjectSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Portal URLs lead with the organization slug: /{organization}/{project}/{environment}/{page}. Slugs start with a letter,
@@ -31,5 +32,12 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
 
         Route::get('/{organization}/{project}/{environment}/overview', [OverviewController::class, 'show'])
             ->where(['organization' => $slug, 'project' => $key, 'environment' => $key])->name('project.overview');
+
+        // Project settings. The Members tab lives in routes/web/organizations.php.
+        Route::prefix('/{organization}/{project}/{environment}/settings')->where(['organization' => $slug, 'project' => $key, 'environment' => $key])->group(function (): void {
+            Route::get('/', [ProjectSettingsController::class, 'index'])->name('project.settings');
+            Route::get('/general', [ProjectSettingsController::class, 'general'])->name('project.settings.general');
+            Route::put('/general', [ProjectSettingsController::class, 'updateGeneral'])->name('project.settings.general.update');
+        });
     });
 });

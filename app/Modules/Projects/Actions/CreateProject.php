@@ -104,6 +104,7 @@ final class CreateProject
             'key' => $key,
             'description' => $data->description === null || trim($data->description) === '' ? null : trim($data->description),
             'status' => ProjectStatus::Active,
+            'created_by' => $userId,
         ]);
 
         $this->grantOwnership->handle($actor, $data->organizationId, $project->id);
