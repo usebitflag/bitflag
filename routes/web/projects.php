@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Environments\Http\Controllers\Web\EnvironmentSettingsController;
 use App\Modules\Identity\Http\Controllers\Web\NoAccessController;
 use App\Modules\Identity\Http\Controllers\Web\RememberScopeController;
 use App\Modules\Organizations\Http\Controllers\Web\ChooseOrganizationController;
@@ -34,10 +35,16 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             ->where(['organization' => $slug, 'project' => $key, 'environment' => $key])->name('project.overview');
 
         // Project settings. The Members tab lives in routes/web/organizations.php.
-        Route::prefix('/{organization}/{project}/{environment}/settings')->where(['organization' => $slug, 'project' => $key, 'environment' => $key])->group(function (): void {
+        Route::prefix('/{organization}/{project}/{environment}/settings')->where(['organization' => $slug, 'project' => $key, 'environment' => $key])->group(function () use ($key): void {
             Route::get('/', [ProjectSettingsController::class, 'index'])->name('project.settings');
             Route::get('/general', [ProjectSettingsController::class, 'general'])->name('project.settings.general');
             Route::put('/general', [ProjectSettingsController::class, 'updateGeneral'])->name('project.settings.general.update');
+
+            Route::get('/environments', [EnvironmentSettingsController::class, 'index'])->name('project.settings.environments');
+            Route::post('/environments', [EnvironmentSettingsController::class, 'store'])->name('project.settings.environments.store');
+            Route::put('/environments/order', [EnvironmentSettingsController::class, 'reorder'])->name('project.settings.environments.order');
+            Route::get('/environments/{target}/{tab?}', [EnvironmentSettingsController::class, 'show'])
+                ->where(['target' => $key, 'tab' => 'overview|delivery|history'])->name('project.settings.environments.show');
         });
     });
 });

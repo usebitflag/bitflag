@@ -16,6 +16,7 @@ use App\Shared\Capabilities\Capability;
 use App\Shared\Capabilities\ProjectScope;
 use App\Shared\Concurrency\VersionedUpdate;
 use App\Shared\Errors\AuthorizationDenied;
+use App\Shared\Plans\PlanRestrictionGate;
 use App\Shared\Tenancy\TenantContext;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,7 @@ use Illuminate\Validation\ValidationException;
 final class UpdateProjectSettings
 {
     public function __construct(
+        private readonly PlanRestrictionGate $restrictions,
         private readonly AuditRecorder $audit,
         private readonly TenantContext $tenant,
     ) {}
@@ -71,6 +73,8 @@ final class UpdateProjectSettings
 
     private function save(Actor $actor, UpdateProjectSettingsData $data, string $name, string $key, ?string $description, FlagKeyFormat $flagKeyFormat): int
     {
+        $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId);
+
         $project = Project::query()->lockForUpdate()->findOrFail($data->projectId);
 
         if ($key !== $project->key) {
