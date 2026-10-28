@@ -162,3 +162,35 @@ describe('the Settings tab', function () {
         $this->actingAs($this->world['maya'])->put('/acme/storefront/production/settings/environments/billing/settings', settings_form())->assertNotFound();
     });
 });
+
+describe('archiving and deleting from the Settings tab', function () {
+    it('archives with the key typed and goes back to the list under another environment', function () {
+        $this->actingAs($this->world['maya'])->post("{$this->page}/staging/archive", ['confirm' => 'staging'])->assertRedirect($this->page);
+
+        $this->actingAs($this->world['maya'])->get($this->page)->assertInertia(fn (Assert $page) => $page
+            ->where('environments.2.key', 'staging')->where('environments.2.status', 'archived'));
+    });
+
+    it('moves the list to another environment when the open one is archived', function () {
+        $this->actingAs($this->world['maya'])->post('/acme/storefront/staging/settings/environments/staging/archive', ['confirm' => 'staging'])
+            ->assertRedirect('/acme/storefront/development/settings/environments');
+    });
+
+    it('refuses a wrong confirmation and anyone who is not an Owner', function () {
+        $this->actingAs($this->world['maya'])->post("{$this->page}/staging/archive", ['confirm' => 'nope'])->assertSessionHasErrors('confirm');
+        $this->actingAs($this->world['jon'])->post("{$this->page}/staging/archive", ['confirm' => 'staging'])->assertForbidden();
+        $this->actingAs($this->world['jon'])->delete("{$this->page}/staging", ['confirm' => 'staging'])->assertForbidden();
+    });
+
+    it('deletes an unused environment and shows the blockers of a used one', function () {
+        $this->actingAs($this->world['maya'])->postJson("{$this->page}/staging/keys", ['type' => 'server', 'label' => 'A', 'scopes' => ['snapshot:read']])->assertCreated();
+
+        $this->actingAs($this->world['maya'])->get("{$this->page}/staging/settings")->assertInertia(fn (Assert $page) => $page
+            ->where('deleteBlockers', ['1 active SDK key', 'Credential history for this environment'])->where('activeEnvironmentCount', 3));
+
+        $this->actingAs($this->world['maya'])->delete("{$this->page}/staging", ['confirm' => 'staging'])->assertSessionHasErrors('environment');
+        $this->actingAs($this->world['maya'])->delete("{$this->page}/development", ['confirm' => 'development'])->assertRedirect();
+
+        expect(Tenancy::crossTenant('inspect', fn () => Environment::query()->where('project_id', Project::query()->where('key', 'storefront')->firstOrFail()->id)->where('key', 'development')->count()))->toBe(0);
+    });
+});
