@@ -12,6 +12,7 @@ use App\Modules\Identity\Support\AccountEmailLinks;
 use App\Shared\Outbox\OutboxConsumer;
 use App\Shared\Outbox\OutboxMessage;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Support\Facades\Notification;
 use InvalidArgumentException;
 
 /**
@@ -79,7 +80,22 @@ final class SendAccountEmail implements OutboxConsumer
 
         $details = $message->payload['details'] ?? [];
 
-        $user->notify(new AccountEmail($template, $this->links->for($template, $user), is_array($details) ? $details : []));
+        $email = new AccountEmail($template, $this->links->for($template, $user), is_array($details) ? $details : []);
+        $address = match ($template) {
+            // A new address is asked to confirm itself, and the old one is told it was replaced.
+            AccountEmailTemplate::ConfirmNewEmail => $user->pending_email,
+            AccountEmailTemplate::EmailChanged => $user->previous_email,
+            default => null,
+        };
+
+        if ($address !== null) {
+            Notification::route('mail', $address)->notify($email);
+        } elseif ($template === AccountEmailTemplate::ConfirmNewEmail || $template === AccountEmailTemplate::EmailChanged) {
+            // The address is gone: the change was cancelled or the 30 days have passed.
+            return;
+        } else {
+            $user->notify($email);
+        }
 
         $this->cache->put($sentKey, true, self::SENT_TTL_SECONDS);
     }
