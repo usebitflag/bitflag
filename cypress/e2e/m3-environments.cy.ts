@@ -43,3 +43,38 @@ describe('environments', () => {
     cy.get('[data-test="settings-readonly"]').should('be.visible');
   });
 });
+
+describe('environment settings', () => {
+  beforeEach(() => cy.resetDemo());
+
+  it('validates origins, saves protection and shows the new policy version', () => {
+    cy.signInAs('maya@acme.dev');
+    cy.visit('/acme/storefront/development/settings/environments/staging/settings');
+
+    cy.get('[data-test="origins-empty"]').should('be.visible');
+    cy.get('[data-test="origin-input"]').type('https://app.example.com/path{enter}');
+    cy.get('[data-test="origin-error"]').should('contain', 'scheme://host');
+    cy.get('[data-test="origin-input"]').clear().type('http://example.com{enter}');
+    cy.get('[data-test="origin-error"]').should('contain', 'https');
+    cy.get('[data-test="origin-input"]').clear().type('HTTPS://App.Example.com{enter}');
+    cy.get('[data-test="origin-chip"]').should('contain', 'https://app.example.com');
+
+    cy.get('[data-test="protection-approval"] [data-test="switch-root"]').should('be.disabled');
+    cy.get('[data-test="protection-protected"] [data-test="switch-root"]').click();
+    cy.get('[data-test="max-snapshot-age"]').select('1 hour');
+    cy.get('[data-test="settings-save"]').click();
+
+    cy.get('[data-test="settings-unsaved"]').should('not.exist');
+    cy.visit('/acme/storefront/development/settings/environments/staging/overview');
+    cy.get('[data-test="protected-tag"]').should('be.visible');
+    cy.contains('Policy version 2').should('be.visible');
+  });
+
+  it('is read-only for a viewer', () => {
+    cy.signInAs('ana@acme.dev');
+    cy.visit('/acme/storefront/development/settings/environments/staging/settings');
+    cy.get('[data-test="settings-readonly"]').should('be.visible');
+    cy.get('[data-test="settings-save"]').should('not.exist');
+    cy.get('[data-test="origin-input"]').should('not.exist');
+  });
+});
