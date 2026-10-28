@@ -5,6 +5,10 @@ import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
 import PasswordChecklist from '../../features/auth/PasswordChecklist.vue';
+import SessionsPanel, {
+  type SessionRow,
+  type TrustedBrowserRow,
+} from '../../features/auth/SessionsPanel.vue';
 import TwoFactorPanel from '../../features/auth/TwoFactorPanel.vue';
 import { sendJson } from '../../features/auth/sendJson';
 import PortalLayout from '../../layouts/PortalLayout.vue';
@@ -12,6 +16,8 @@ import PortalLayout from '../../layouts/PortalLayout.vue';
 defineProps<{
   twoFactor: { enabled: boolean; recoveryCodesLeft: number };
   requiredBy: string | null;
+  sessions: SessionRow[];
+  trustedBrowsers: TrustedBrowserRow[];
 }>();
 
 const form = useForm({ current_password: '', password: '' });
@@ -104,6 +110,8 @@ function changePassword(): void {
         :recovery-codes-left="twoFactor.recoveryCodesLeft"
         :required-by="requiredBy"
       />
+
+      <SessionsPanel :sessions="sessions" :trusted-browsers="trustedBrowsers" />
     </div>
   </PortalLayout>
 </template>
