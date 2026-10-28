@@ -49,9 +49,17 @@ function submit(): void {
 
 <template>
   <Head title="Create your account" />
-  <AuthLayout title="Create your account" subtitle="Start with a work email and a password.">
+  <AuthLayout :width="400" title="Create your account" subtitle="Free plan. No card needed.">
+    <template #aside>
+      <span class="text-text/65 text-sm">
+        Have an account?
+        <Link href="/signin" class="text-primary-ink hover:underline" data-test="signup-signin-link"
+          >Sign in</Link
+        >
+      </span>
+    </template>
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
-      <Field v-slot="{ id, describedBy, invalid }" label="Email" :error="form.errors.email">
+      <Field v-slot="{ id, describedBy, invalid }" label="Work email" :error="form.errors.email">
         <Input
           :id="id"
           v-model="form.email"
@@ -73,22 +81,18 @@ function submit(): void {
           data-test="signup-password"
         />
       </Field>
-      <PasswordChecklist :password="form.password" :email="form.email" :common="common" />
+      <PasswordChecklist compact :password="form.password" :email="form.email" :common="common" />
       <Button
         type="submit"
         variant="primary"
+        size="lg"
         block
         :loading="form.processing"
         data-test="signup-submit"
       >
         Create account
       </Button>
-      <p class="text-muted text-center text-sm">
-        Already have an account?
-        <Link href="/signin" class="text-text underline" data-test="signup-signin-link"
-          >Sign in</Link
-        >
-      </p>
+      <p class="text-text/55 text-xs">By continuing you agree to the Terms and Privacy Policy.</p>
     </form>
   </AuthLayout>
 </template>

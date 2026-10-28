@@ -8,12 +8,12 @@ const id = useId();
 </script>
 
 <template>
-  <div class="flex items-start gap-2" data-test="checkbox">
+  <div class="flex items-start gap-2.5" data-test="checkbox">
     <input
       :id="id"
       v-model="model"
       type="checkbox"
-      class="mt-0.5 h-4 w-4"
+      class="accent-primary mt-[3px] h-[15px] w-[15px]"
       :disabled="disabled"
       :aria-describedby="help ? `${id}-help` : undefined"
     />

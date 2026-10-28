@@ -69,11 +69,11 @@ function submit(): void {
   <Head :title="`Join ${organization}`" />
   <AuthLayout
     :title="`Join ${organization}`"
-    :subtitle="`${inviterName ?? 'Someone'} invited you as ${roleText}.`"
+    :subtitle="`${inviterName ?? 'Someone'} invited you as ${roleText}. Create your account to accept.`"
   >
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
       <section v-if="projects.length" aria-label="Projects" data-test="invitation-projects">
-        <p class="text-muted text-xs">Projects</p>
+        <p class="text-text/55 text-xs">Projects</p>
         <ul class="mt-1 flex flex-col gap-1 text-sm">
           <li v-for="project in projects" :key="project.name">
             {{ project.name }} <span class="text-muted">· {{ project.role }}</span>
@@ -91,6 +91,7 @@ function submit(): void {
             :model-value="email"
             type="email"
             disabled
+            class="opacity-70"
             :described-by="describedBy"
             data-test="invitation-email"
           />
@@ -100,6 +101,7 @@ function submit(): void {
             :id="id"
             v-model="form.name"
             autocomplete="name"
+            :placeholder="undefined"
             :invalid="invalid"
             :described-by="describedBy"
             data-test="invitation-name"
@@ -111,12 +113,13 @@ function submit(): void {
             v-model="form.password"
             type="password"
             autocomplete="new-password"
+            placeholder="At least 12 characters"
             :invalid="invalid"
             :described-by="describedBy"
             data-test="invitation-password"
           />
         </Field>
-        <PasswordChecklist :password="form.password" :email="email" :common="common" />
+        <PasswordChecklist compact :password="form.password" :email="email" :common="common" />
         <p
           v-if="accountExists"
           class="text-danger-text text-sm"
@@ -124,20 +127,24 @@ function submit(): void {
           data-test="invitation-account-exists"
         >
           {{ accountExists }}
-          <Link :href="`/signin`" class="underline">Sign in</Link>
+          <Link href="/signin" class="underline">Sign in</Link>
         </p>
         <Button
           type="submit"
           variant="primary"
+          size="lg"
           block
           :loading="form.processing"
           data-test="invitation-accept"
         >
-          Create account and join
+          Accept and create account
         </Button>
-        <p class="text-muted text-center text-sm">
+        <p class="text-text/60 text-sm">
           Already have an account?
-          <Link href="/signin" class="text-text underline" data-test="invitation-signin"
+          <Link
+            href="/signin"
+            class="text-primary-ink hover:underline"
+            data-test="invitation-signin"
             >Sign in to accept</Link
           >
         </p>
@@ -148,6 +155,7 @@ function submit(): void {
         <Button
           type="submit"
           variant="primary"
+          size="lg"
           block
           :loading="form.processing"
           data-test="invitation-accept"

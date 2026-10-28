@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { PhCaretRight, PhUserPlus } from '@phosphor-icons/vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import Banner from '../../../components/ui/Banner.vue';
+import PageHeader from '../../../components/ui/PageHeader.vue';
+import SettingsTabs from '../../../features/shell/SettingsTabs.vue';
 import Button from '../../../components/ui/Button.vue';
 import ConfirmDialog from '../../../components/ui/ConfirmDialog.vue';
 import InlineNotice from '../../../components/ui/InlineNotice.vue';
@@ -80,18 +83,32 @@ function cancel(invitation: ProjectInvitation): void {
 
 <template>
   <Head title="Members" />
-  <PortalLayout context="Members">
-    <div class="flex flex-col gap-6">
-      <div class="flex items-center justify-between gap-4">
-        <h1 class="font-heading text-title" data-test="members-title">Members</h1>
-        <Button
-          v-if="canManage"
-          variant="primary"
-          data-test="members-invite"
-          @click="inviting = true"
-          >Invite people</Button
-        >
-      </div>
+  <PortalLayout>
+    <template #context>
+      <nav aria-label="Breadcrumb" class="text-text/60 flex items-center gap-1.5 text-sm">
+        <span>{{ project.name }}</span>
+        <PhCaretRight :size="11" aria-hidden="true" />
+        <span>Settings</span>
+        <PhCaretRight :size="11" aria-hidden="true" />
+        <span class="text-text" aria-current="page">Members</span>
+      </nav>
+    </template>
+    <div class="flex flex-col gap-[18px]">
+      <SettingsTabs
+        label="Project settings"
+        :items="[{ key: 'members', label: 'Members', href: base, active: true }]"
+      />
+      <PageHeader
+        title="Members"
+        :description="`People with access to ${project.name}. A role applies to every environment. Protected environments can add a review step on top.`"
+      >
+        <template v-if="canManage" #actions>
+          <Button variant="primary" data-test="members-invite" @click="inviting = true">
+            <template #icon><PhUserPlus :size="16" aria-hidden="true" /></template>
+            Invite people
+          </Button>
+        </template>
+      </PageHeader>
 
       <Banner v-if="!canManage" tone="neutral" label="Read-only." data-test="members-readonly">{{
         readOnlyText

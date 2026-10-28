@@ -103,24 +103,26 @@ watch(
       data-test="sidebar"
       @keydown.esc="closeDrawer()"
     >
-      <div class="border-divider border-b"><ProjectSwitcher :expanded="drawerOpen" /></div>
-      <div class="border-divider border-b p-2">
-        <EnvironmentPicker
-          :environments="page.props.environments"
-          :current="scope.environment"
-          :path="page.url"
-          :expanded="drawerOpen"
-        />
-      </div>
-      <div class="flex-1 overflow-y-auto">
-        <SidebarNav :items="navigation" :expanded="drawerOpen" />
-      </div>
-      <div v-if="page.props.auth.user" class="border-divider border-t">
-        <UserMenu
-          :user="page.props.auth.user"
-          :organization-settings-href="organizationSettingsHref"
-        />
-      </div>
+      <slot name="sidebar" :expanded="drawerOpen">
+        <div class="border-divider border-b"><ProjectSwitcher :expanded="drawerOpen" /></div>
+        <div class="border-divider border-b p-2">
+          <EnvironmentPicker
+            :environments="page.props.environments"
+            :current="scope.environment"
+            :path="page.url"
+            :expanded="drawerOpen"
+          />
+        </div>
+        <div class="flex-1 overflow-y-auto">
+          <SidebarNav :items="navigation" :expanded="drawerOpen" />
+        </div>
+        <div v-if="page.props.auth.user" class="border-divider border-t">
+          <UserMenu
+            :user="page.props.auth.user"
+            :organization-settings-href="organizationSettingsHref"
+          />
+        </div>
+      </slot>
     </aside>
 
     <div class="flex min-h-screen flex-col lg:pl-14 xl:pl-64">
@@ -128,7 +130,9 @@ watch(
         :context="context || scope.project?.name || ''"
         :environment-name="scope.environment?.name ?? null"
         @toggle-drawer="toggleDrawer"
-      />
+      >
+        <template v-if="$slots.context" #context><slot name="context" /></template>
+      </TopBar>
       <main id="main" class="flex flex-1 flex-col gap-4 p-6" tabindex="-1">
         <VerifyEmailBanner v-if="page.props.auth.user && !page.props.auth.user.emailVerified" />
         <Banner v-if="isViewer" tone="neutral" label="Read-only." data-test="viewer-notice">

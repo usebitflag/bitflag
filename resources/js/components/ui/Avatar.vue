@@ -15,7 +15,7 @@ const initials = computed(() =>
 
 <template>
   <span
-    class="bg-primary-soft text-primary-ink inline-grid shrink-0 place-items-center rounded-full text-xs font-semibold"
+    class="bg-selection text-primary-ink inline-grid shrink-0 place-items-center rounded-full text-[11px]"
     :style="{ width: `${size}px`, height: `${size}px` }"
     role="img"
     :aria-label="name"

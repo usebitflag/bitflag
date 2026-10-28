@@ -20,6 +20,14 @@ export default {
         ],
       },
     ],
+    // Tailwind names a size's line height `--text-sm--line-height`: two dashes before the modifier.
+    'custom-property-pattern': [
+      '^[a-z][a-z0-9]*(-{1,2}[a-z0-9]+)*$',
+      {
+        message:
+          'Expected custom property name to be kebab-case (Tailwind modifiers use two dashes)',
+      },
+    ],
     'import-notation': 'string',
     'color-no-hex': true,
     'color-named': 'never',

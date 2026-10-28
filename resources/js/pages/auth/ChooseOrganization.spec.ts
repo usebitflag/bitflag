@@ -4,7 +4,13 @@ import { reactive } from 'vue';
 
 const form = reactive({ organization: '', remember: false, processing: false, post: vi.fn() });
 
-vi.mock('@inertiajs/vue3', () => ({ Head: { render: () => null }, useForm: () => form }));
+vi.mock('@inertiajs/vue3', () => ({
+  Head: { render: () => null },
+  Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
+  router: { post: vi.fn() },
+  useForm: () => form,
+  usePage: () => ({ props: { auth: { user: { email: 'maya@acme.dev' } } } }),
+}));
 
 import ChooseOrganization from './ChooseOrganization.vue';
 

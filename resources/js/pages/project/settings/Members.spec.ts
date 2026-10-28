@@ -29,6 +29,7 @@ const page = vi.hoisted(() => ({
 
 vi.mock('@inertiajs/vue3', () => ({
   Head: { render: () => null },
+  Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
   usePage: () => page,
   router,
 }));
@@ -89,9 +90,9 @@ describe('project members tab', () => {
   it('shows the count of people in each role', () => {
     const view = show();
 
-    expect(view.get('[data-test="role-count-owner"]').text()).toBe('1');
-    expect(view.get('[data-test="role-count-publisher"]').text()).toBe('1');
-    expect(view.get('[data-test="role-count-viewer"]').text()).toBe('0');
+    expect(view.get('[data-test="role-count-owner"]').text()).toBe('1 person');
+    expect(view.get('[data-test="role-count-publisher"]').text()).toBe('1 person');
+    expect(view.get('[data-test="role-count-viewer"]').text()).toBe('0 people');
   });
 
   it('changes a role with the version the list was read at', async () => {

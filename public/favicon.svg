@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+  <style>
+    .pole { fill: #0a0a0f; }
+    .bit { fill: #6d4fe0; }
+    .off { fill: none; stroke: #6d4fe0; stroke-width: 1; }
+    @media (prefers-color-scheme: dark) {
+      .pole { fill: #f4f4f6; }
+      .bit { fill: #8b6cf0; }
+      .off { stroke: #8b6cf0; }
+    }
+  </style>
+  <rect class="pole" x="3" y="2" width="2" height="20" rx="1"/>
+  <rect class="bit" x="7" y="3" width="4" height="4" rx="1"/>
+  <rect class="bit" x="12" y="3" width="4" height="4" rx="1"/>
+  <rect class="bit" x="17" y="3" width="4" height="4" rx="1"/>
+  <rect class="bit" x="7" y="8" width="4" height="4" rx="1"/>
+  <rect class="bit" x="12" y="8" width="4" height="4" rx="1"/>
+  <rect class="off" x="17.5" y="8.5" width="3" height="3" rx="0.75"/>
+</svg>

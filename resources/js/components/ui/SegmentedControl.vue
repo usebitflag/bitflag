@@ -6,7 +6,10 @@ export interface SegmentOption {
   label: string;
 }
 
-defineProps<{ options: SegmentOption[]; label: string }>();
+withDefaults(
+  defineProps<{ options: SegmentOption[]; label: string; variant?: 'filled' | 'ring' }>(),
+  { variant: 'filled' },
+);
 
 const model = defineModel<string>({ default: '' });
 
@@ -21,7 +24,11 @@ function select(value: string | undefined): void {
     type="single"
     :model-value="model"
     :aria-label="label"
-    class="border-control-border bg-hover inline-flex rounded-md border p-0.5"
+    :class="
+      variant === 'ring'
+        ? 'border-divider bg-text/3 inline-flex overflow-hidden rounded-md border'
+        : 'border-control-border bg-hover inline-flex rounded-md border p-0.5'
+    "
     data-test="segmented-control"
     @update:model-value="(v) => select(typeof v === 'string' ? v : undefined)"
   >
@@ -30,7 +37,11 @@ function select(value: string | undefined): void {
       :key="option.value"
       :value="option.value"
       :data-test="`segment-${option.value}`"
-      class="data-[state=on]:bg-surface data-[state=on]:text-text text-muted h-7 rounded-sm px-3 text-xs font-medium"
+      :class="
+        variant === 'ring'
+          ? 'text-text data-[state=on]:text-primary-ink data-[state=on]:ring-primary border-divider px-3 py-[5px] text-[13px] font-medium first:border-l-0 not-first:border-l data-[state=on]:ring-1 data-[state=on]:ring-inset'
+          : 'data-[state=on]:bg-surface data-[state=on]:text-text text-muted h-7 rounded-sm px-3 text-xs font-medium'
+      "
     >
       {{ option.label }}
     </ToggleGroupItem>

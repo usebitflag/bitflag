@@ -279,7 +279,7 @@ describe('the ready step', function () {
 
     it('shows the four steps', function () {
         $this->actingAs($this->user)->get('/onboarding/startup-inc/ready')->assertInertia(fn (Assert $page) => $page
-            ->component('onboarding/Ready')->has('steps', 4)->where('steps.0', 'Create a flag'));
+            ->component('onboarding/Ready')->has('steps', 4)->where('steps.0', 'Create a flag')->where('projectName', 'Storefront'));
     });
 
     it('is shown once, and then the overview opens', function () {

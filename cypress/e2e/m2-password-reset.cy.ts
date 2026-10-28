@@ -20,6 +20,7 @@ describe('password reset', () => {
     cy.latestEmail('ana@acme.dev', 'Reset your BitFlag password').then(({ link }) => {
       cy.visit(String(link));
       cy.get('[data-test="reset-password"] input').type('a brand new passphrase', { log: false });
+      cy.get('[data-test="reset-confirm"] input').type('a brand new passphrase', { log: false });
       cy.get('[data-test="reset-submit"]').click();
       // Resetting signs the person in.
       cy.location('pathname').should('match', /^\/acme\//);

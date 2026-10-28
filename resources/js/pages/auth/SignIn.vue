@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import Button from '../../components/ui/Button.vue';
+import Field from '../../components/ui/Field.vue';
+import Input from '../../components/ui/Input.vue';
+import InlineNotice from '../../components/ui/InlineNotice.vue';
 import AuthLayout from '../../layouts/AuthLayout.vue';
 
 const form = useForm({ email: '', password: '' });
@@ -11,61 +15,65 @@ function submit(): void {
 
 <template>
   <Head title="Sign in" />
-  <AuthLayout title="Sign in to BitFlag">
+  <AuthLayout title="Sign in" subtitle="to BitFlag">
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
-      <div class="flex flex-col gap-1">
-        <label for="email" class="text-sm font-medium">Email</label>
-        <input
-          id="email"
+      <InlineNotice
+        v-if="form.errors.email"
+        tone="danger"
+        regular
+        :title="form.errors.email"
+        data-test="login-error"
+      />
+      <Field v-slot="{ id, describedBy }" label="Email">
+        <Input
+          :id="id"
           v-model="form.email"
           type="email"
           autocomplete="username"
-          required
-          class="border-control-border bg-surface h-9 rounded-md border px-3 text-sm"
-          :aria-invalid="form.errors.email ? 'true' : undefined"
-          :aria-describedby="form.errors.email ? 'email-error' : undefined"
+          :invalid="Boolean(form.errors.email)"
+          :described-by="describedBy"
           data-test="login-email"
         />
-        <p
-          v-if="form.errors.email"
-          id="email-error"
-          class="text-danger-text text-xs"
-          data-test="login-error"
-        >
-          {{ form.errors.email }}
-        </p>
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <div class="flex items-baseline justify-between">
-          <label for="password" class="text-sm font-medium">Password</label>
+      </Field>
+      <Field label="Password">
+        <template #aside>
           <Link
             href="/forgot-password"
-            class="text-muted text-xs underline"
+            class="text-primary-ink text-sm font-medium hover:underline"
             data-test="login-forgot"
           >
             Forgot password?
           </Link>
-        </div>
-        <input
-          id="password"
-          v-model="form.password"
-          type="password"
-          autocomplete="current-password"
-          required
-          class="border-control-border bg-surface h-9 rounded-md border px-3 text-sm"
-          data-test="login-password"
-        />
-      </div>
-
-      <button
+        </template>
+        <template #default="{ id, describedBy }">
+          <Input
+            :id="id"
+            v-model="form.password"
+            type="password"
+            autocomplete="current-password"
+            :invalid="Boolean(form.errors.email)"
+            :described-by="describedBy"
+            data-test="login-password"
+          />
+        </template>
+      </Field>
+      <Button
         type="submit"
-        class="bg-primary text-primary-foreground h-[34px] rounded-md text-sm font-medium"
-        :disabled="form.processing"
+        variant="primary"
+        size="lg"
+        block
+        class="mt-2"
+        :loading="form.processing"
         data-test="login-submit"
       >
         Sign in
-      </button>
+      </Button>
+      <p class="text-text/70 text-[13.5px]">
+        New to BitFlag?
+        <Link href="/signup" class="text-primary-ink underline" data-test="login-signup"
+          >Create an account</Link
+        >
+      </p>
     </form>
   </AuthLayout>
 </template>

@@ -44,7 +44,7 @@ describe('sign-up to a first project', () => {
     cy.get('[data-test="org-name"] input').type('Startup Inc');
     cy.get('[data-test="org-slug"] input').should('have.value', 'startup-inc');
     cy.contains('Available').should('be.visible');
-    cy.get('[data-test="team-size-small"]').check();
+    cy.get('[data-test="segment-small"]').click();
     cy.get('[data-test="org-continue"]').click();
 
     // 5e: the first project, from the three-environment template with production protected.
@@ -59,9 +59,8 @@ describe('sign-up to a first project', () => {
     cy.location('pathname').should('eq', '/onboarding/startup-inc/team');
     cy.get('[data-test="team-unverified"]').should('be.visible');
     cy.get('[data-test="team-emails"]').type('a@startup.dev, b@startup.dev, not-an-email');
-    cy.get('[data-test="team-count"]')
-      .should('contain.text', '2 people')
-      .and('contain.text', 'not-an-email');
+    cy.get('[data-test="team-count"]').should('contain.text', '2 people');
+    cy.get('[data-test="team-invalid"]').should('contain.text', 'not-an-email');
     cy.get('[data-test="team-send"]').click();
 
     // 5g: ready, once, then the overview.

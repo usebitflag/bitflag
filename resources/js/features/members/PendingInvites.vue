@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from '../../components/ui/Button.vue';
+import Card from '../../components/ui/Card.vue';
 
 export interface ProjectInvitation {
   id: string;
@@ -28,22 +29,22 @@ function status(invitation: ProjectInvitation): string {
 </script>
 
 <template>
-  <section
-    class="flex flex-col gap-2"
+  <Card
+    title="Pending invites"
+    meta="Links expire after 7 days."
     aria-labelledby="pending-heading"
     data-test="pending-invites"
   >
-    <h2 id="pending-heading" class="font-heading text-lg">Pending invitations</h2>
-    <ul class="border-divider divide-divider divide-y rounded-md border">
+    <ul class="divide-divider divide-y" aria-label="Pending invitations">
       <li
         v-for="invitation in invitations"
         :key="invitation.id"
-        class="flex items-center justify-between gap-4 p-3"
+        class="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0"
         data-test="invitation-row"
       >
         <div>
-          <p class="text-sm font-medium">{{ invitation.email }}</p>
-          <p class="text-muted text-xs">
+          <p class="text-[13px] leading-5">{{ invitation.email }}</p>
+          <p class="text-text/55 text-xs leading-[19px]">
             {{ invitation.role }} · invited by {{ invitation.inviter }} ·
             <span data-test="invitation-status">{{ status(invitation) }}</span>
           </p>
@@ -66,6 +67,5 @@ function status(invitation: ProjectInvitation): string {
         </div>
       </li>
     </ul>
-    <p class="text-muted text-xs">Links expire after 7 days.</p>
-  </section>
+  </Card>
 </template>

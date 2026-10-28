@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { PhCheckCircle, PhCircle } from '@phosphor-icons/vue';
+import { PhCheck } from '@phosphor-icons/vue';
 import { computed } from 'vue';
+import AuthLayout from './AuthLayout.vue';
 
-const props = defineProps<{
-  step: 'organization' | 'project' | 'team';
-  title: string;
-  subtitle?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    step: 'organization' | 'project' | 'team' | 'ready';
+    title: string;
+    subtitle?: string;
+    width?: number;
+  }>(),
+  { width: 400 },
+);
 
 const steps = [
   { key: 'account', label: 'Account' },
@@ -19,28 +24,32 @@ const current = computed(() => steps.findIndex((step) => step.key === props.step
 </script>
 
 <template>
-  <main
-    class="bg-bg text-text grid min-h-screen place-items-start justify-center p-6 pt-16"
-    data-test="onboarding-layout"
-  >
-    <div class="w-full max-w-lg">
-      <ol class="mb-8 flex items-center gap-2 text-sm" aria-label="Setup progress">
+  <AuthLayout :title="title" :subtitle="subtitle" :width="width">
+    <template #aside>
+      <ol
+        v-if="step !== 'ready'"
+        class="flex gap-1.5 text-xs"
+        aria-label="Setup progress"
+        data-test="onboarding-layout"
+      >
         <li
           v-for="(entry, index) in steps"
           :key="entry.key"
-          :class="['flex items-center gap-1.5', index <= current ? 'text-text' : 'text-muted']"
+          :class="[
+            'rounded-full px-[9px] py-[3px]',
+            index === current ? 'text-primary ring-primary ring-1 ring-inset' : '',
+            index > current ? 'text-text/50' : '',
+          ]"
           :aria-current="index === current ? 'step' : undefined"
           :data-test="`stepper-${entry.key}`"
         >
-          <PhCheckCircle v-if="index < current" :size="16" aria-hidden="true" />
-          <PhCircle v-else :size="16" aria-hidden="true" />
-          <span>{{ entry.label }}</span>
-          <span v-if="index < steps.length - 1" class="text-muted mx-1" aria-hidden="true">·</span>
+          <PhCheck v-if="index < current" :size="11" class="mr-0.5 inline" aria-hidden="true" />{{
+            entry.label
+          }}
         </li>
       </ol>
-      <h1 class="font-heading text-2xl" data-test="onboarding-title">{{ title }}</h1>
-      <p v-if="subtitle" class="text-muted mt-1 text-sm">{{ subtitle }}</p>
-      <div class="bg-surface border-divider mt-6 rounded-lg border p-6"><slot /></div>
-    </div>
-  </main>
+    </template>
+    <template v-if="$slots.before" #before><slot name="before" /></template>
+    <slot />
+  </AuthLayout>
 </template>

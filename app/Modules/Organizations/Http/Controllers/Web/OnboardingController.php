@@ -185,15 +185,22 @@ final class OnboardingController
     }
 
     /** GET /onboarding/{organization}/ready */
-    public function ready(Request $request): Response
+    public function ready(Request $request, ProjectLookup $projects): Response
     {
+        $person = $this->currentPerson->find();
+        abort_if($person === null, 403);
+
+        $status = $this->state->for($person->id);
+        $project = $status->organizationId === null ? null : $projects->oldest($status->organizationId);
+
         return Inertia::render('onboarding/Ready', [
             'organization' => $this->organizationProps($request),
+            'projectName' => $project?->name,
             'steps' => [
                 'Create a flag',
-                'Publish it to development',
+                'Publish to development',
                 'Connect an SDK',
-                'Verify it works',
+                'Verify an evaluation',
             ],
         ]);
     }

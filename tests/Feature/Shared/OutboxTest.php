@@ -365,3 +365,57 @@ it('runs one batch from the worker command', function () {
 
     expect(OutboxReceipt::query()->count())->toBe(1);
 });
+
+describe('retrying failed receipts', function () {
+    beforeEach(function () {
+        pushed();
+        dispatchAll();
+        OutboxReceipt::query()->update([
+            'status' => ReceiptStatus::Exhausted->value,
+            'attempts' => 6,
+            'last_error' => 'Route [x] not defined.',
+            'next_attempt_at' => null,
+        ]);
+    });
+
+    it('asks what to retry', function () {
+        $this->artisan('outbox:retry')->assertExitCode(2);
+
+        expect(theReceipt()->status)->toBe(ReceiptStatus::Exhausted);
+    });
+
+    it('puts an exhausted receipt back to pending from the first attempt and signals it', function () {
+        Queue::fake();
+
+        $this->artisan('outbox:retry', ['--id' => theReceipt()->id])->assertSuccessful();
+
+        $receipt = theReceipt();
+        expect($receipt->status)->toBe(ReceiptStatus::Pending)
+            ->and($receipt->attempts)->toBe(0)
+            ->and($receipt->last_error)->toBeNull()
+            ->and($receipt->next_attempt_at)->not->toBeNull();
+        Queue::assertPushed(DeliverOutboxMessage::class);
+    });
+
+    it('leaves succeeded receipts and other consumers alone', function () {
+        OutboxReceipt::query()->update(['status' => ReceiptStatus::Succeeded->value, 'attempts' => 1]);
+
+        $this->artisan('outbox:retry', ['--all' => true])->assertSuccessful();
+        expect(theReceipt()->status)->toBe(ReceiptStatus::Succeeded);
+
+        OutboxReceipt::query()->update(['status' => ReceiptStatus::Failed->value]);
+        $this->artisan('outbox:retry', ['--consumer' => 'someone.else'])->assertSuccessful();
+
+        expect(theReceipt()->status)->toBe(ReceiptStatus::Failed);
+    });
+
+    it('needs --force in production', function () {
+        $this->app['env'] = 'production';
+
+        $this->artisan('outbox:retry', ['--all' => true])->assertFailed();
+        expect(theReceipt()->status)->toBe(ReceiptStatus::Exhausted);
+
+        $this->artisan('outbox:retry', ['--all' => true, '--force' => true])->assertSuccessful();
+        expect(theReceipt()->status)->toBe(ReceiptStatus::Pending);
+    });
+});

@@ -102,6 +102,8 @@ const rows = [
         <Button variant="ghost">Ghost</Button>
         <Button variant="destructive">Destructive</Button>
         <Button variant="primary" size="sm">Small</Button>
+        <Button variant="primary" size="lg">Large</Button>
+        <Button href="/_dev/ui">As a link</Button>
         <Button variant="primary" loading>Saving</Button>
         <Button disabled>Disabled</Button>
         <Button variant="primary"

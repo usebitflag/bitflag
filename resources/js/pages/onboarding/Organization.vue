@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { PhCheck } from '@phosphor-icons/vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
+import SegmentedControl from '../../components/ui/SegmentedControl.vue';
 import { useSlugAvailability } from '../../composables/useSlugAvailability';
 import OnboardingLayout from '../../layouts/OnboardingLayout.vue';
 
@@ -28,11 +30,7 @@ watch(
   },
 );
 
-const slugHelp = computed(() => {
-  if (state.value === 'checking') return 'Checking…';
-  if (state.value === 'available') return 'Available';
-  return 'Changing it later breaks old links.';
-});
+const host = window.location.host;
 
 function submit(): void {
   form
@@ -45,8 +43,8 @@ function submit(): void {
   <Head title="Create your organization" />
   <OnboardingLayout
     step="organization"
-    title="Create your organization"
-    subtitle="Projects and people live inside an organization."
+    title="Name your organization"
+    subtitle="Organizations hold billing, members and projects. You can add more later."
   >
     <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
       <Field
@@ -64,8 +62,7 @@ function submit(): void {
       </Field>
       <Field
         v-slot="{ id, describedBy, invalid }"
-        label="URL name"
-        :help="slugHelp"
+        label="URL"
         :error="
           form.errors.slug ??
           (state === 'unavailable' ? (reason ?? 'That name is taken.') : undefined)
@@ -79,27 +76,30 @@ function submit(): void {
           :described-by="describedBy"
           data-test="org-slug"
           @input="slugEdited = true"
-        />
-      </Field>
-      <fieldset class="flex flex-col gap-2">
-        <legend class="text-sm font-medium">
-          Team size <span class="text-muted font-normal">(optional)</span>
-        </legend>
-        <div class="flex flex-wrap gap-2">
-          <label
-            v-for="size in teamSizes"
-            :key="size.value"
-            class="border-control-border flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm"
+        >
+          <template #prefix
+            ><span class="font-mono text-[13px]">{{ host }}/</span></template
           >
-            <input
-              v-model="form.team_size"
-              type="radio"
-              name="team_size"
-              :value="size.value"
-              :data-test="`team-size-${size.value}`"
-            />
-            {{ size.label }}
-          </label>
+          <template #suffix>
+            <span v-if="state === 'checking'" class="text-xs" aria-live="polite">Checking…</span>
+            <span
+              v-else-if="state === 'available'"
+              class="text-primary-ink flex items-center gap-1 text-xs"
+              aria-live="polite"
+              ><PhCheck :size="12" aria-hidden="true" />Available</span
+            >
+          </template>
+        </Input>
+      </Field>
+      <fieldset class="flex flex-col gap-[5px]">
+        <legend class="text-text/70 mb-[5px] text-sm font-medium">Team size · optional</legend>
+        <div>
+          <SegmentedControl
+            v-model="form.team_size"
+            variant="ring"
+            label="Team size"
+            :options="teamSizes"
+          />
         </div>
       </fieldset>
       <Button

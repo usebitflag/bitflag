@@ -65,6 +65,6 @@ Run everything through Sail; there is no host PHP or Node requirement. Alias it 
 - `sail bin pint --test` checks PHP style; `sail bin pint` fixes it.
 - `sail bin phpstan analyse` runs Larastan at level max.
 - `sail npm run lint`, `format:check`, `stylelint`, `typecheck`, `test`, `build` for the frontend.
-- `npm run e2e` runs the Cypress specs on the host against the running application (see `docs/development.md`).
+- `scripts/dev/e2e-stack.sh up` starts a separate stack for the Cypress specs, and `npm run e2e` runs them on the host against it. The specs reset the database, so never run them against the development stack (see `docs/development.md`).
 - `sail npm run tokens` regenerates `resources/css/theme.generated.css`; `tokens:check` fails when it is stale or a
   contrast pair fails. Never edit the generated file; change `design/bitflag/` and regenerate.

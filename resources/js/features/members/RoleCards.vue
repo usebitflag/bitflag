@@ -17,27 +17,31 @@ const roles: Array<{ key: ProjectRoleName; label: string; description: string }>
   {
     key: 'developer',
     label: 'Developer',
-    description: 'Edit drafts and publish environments that are not protected.',
+    description: 'Edit drafts and publish to unprotected environments.',
   },
-  { key: 'viewer', label: 'Viewer', description: 'Look, but not change anything.' },
+  { key: 'viewer', label: 'Viewer', description: 'Read flags, results and the audit log.' },
 ];
+
+function people(count: number): string {
+  return `${count} ${count === 1 ? 'person' : 'people'}`;
+}
 </script>
 
 <template>
-  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Roles" data-test="role-cards">
+  <ul class="grid grid-cols-4 items-start gap-2.5" aria-label="Roles" data-test="role-cards">
     <li
       v-for="role in roles"
       :key="role.key"
-      class="border-divider rounded-lg border p-3"
+      class="ring-divider flex flex-col gap-1 rounded-md p-3 ring-1 ring-inset"
       :data-test="`role-card-${role.key}`"
     >
-      <div class="flex items-baseline justify-between">
-        <span class="text-sm font-medium">{{ role.label }}</span>
-        <span class="text-muted text-sm" :data-test="`role-count-${role.key}`">{{
-          counts[role.key]
+      <span class="flex text-[13.5px]">
+        {{ role.label }}
+        <span class="text-text/55 ml-auto text-[11.5px]" :data-test="`role-count-${role.key}`">{{
+          people(counts[role.key])
         }}</span>
-      </div>
-      <p class="text-muted mt-1 text-xs">{{ role.description }}</p>
+      </span>
+      <span class="text-text/62 text-[12.5px]">{{ role.description }}</span>
     </li>
   </ul>
 </template>
