@@ -106,6 +106,7 @@ request ──► outbox_messages (same transaction) ──► outbox worker ─
 ```
 
 - The `outbox`, `horizon` and `scheduler` services are long-running PHP processes. They load the application code once, when they start. After you change PHP, switch branches or pull, restart them, or they keep running the old code: `sail restart outbox horizon scheduler`. Symptoms of stale workers are failed receipts with errors such as `Route [...] not defined` or `No consumer named ... is registered`, and mail that never shows up in Mailpit.
+- Emails are one layout drawn as HTML and text (see `docs/email-and-notifications.md`). Open a message in Mailpit and use its HTML tab to see the design, and its Text tab for the plain version.
 - `sail artisan outbox:status` shows the backlog, failed receipts and the age of the oldest overdue work. `sail artisan outbox:recover` releases expired leases and signals receipts that are due.
 - A receipt marked `failed` or `exhausted` has used its attempts. After fixing the cause, run `sail artisan outbox:retry --id=<receipt>`, `--consumer=<name>` or `--all`. It puts those receipts back to pending from the first attempt and signals them; it never touches receipts that succeeded or are running, and in production it needs `--force`. Do not edit receipts by hand.
 - Mail that does not arrive: check `outbox:status`, then the `last_error` column of the failed row in `outbox_receipts`, then whether the workers are running the current code.

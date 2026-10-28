@@ -11,6 +11,7 @@ use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Domain\Totp;
 use App\Modules\Identity\Models\MfaFactor;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Psr\Clock\ClockInterface;
@@ -25,6 +26,7 @@ final class ConfirmTwoFactorEnrollment
         private readonly GenerateRecoveryCodes $recoveryCodes,
         private readonly RecordSecurityEvent $securityLog,
         private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
         private readonly ClockInterface $clock,
     ) {}
 
@@ -52,7 +54,7 @@ final class ConfirmTwoFactorEnrollment
             $codes = $this->recoveryCodes->handle($data->userId);
 
             $this->securityLog->handle(new RecordSecurityEventData(SecurityEventType::MfaEnabled, $data->userId, null, $data->ipAddress, $data->userAgent));
-            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::MfaEnabled, $data->userId));
+            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::MfaEnabled, $data->userId, $this->origin->describe($data->ipAddress, $data->userAgent)));
 
             return $codes;
         });

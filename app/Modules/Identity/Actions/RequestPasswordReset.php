@@ -9,6 +9,7 @@ use App\Modules\Identity\Data\RequestPasswordResetData;
 use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -17,7 +18,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class RequestPasswordReset
 {
-    public function __construct(private readonly RequestAccountEmail $accountEmail) {}
+    public function __construct(
+        private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
+    ) {}
 
     public function handle(RequestPasswordResetData $data): void
     {
@@ -27,6 +31,6 @@ final class RequestPasswordReset
             return;
         }
 
-        DB::transaction(fn () => $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordReset, $user->id)));
+        DB::transaction(fn () => $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordReset, $user->id, $this->origin->describe($data->ipAddress, $data->userAgent))));
     }
 }

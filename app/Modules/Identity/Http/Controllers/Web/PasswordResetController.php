@@ -42,7 +42,7 @@ final class PasswordResetController
     {
         $email = $request->string('email')->toString();
 
-        $reset->handle(new RequestPasswordResetData($email));
+        $reset->handle(new RequestPasswordResetData($email, $request->ip(), $request->userAgent()));
         $request->session()->put(self::SESSION_EMAIL, mb_strtolower(trim($email)));
 
         return redirect('/forgot-password/sent');
@@ -56,7 +56,7 @@ final class PasswordResetController
             return redirect('/forgot-password');
         }
 
-        $reset->handle(new RequestPasswordResetData($email));
+        $reset->handle(new RequestPasswordResetData($email, $request->ip(), $request->userAgent()));
 
         return redirect('/forgot-password/sent');
     }

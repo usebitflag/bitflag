@@ -144,7 +144,7 @@ it('puts a fresh reset token in the reset email, made at send time', function ()
 it('states the facts it was given', function () {
     app(SendAccountEmail::class)->consume(request_email(AccountEmailTemplate::RecoveryCodeUsed, $this->user, ['codes_left' => 2]));
 
-    expect(mail_for($this->user))->toContain('2 recovery codes left');
+    expect(mail_for($this->user))->toContain('Codes left: 2 of 10');
 });
 
 it('sends a repeated message once', function () {

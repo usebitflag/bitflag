@@ -138,7 +138,7 @@ it('signs in with a recovery code, once, and tells the person how many are left'
     $this->assertAuthenticatedAs($this->user, 'web');
     $mail = OutboxMessageRecord::query()->where('payload->template', 'recovery_code_used')->firstOrFail();
 
-    expect($mail->payload['details'])->toBe(['codes_left' => 9])
+    expect($mail->payload['details'])->toBe(['codes_left' => 9, 'device_label' => 'Unknown device'])
         ->and(MfaRecoveryCode::query()->whereNull('used_at')->count())->toBe(9)
         ->and(SecurityEvent::query()->where('type', SecurityEventType::MfaRecoveryCodeUsed)->count())->toBe(1);
 

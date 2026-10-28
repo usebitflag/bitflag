@@ -14,6 +14,7 @@ use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Models\MfaFactor;
 use App\Modules\Identity\Models\MfaRecoveryCode;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Psr\Clock\ClockInterface;
@@ -29,6 +30,7 @@ final class DisableTwoFactor
         private readonly VerifySecondFactor $verify,
         private readonly RecordSecurityEvent $securityLog,
         private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
         private readonly ClockInterface $clock,
     ) {}
 
@@ -59,7 +61,7 @@ final class DisableTwoFactor
             DB::table('trusted_browsers')->where('user_id', $user->id)->whereNull('revoked_at')->update(['revoked_at' => $this->clock->now()]);
 
             $this->securityLog->handle(new RecordSecurityEventData(SecurityEventType::MfaDisabled, $user->id, null, $data->ipAddress, $data->userAgent));
-            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::MfaDisabled, $user->id));
+            $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::MfaDisabled, $user->id, $this->origin->describe($data->ipAddress, $data->userAgent)));
         });
     }
 }

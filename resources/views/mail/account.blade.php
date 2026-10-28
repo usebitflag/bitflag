@@ -1,5 +1,0 @@
-{!! $body !!}
-
-{!! $link !!}
-
-— BitFlag

@@ -16,6 +16,7 @@ use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Domain\SignInThrottle;
 use App\Modules\Identity\Models\User;
 use App\Modules\Identity\Queries\TwoFactorStatus;
+use App\Modules\Identity\Support\RequestOrigin;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +36,7 @@ final class ResetPassword
         private readonly SignInThrottle $throttle,
         private readonly RecordSecurityEvent $securityLog,
         private readonly RequestAccountEmail $accountEmail,
+        private readonly RequestOrigin $origin,
         private readonly TwoFactorStatus $twoFactor,
         private readonly ClockInterface $clock,
     ) {}
@@ -70,7 +72,7 @@ final class ResetPassword
                     DB::table('trusted_browsers')->where('user_id', $user->id)->whereNull('revoked_at')->update(['revoked_at' => $this->clock->now()]);
 
                     $this->securityLog->handle(new RecordSecurityEventData(SecurityEventType::PasswordReset, $user->id, null, $data->ipAddress, $data->userAgent));
-                    $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordChanged, $user->id));
+                    $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::PasswordChanged, $user->id, $this->origin->describe($data->ipAddress, $data->userAgent)));
                 });
             },
         );
