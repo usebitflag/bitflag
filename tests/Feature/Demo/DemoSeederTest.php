@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Domain\CredentialStatus;
+use App\Modules\Credentials\Domain\CredentialType;
+use App\Modules\Credentials\Domain\Exceptions\RevokedCredential;
+use App\Modules\Credentials\Domain\TokenGenerator;
+use App\Modules\Credentials\Models\Credential;
+use App\Modules\Credentials\Queries\CredentialResolver;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Modules\Identity\Actions\VerifySecondFactor;
@@ -19,6 +25,7 @@ use App\Shared\Capabilities\ProjectRole;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Ids\PublicId;
 use App\Shared\Tenancy\Tenancy;
+use Database\Seeders\Demo\DemoIds;
 use Database\Seeders\Demo\DemoSecrets;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Hash;
@@ -183,4 +190,28 @@ it('refuses to run in production', function () {
 
     // Run the seeder directly: db:seed itself asks for confirmation in production and would not reach it.
     expect(fn () => app(DemoSeeder::class)->run())->toThrow(LogicException::class, 'never runs in production');
+});
+
+it('seeds keys and tokens whose secrets work against the management API and are stored only as hashes', function () {
+    seedDemo();
+    $secrets = DemoSecrets::credentials();
+
+    $rows = Tenancy::crossTenant('demo seed check', fn () => Credential::query()->orderBy('id')->get());
+    expect($rows)->toHaveCount(7)
+        ->and($rows->where('status', CredentialStatus::Revoked)->pluck('label')->all())->toBe(['Legacy mobile app'])
+        ->and($rows->where('type', CredentialType::Personal)->pluck('user_id')->unique()->all())->toBe([DemoIds::user(1)]);
+
+    foreach ($secrets as $secret) {
+        expect(TokenGenerator::parse($secret))->not->toBeNull();
+    }
+
+    $this->getJson('/api/v1/me', ['Authorization' => 'Bearer '.$secrets['release_pipeline']])->assertOk()->assertJsonPath('label', 'Release pipeline');
+    $this->getJson('/api/v1/me', ['Authorization' => 'Bearer '.$secrets['maya_storefront_token']])->assertOk()->assertJsonPath('user.name', 'Maya Santos');
+    expect(fn () => app(CredentialResolver::class)->resolve($secrets['legacy_mobile_app']))->toThrow(RevokedCredential::class);
+    $this->getJson('/api/v1/me', ['Authorization' => 'Bearer '.$secrets['checkout_server_dev']])->assertUnauthorized()->assertJsonPath('error.code', 'WRONG_CREDENTIAL_TYPE');
+
+    $stored = (string) json_encode(Tenancy::crossTenant('demo seed check', fn () => DB::table('credentials')->get()->all()), JSON_INVALID_UTF8_SUBSTITUTE);
+    foreach ($secrets as $secret) {
+        expect($stored)->not->toContain(substr($secret, -36, 30));
+    }
 });

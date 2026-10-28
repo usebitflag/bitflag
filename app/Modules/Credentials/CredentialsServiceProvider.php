@@ -8,6 +8,7 @@ use App\Modules\Credentials\Console\CompleteCredentialRotationsCommand;
 use App\Modules\Credentials\Console\ExpireCredentialsCommand;
 use App\Modules\Credentials\Console\FlushCredentialLastUsedCommand;
 use App\Modules\Credentials\Console\NotifyExpiringCredentialsCommand;
+use App\Modules\Credentials\Console\PepperUsageCommand;
 use App\Modules\Credentials\Jobs\RepairCredentialCache;
 use App\Modules\Credentials\Listeners\RevokeTokensWhenMemberLeaves;
 use App\Modules\Credentials\Support\CredentialCache;
@@ -37,7 +38,7 @@ final class CredentialsServiceProvider extends ServiceProvider
         $this->app->make(ConsumerRegistry::class)->register(RepairCredentialCache::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([FlushCredentialLastUsedCommand::class, CompleteCredentialRotationsCommand::class, ExpireCredentialsCommand::class, NotifyExpiringCredentialsCommand::class]);
+            $this->commands([FlushCredentialLastUsedCommand::class, CompleteCredentialRotationsCommand::class, ExpireCredentialsCommand::class, NotifyExpiringCredentialsCommand::class, PepperUsageCommand::class]);
         }
     }
 }
