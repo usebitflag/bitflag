@@ -25,7 +25,7 @@ it('keeps the stored values of status and color enums', function (string $enum, 
     'mfa factor type' => [MfaFactorType::class, ['totp']],
     'security event type' => [SecurityEventType::class, [
         'signin.succeeded', 'signin.failed', 'signin.locked', 'mfa.challenge_failed', 'mfa.recovery_code_used',
-        'mfa.enabled', 'mfa.disabled', 'password.reset', 'password.changed', 'email.changed', 'session.revoked',
+        'mfa.enabled', 'mfa.disabled', 'password.reset', 'password.changed', 'email.changed', 'session.revoked', 'signup.provider',
     ]],
     'staff status' => [StaffStatus::class, ['active', 'disabled']],
     'idempotency status' => [IdempotencyStatus::class, ['in_progress', 'completed']],

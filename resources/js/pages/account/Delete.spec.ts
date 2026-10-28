@@ -14,7 +14,8 @@ const form = reactive({
 vi.mock('@inertiajs/vue3', () => ({
   Head: { render: () => null },
   Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
-  usePage: () => ({ url: '/account/delete', props: {} }),
+  usePage: () => ({ url: '/account/delete', props: { auth: { user: { hasPassword: true } } } }),
+  router: { post: vi.fn() },
   useForm: () => form,
 }));
 

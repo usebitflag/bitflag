@@ -39,7 +39,7 @@ final class DeleteAccount
     {
         $user = User::query()->findOrFail($data->userId);
 
-        if (! Hash::check($data->password, $user->password)) {
+        if (! $user->passwordMatches($data->password)) {
             throw ValidationException::withMessages(['password' => 'That is not your password.']);
         }
 

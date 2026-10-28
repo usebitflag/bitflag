@@ -11,7 +11,6 @@ use App\Modules\Identity\Domain\Totp;
 use App\Modules\Identity\Models\MfaFactor;
 use App\Modules\Identity\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -27,7 +26,7 @@ final class StartTwoFactorEnrollment
     {
         $user = User::query()->findOrFail($data->userId);
 
-        if (! Hash::check($data->password, $user->password)) {
+        if (! $user->passwordMatches($data->password)) {
             throw ValidationException::withMessages(['password' => 'That is not your password.']);
         }
 

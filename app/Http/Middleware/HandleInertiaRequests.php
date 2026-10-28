@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{id: string, name: string, email: string, initials: string, emailVerified: bool}|null
+     * @return array{id: string, name: string, email: string, initials: string, emailVerified: bool, hasPassword: bool}|null
      */
     private function user(): ?array
     {
@@ -71,6 +71,7 @@ class HandleInertiaRequests extends Middleware
             'email' => $person->email,
             'initials' => $person->initials(),
             'emailVerified' => $person->emailVerified,
+            'hasPassword' => $person->hasPassword,
         ];
     }
 

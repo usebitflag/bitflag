@@ -8,7 +8,7 @@ This document covers how people get into the hosted product and how organization
 - Organization roles: Org Owner and Member.
 - Every new organization starts on the Free plan.
 - Account messages are sent by email.
-- Sign-in is email and password with MFA. There is no social sign-in or company SSO.
+- Sign-in is email and password, or Google or GitHub, with MFA on top. There is no company SSO.
 
 ## 2. Signup
 
@@ -31,7 +31,13 @@ A person invited to an existing organization skips steps 3–4 (see §6). Abuse 
 - **Organization MFA requirement:** an Org Owner can require MFA for all members. Members without MFA are asked to enroll at their next sign-in before they can open that organization.
 - **Lockout:** five failed attempts within 15 minutes lock that email address for 15 minutes. The answers wait one second after the third failure and two after the fourth. A locked address gets the same "Too many attempts. Try again in 15 minutes." whether or not an account exists, and every other failure gets one message, "That email and password don't match." Separately, one network may make 30 attempts a minute across all addresses. The account owner gets an email notice when a real account is locked. There is no "remember me"; a session already lasts up to 30 days.
 - **Choose organization:** after sign-in, a person in several organizations picks one . The last-used organization is remembered.
-- There is no social sign-in or company SSO. If either is added, it must not create a second account for the same email.
+- **Google and GitHub** work for sign-up and sign-in. The provider takes the place of the password only; everything else in this section still applies.
+  - The provider's email counts only when the provider says it is verified (Google `email_verified`; GitHub's primary verified email). Otherwise the attempt is refused.
+  - A verified email with no account creates one with the email confirmed and no password, and signs the person in. The sign-up and sign-in buttons do the same thing.
+  - A verified email that already belongs to an account not linked to that provider links nothing and signs no one in; the person is told to sign in with their password or reset it. A linked account signs in.
+  - Two-factor still applies, including a trusted browser and an organization's "require two-factor". A deactivated account cannot sign in.
+  - The link is the provider and its user id, not the email. An account made this way has no password; the actions that ask for the current password need one first, which the person sets with the emailed reset link.
+  - Not built: connecting or disconnecting a provider on an existing account, a setting that requires a sign-in method, other providers, company SSO.
 
 ## 4. Recovery and account changes
 

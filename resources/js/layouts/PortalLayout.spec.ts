@@ -38,6 +38,7 @@ function setProps(
         email: 'maya@acme.test',
         initials: 'MC',
         emailVerified: true,
+        hasPassword: true,
       },
     },
     scope: {

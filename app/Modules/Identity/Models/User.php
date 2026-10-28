@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * A person who signs in to the portal. Users are global: they belong to organizations through memberships.
@@ -30,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $pending_email
  * @property string|null $previous_email
  * @property Carbon|null $email_changed_at
+ * @property string|null $password A person who signs in with a provider has none until they set one.
  * @property Carbon $password_changed_at
  * @property bool $remember_org_choice
  * @property Carbon|null $last_active_at
@@ -75,5 +77,18 @@ class User extends Authenticatable
             'email_changed_at' => 'datetime',
             'status' => AccountStatus::class,
         ];
+    }
+
+    public function hasPassword(): bool
+    {
+        return $this->password !== null;
+    }
+
+    /**
+     * Whether this is the person's current password. Someone with no password never matches.
+     */
+    public function passwordMatches(string $password): bool
+    {
+        return $this->password !== null && Hash::check($password, $this->password);
     }
 }

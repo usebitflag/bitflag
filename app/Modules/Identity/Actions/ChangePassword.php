@@ -37,7 +37,7 @@ final class ChangePassword
     {
         $user = User::query()->findOrFail($data->userId);
 
-        if (! Hash::check($data->currentPassword, $user->password)) {
+        if (! $user->passwordMatches($data->currentPassword)) {
             throw ValidationException::withMessages(['current_password' => 'That is not your current password.']);
         }
 

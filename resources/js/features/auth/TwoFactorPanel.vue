@@ -9,11 +9,16 @@ import OtpInput from './OtpInput.vue';
 import RecoveryCodesPanel from './RecoveryCodesPanel.vue';
 import { ApiError, sendJson } from './sendJson';
 
-const props = defineProps<{
-  enabled: boolean;
-  recoveryCodesLeft: number;
-  requiredBy: string | null;
-}>();
+const props = withDefaults(
+  defineProps<{
+    enabled: boolean;
+    recoveryCodesLeft: number;
+    requiredBy: string | null;
+    /** False when the person has no password yet: starting needs one. */
+    hasPassword?: boolean;
+  }>(),
+  { hasPassword: true },
+);
 
 type Step = 'idle' | 'password' | 'scan' | 'codes' | 'regenerate' | 'disable';
 
@@ -126,7 +131,12 @@ function finish(): void {
 
     <!-- Off -->
     <div v-if="!enabled && step === 'idle'">
-      <Button variant="primary" data-test="two-factor-enable" @click="reset('password')">
+      <Button
+        variant="primary"
+        :disabled="!hasPassword"
+        data-test="two-factor-enable"
+        @click="reset('password')"
+      >
         Turn on two-factor
       </Button>
     </div>

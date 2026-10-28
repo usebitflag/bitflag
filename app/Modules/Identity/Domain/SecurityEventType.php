@@ -20,4 +20,5 @@ enum SecurityEventType: string
     case PasswordChanged = 'password.changed';
     case EmailChanged = 'email.changed';
     case SessionRevoked = 'session.revoked';
+    case SignedUpWithProvider = 'signup.provider';
 }
