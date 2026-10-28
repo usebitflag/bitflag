@@ -28,6 +28,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 ./vendor/bin/sail npm run build
 ```
 
+Recovery codes, invitation tokens and trusted-browser tokens are stored as HMAC-SHA256 hashes under a pepper that stays outside the database. Set `BITFLAG_CREDENTIAL_PEPPER_1` in `.env` to 32 random bytes, base64-encoded (`openssl rand -base64 32`). To rotate, add a second pepper, make it current with `BITFLAG_CREDENTIAL_PEPPER_CURRENT`, and name the old one in `BITFLAG_CREDENTIAL_PEPPER_PREVIOUS` until stored secrets have expired. Hashing fails with a message naming the setting when the pepper is missing or malformed.
+
 The demo seed creates Acme and Globex, five Acme people and one Globex person, and the staff user `support@bitflag.test`. Everyone signs in with `DEMO_PASSWORD` (default `password`). The seeder uses fixed identifiers and refuses to run in production.
 
 The portal is served on `APP_HOST` (default `localhost`) and the admin console on `ADMIN_HOST` (default `admin.localhost`). Cookies are host-only, so signing in on one host never signs you in on the other.

@@ -40,6 +40,12 @@ return [
         'users',
         'staff_users',
         'sessions',
+        // Owned by a person, not an organization.
+        'mfa_factors',
+        'mfa_recovery_codes',
+        'trusted_browsers',
+        'known_devices',
+        'security_events',
         'password_reset_tokens',
         'cache',
         'cache_locks',

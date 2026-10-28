@@ -25,6 +25,7 @@ use App\Shared\Outbox\Console\OutboxStatusCommand;
 use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
+use App\Shared\Security\SecretHasher;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
 use App\Shared\Time\SystemClock;
@@ -50,6 +51,17 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ConsumerRegistry::class);
 
         $this->app->singleton(ClockInterface::class, SystemClock::class);
+        $this->app->singleton(SecretHasher::class, static function (): SecretHasher {
+            /** @var array<int, string|null> $peppers */
+            $peppers = config('bitflag.credentials.peppers');
+            $previous = config('bitflag.credentials.previous_pepper_id');
+
+            return new SecretHasher(
+                $peppers,
+                config()->integer('bitflag.credentials.current_pepper_id'),
+                is_int($previous) ? $previous : null,
+            );
+        });
         $this->app->bind(TransactionGuard::class, fn (): TransactionGuard => new TransactionGuard(DB::connection()));
 
         // Defaults until environments define protection and credentials define scopes.

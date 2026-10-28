@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 /**
  * A person who signs in to the portal. Users are global: they belong to organizations through memberships.
@@ -26,6 +27,11 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $last_organization_id
  * @property string|null $last_project_id
  * @property string|null $last_environment_id
+ * @property string|null $pending_email
+ * @property Carbon $password_changed_at
+ * @property bool $remember_org_choice
+ * @property Carbon|null $last_active_at
+ * @property string|null $deleted_display_name
  */
 #[UseFactory(UserFactory::class)]
 class User extends Authenticatable
@@ -35,7 +41,15 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password', 'timezone'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password'];
+
+    /**
+     * There is no "remember me": a session already lasts up to thirty days, so there is no token to store.
+     */
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
 
     public static function publicIdPrefix(): IdPrefix
     {
@@ -50,6 +64,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_changed_at' => 'datetime',
+            'remember_org_choice' => 'boolean',
+            'last_active_at' => 'datetime',
             'status' => AccountStatus::class,
         ];
     }

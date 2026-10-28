@@ -46,4 +46,28 @@ return [
 
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Credential peppers
+    |--------------------------------------------------------------------------
+    |
+    | Recovery codes, invitation tokens, trusted-browser tokens and API keys are
+    | stored as HMAC-SHA256 under a pepper that never enters the database. Each
+    | pepper is 32 random bytes, base64-encoded (`openssl rand -base64 32`).
+    | New hashes use the current pepper; while rotating, set the previous id so
+    | secrets stored under it still match.
+    |
+    */
+
+    'credentials' => [
+        'current_pepper_id' => (int) env('BITFLAG_CREDENTIAL_PEPPER_CURRENT', 1),
+        'previous_pepper_id' => env('BITFLAG_CREDENTIAL_PEPPER_PREVIOUS') !== null
+            ? (int) env('BITFLAG_CREDENTIAL_PEPPER_PREVIOUS')
+            : null,
+        'peppers' => [
+            1 => env('BITFLAG_CREDENTIAL_PEPPER_1'),
+            2 => env('BITFLAG_CREDENTIAL_PEPPER_2'),
+        ],
+    ],
+
 ];
