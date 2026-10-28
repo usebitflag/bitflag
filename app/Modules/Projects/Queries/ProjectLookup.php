@@ -23,6 +23,15 @@ final class ProjectLookup
     }
 
     /**
+     * The organization's oldest project, or null if it has none. Setup uses it to attach the first invitations to the first
+     * project.
+     */
+    public function oldest(string $organizationId): ?ProjectSummary
+    {
+        return $this->first($organizationId, fn ($query) => $query->orderBy('id'));
+    }
+
+    /**
      * The active projects among the given IDs, by name.
      *
      * @param  list<string>  $projectIds

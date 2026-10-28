@@ -9,6 +9,7 @@ use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Middleware\SecurityHeaders;
 use App\Modules\Identity\Http\Middleware\EnforceSessionPolicy;
 use App\Modules\Identity\Http\Middleware\TouchLastActive;
+use App\Modules\Organizations\Http\Middleware\EnsureOnboardingStep;
 use App\Modules\Organizations\Http\Middleware\EnsureOrganizationMfa;
 use App\Shared\Errors\ExceptionRenderer;
 use Illuminate\Foundation\Application;
@@ -43,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // The request ID middleware runs first for every route group so every response and log line carries it.
         $middleware->prepend(AssignRequestId::class);
         $middleware->redirectUsersTo('/');
-        $middleware->alias(['portal' => ResolvePortalScope::class, 'org.mfa' => EnsureOrganizationMfa::class]);
+        $middleware->alias(['portal' => ResolvePortalScope::class, 'org.mfa' => EnsureOrganizationMfa::class, 'onboarding.step' => EnsureOnboardingStep::class]);
         $middleware->append(SecurityHeaders::class);
         $middleware->web(append: [EnforceSessionPolicy::class, ResolveActor::class, TouchLastActive::class, HandleInertiaRequests::class]);
     })

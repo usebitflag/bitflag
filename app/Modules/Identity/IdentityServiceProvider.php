@@ -97,6 +97,12 @@ final class IdentityServiceProvider extends ServiceProvider
                 Limit::perHour(3)->by('reset-email|'.hash('sha256', mb_strtolower(is_string($email) ? trim($email) : ''))),
             ];
         });
+        // Checking whether an organization URL name is free, as the person types.
+        RateLimiter::for('onboarding-slug', function (Request $request): Limit {
+            $id = $request->user('web')?->getAuthIdentifier();
+
+            return Limit::perMinute(30)->by('onboarding-slug|'.(is_string($id) ? $id : $request->ip()));
+        });
         RateLimiter::for('password-check', fn (Request $request): Limit => Limit::perMinute(60)->by('password-check|'.$request->ip()));
         RateLimiter::for('verification', function (Request $request): Limit {
             $id = $request->user('web')?->getAuthIdentifier();

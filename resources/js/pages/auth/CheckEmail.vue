@@ -42,7 +42,7 @@ function change(): void {
         variant="primary"
         block
         data-test="continue-setup"
-        @click="router.visit('/')"
+        @click="router.visit('/onboarding')"
       >
         Continue setup
       </Button>
