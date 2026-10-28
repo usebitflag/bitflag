@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $project_id
  * @property string $user_id
  * @property ProjectRole $role
+ * @property string|null $added_by
  */
 #[UseFactory(ProjectMembershipFactory::class)]
 class ProjectMembership extends Model
@@ -28,7 +29,7 @@ class ProjectMembership extends Model
     /** @use HasFactory<ProjectMembershipFactory> */
     use BelongsToOrganization, HasFactory, HasUlids, UsesMicrosecondTimestamps;
 
-    protected $fillable = ['organization_id', 'project_id', 'user_id', 'role'];
+    protected $fillable = ['organization_id', 'project_id', 'user_id', 'role', 'added_by'];
 
     /**
      * @return array<string, string>
