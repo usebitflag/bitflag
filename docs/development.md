@@ -30,7 +30,7 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 
 Recovery codes, invitation tokens and trusted-browser tokens are stored as HMAC-SHA256 hashes under a pepper that stays outside the database. Set `BITFLAG_CREDENTIAL_PEPPER_1` in `.env` to 32 random bytes, base64-encoded (`openssl rand -base64 32`). To rotate, add a second pepper, make it current with `BITFLAG_CREDENTIAL_PEPPER_CURRENT`, and name the old one in `BITFLAG_CREDENTIAL_PEPPER_PREVIOUS` until stored secrets have expired. Hashing fails with a message naming the setting when the pepper is missing or malformed.
 
-The demo seed creates Acme and Globex, five Acme people and one Globex person, and the staff user `support@bitflag.test`. Everyone signs in with `DEMO_PASSWORD` (default `password`). The seeder uses fixed identifiers and refuses to run in production.
+The demo seed creates Acme, Globex and Maya Studio, five Acme people and one Globex person, and the staff user `support@bitflag.test`. Maya and Jon have two-factor on (the fixed secret and recovery codes are in `database/seeders/Demo/DemoSecrets.php`), and one invitation to Acme is waiting. Everyone signs in with `DEMO_PASSWORD` (default `password`). The seeder uses fixed identifiers and refuses to run in production.
 
 The portal is served on `APP_HOST` (default `localhost`) and the admin console on `ADMIN_HOST` (default `admin.localhost`). Cookies are host-only, so signing in on one host never signs you in on the other.
 
@@ -106,7 +106,7 @@ CI needs one Actions secret, `PROTOCOL_READ_TOKEN`: a fine-grained personal acce
 
 The Cypress specs in `cypress/e2e` run in a real browser against the running application and the demo seed. Cypress runs on the host (Node 22 or newer), not in Sail, and needs Chrome.
 
-1. In `.env` set `TESTING_E2E=true`, `TESTING_E2E_TOKEN=e2e-local-token`, `APP_DEBUG=false` and `VITE_INCLUDE_DEV_PAGES=true` (`.env.e2e` has these values), then `sail artisan config:clear`. The last one keeps the component gallery in the build, which production builds leave out.
+1. In `.env` set `TESTING_E2E=true`, `TESTING_E2E_TOKEN=e2e-local-token`, `APP_DEBUG=false` and `VITE_INCLUDE_DEV_PAGES=true` (`.env.e2e` has these values, including the credential pepper), then `sail artisan config:clear`. The last one keeps the component gallery in the build, which production builds leave out.
 2. `sail npm run build` so the application serves built assets, and `sail artisan migrate:fresh --seed --seeder=DemoSeeder`.
 3. `npm ci` on the host, then `npm run e2e`. When Sail listens on a port other than 80, point Cypress at it:
 
@@ -114,4 +114,4 @@ The Cypress specs in `cypress/e2e` run in a real browser against the running app
 CYPRESS_BASE_URL=http://localhost:8080 npm run e2e -- --expose ADMIN_ORIGIN=http://admin.localhost:8080
 ```
 
-Specs start from known data. `POST /_testing/reset` rebuilds the database from the demo seed, `POST /_testing/login` signs a seeded person in without the form, `POST /_testing/clock` freezes the server clock and `/_testing/fail` raises an error to show the 500 page. These routes load only when `TESTING_E2E` is true in the local or testing environment, and every request needs the `X-Testing-Token` header; anything else gets the ordinary 404. In production they do not exist.
+Specs start from known data. `POST /_testing/reset` rebuilds the database from the demo seed, `POST /_testing/login` signs a seeded person in without the form, `POST /_testing/clock` freezes the server clock and `GET /_testing/clock` reads it, `GET`/`DELETE /_testing/mailpit` read and clear the captured mail, and `/_testing/fail` raises an error to show the 500 page. These routes load only when `TESTING_E2E` is true in the local or testing environment, and every request needs the `X-Testing-Token` header; anything else gets the ordinary 404. In production they do not exist.

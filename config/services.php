@@ -37,4 +37,9 @@ return [
         ],
     ],
 
+    // Where Mailpit's HTTP API is, for the end-to-end test routes. Mailpit catches all mail in local development.
+    'mailpit' => [
+        'url' => env('MAILPIT_URL', 'http://mailpit:8025'),
+    ],
+
 ];

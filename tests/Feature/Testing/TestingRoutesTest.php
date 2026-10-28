@@ -7,6 +7,7 @@ use App\Http\Middleware\RequireTestingToken;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
@@ -31,6 +32,41 @@ it('answers 404 without the token or with a wrong one', function (string $path) 
 
     $this->withoutHeader(RequireTestingToken::HEADER)->postJson($path)->assertNotFound();
 })->with(['/_testing/login', '/_testing/clock', '/_testing/fail', '/_testing/reset']);
+
+it('keeps the mail routes behind the token too', function () {
+    $this->withHeader(RequireTestingToken::HEADER, 'wrong')->getJson('/_testing/mailpit')->assertNotFound();
+    $this->withHeader(RequireTestingToken::HEADER, 'wrong')->deleteJson('/_testing/mailpit')->assertNotFound();
+});
+
+it('lists the mail Mailpit caught, for one recipient if asked', function () {
+    Http::preventStrayRequests();
+    Http::fake([
+        '*/api/v1/messages*' => Http::response(['messages' => [
+            ['ID' => 'a', 'Subject' => 'Confirm your email', 'To' => [['Address' => 'Maya@Acme.dev']], 'Created' => '2026-10-25T10:00:00Z'],
+            ['ID' => 'b', 'Subject' => 'Other', 'To' => [['Address' => 'jon@acme.dev']], 'Created' => '2026-10-25T10:01:00Z'],
+        ]]),
+        '*/api/v1/message/a' => Http::response(['Text' => 'Open http://localhost/x']),
+        '*/api/v1/message/b' => Http::response(['Text' => 'Hi']),
+    ]);
+
+    $this->getJson('/_testing/mailpit')->assertOk()->assertJsonCount(2, 'data');
+    $this->getJson('/_testing/mailpit?to=MAYA@acme.dev')->assertOk()->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.subject', 'Confirm your email')->assertJsonPath('data.0.to', ['maya@acme.dev'])->assertJsonPath('data.0.text', 'Open http://localhost/x');
+});
+
+it('says so when Mailpit does not answer', function () {
+    Http::fake(['*' => Http::response('', 500)]);
+
+    $this->getJson('/_testing/mailpit')->assertStatus(502)->assertJsonPath('error.code', 'MAILPIT_UNAVAILABLE');
+});
+
+it('clears the mailbox', function () {
+    Http::fake(['*' => Http::response('ok')]);
+
+    $this->deleteJson('/_testing/mailpit')->assertOk()->assertJsonPath('data.cleared', true);
+
+    Http::assertSent(fn ($request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/api/v1/messages'));
+});
 
 it('answers 404 when no token is configured', function () {
     config(['testing.token' => null]);

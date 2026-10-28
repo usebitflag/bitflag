@@ -6,7 +6,7 @@ describe('portal shell', () => {
   before(() => cy.resetDemo());
 
   it('signs Maya in and lands on the remembered scope', () => {
-    cy.signInThroughForm('maya@acme.dev');
+    cy.signInThroughForm('maya@acme.dev', undefined, { twoFactor: true });
     cy.location('pathname').should('eq', '/acme/storefront/production/overview');
     cy.get(shell.navItem)
       .filter('[aria-current="page"]')
@@ -56,7 +56,7 @@ describe('portal shell', () => {
     cy.get('[data-test="menu-item-signout"]').click();
     cy.location('pathname').should('eq', '/signin');
 
-    cy.signInThroughForm('maya@acme.dev');
+    cy.signInThroughForm('maya@acme.dev', undefined, { twoFactor: true });
     cy.location('pathname').should('eq', '/acme/storefront/staging/overview');
   });
 

@@ -15,6 +15,14 @@ use Illuminate\Support\Facades\Cache;
  */
 final class ClockController
 {
+    /**
+     * The instant the server believes it is, frozen or not, so a spec can compute time-based codes from it.
+     */
+    public function show(): JsonResponse
+    {
+        return response()->json(['data' => ['now' => Carbon::now()->utc()->toIso8601String()]]);
+    }
+
     public function __invoke(Request $request): JsonResponse
     {
         $request->validate(['now' => ['nullable', 'date']]);
