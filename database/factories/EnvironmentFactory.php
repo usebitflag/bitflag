@@ -35,6 +35,7 @@ class EnvironmentFactory extends Factory
             'color' => EnvironmentColor::Slate,
             'position' => 1,
             'status' => EnvironmentStatus::Active,
+            'allowed_origins' => [],
         ];
     }
 }

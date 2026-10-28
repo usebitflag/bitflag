@@ -45,6 +45,8 @@ final class CreateProjectEnvironments
                 'color' => EnvironmentColor::from($definition->color),
                 'position' => $position + 1,
                 'status' => EnvironmentStatus::Active,
+                'allowed_origins' => [],
+                'created_by' => $actor->id(),
             ]);
 
             $protected = EnvironmentTemplate::startsProtected($definition->key);
