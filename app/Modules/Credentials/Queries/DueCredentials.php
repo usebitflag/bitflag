@@ -34,6 +34,16 @@ final class DueCredentials
     }
 
     /**
+     * Active credentials that expire within the given number of days.
+     *
+     * @return list<array{organizationId: string, credentialId: string}>
+     */
+    public function expiringWithin(int $days, int $limit = 1000): array
+    {
+        return $this->rows(fn ($query) => $query->where('status', CredentialStatus::Active->value)->where('expires_at', '>', $this->clock->now())->where('expires_at', '<=', $this->clock->now()->modify("+{$days} days")), $limit);
+    }
+
+    /**
      * @param  callable(Builder<Credential>): Builder<Credential>  $narrow
      * @return list<array{organizationId: string, credentialId: string}>
      */

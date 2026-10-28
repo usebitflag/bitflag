@@ -7,6 +7,7 @@ defineOptions({ inheritAttrs: false });
 export interface SelectOption {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
 withDefaults(
@@ -46,7 +47,12 @@ const inner = computed(() =>
       data-test="select"
       v-bind="inner"
     >
-      <option v-for="option in options" :key="option.value" :value="option.value">
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+        :disabled="option.disabled"
+      >
         {{ option.label }}
       </option>
     </select>

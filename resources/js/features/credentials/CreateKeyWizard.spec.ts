@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { KEY_KINDS } from './keyKinds';
 import CreateKeyWizard from './CreateKeyWizard.vue';
 
-vi.mock('../../lib/postJson', async () => {
-  const actual = await vi.importActual<typeof import('../../lib/postJson')>('../../lib/postJson');
-  return { ...actual, postJson: vi.fn() };
+vi.mock('../auth/sendJson', async () => {
+  const actual = await vi.importActual<typeof import('../auth/sendJson')>('../auth/sendJson');
+  return { ...actual, sendJson: vi.fn() };
 });
-import { postJson } from '../../lib/postJson';
+import { sendJson } from '../auth/sendJson';
 
 function render(allowedOrigins: string[] = []) {
   return mount(CreateKeyWizard, {
@@ -21,7 +21,7 @@ const body = () => document.body;
 describe('CreateKeyWizard', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    vi.mocked(postJson).mockReset();
+    vi.mocked(sendJson).mockReset();
   });
 
   it('offers the three key types with their default scopes', () => {
