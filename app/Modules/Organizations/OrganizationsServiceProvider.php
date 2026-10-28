@@ -46,6 +46,9 @@ final class OrganizationsServiceProvider extends ServiceProvider
             'invitation.revoked',
             'invitation.accepted',
             'project_member.added',
+            'org_member.role_changed',
+            'org_member.removed',
+            'project_member.self_added',
         );
     }
 }
