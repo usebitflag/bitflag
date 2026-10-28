@@ -8,11 +8,11 @@ use App\Http\Middleware\ApplyTestingClock;
 use App\Http\Middleware\ResolveActor;
 use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Portal\PortalScope;
+use App\Modules\Credentials\Queries\ScopeTokenScopeMap;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditCatalog;
 use App\Shared\Capabilities\CapabilityGate;
 use App\Shared\Capabilities\Console\GenerateTypesCommand;
-use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Http\TrustedProxies;
 use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
@@ -76,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PlanRestrictionGate::class, NoPlanRestrictions::class);
 
         // Defaults until credentials define scopes. Environment protection is bound by the Environments module.
-        $this->app->bind(TokenScopeMap::class, NullTokenScopeMap::class);
+        $this->app->bind(TokenScopeMap::class, ScopeTokenScopeMap::class);
 
         // Controllers type-hint Actor to receive the signed-in person. Without a session there is none.
         $this->app->bind(Actor::class, function (Application $app): Actor {
