@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity;
 
+use App\Modules\Identity\Domain\CommonPasswords;
 use App\Modules\Identity\Domain\GeoLocator;
 use App\Modules\Identity\Http\SignIn\CompleteSignIn;
 use App\Modules\Identity\Http\SignIn\RedirectIfTwoFactorRequired;
 use App\Modules\Identity\Http\SignIn\ValidateCredentials;
 use App\Modules\Identity\Jobs\SendAccountEmail;
+use App\Modules\Identity\Support\BundledCommonPasswords;
 use App\Modules\Identity\Support\NullGeoLocator;
 use App\Modules\Identity\Support\TrackedDatabaseSessionHandler;
 use App\Shared\Outbox\ConsumerRegistry;
@@ -34,6 +36,8 @@ final class IdentityServiceProvider extends ServiceProvider
 
         // No GeoIP source is chosen yet, so sessions show an unknown location.
         $this->app->bind(GeoLocator::class, NullGeoLocator::class);
+
+        $this->app->singleton(CommonPasswords::class, fn (): CommonPasswords => new BundledCommonPasswords(resource_path('security/common-passwords.txt')));
     }
 
     public function boot(): void
@@ -63,6 +67,23 @@ final class IdentityServiceProvider extends ServiceProvider
 
         // Thirty attempts a minute from one network whatever the address, so trying many accounts from one place is
         // slowed. Guessing at one address is limited by the sign-in lock, which also covers addresses with no account.
+        // Five sign-ups an hour from one network and three an hour for one address, so the same address cannot be used to
+        // probe or to flood someone's inbox.
+        RateLimiter::for('signup', function (Request $request): array {
+            $email = $request->input('email');
+
+            return [
+                Limit::perHour(5)->by('signup-ip|'.$request->ip()),
+                Limit::perHour(3)->by('signup-email|'.hash('sha256', mb_strtolower(is_string($email) ? trim($email) : ''))),
+            ];
+        });
+        RateLimiter::for('password-check', fn (Request $request): Limit => Limit::perMinute(60)->by('password-check|'.$request->ip()));
+        RateLimiter::for('verification', function (Request $request): Limit {
+            $id = $request->user('web')?->getAuthIdentifier();
+
+            return Limit::perMinute(1)->by('verification|'.(is_string($id) ? $id : $request->ip()));
+        });
+
         RateLimiter::for('login', fn (Request $request): Limit => Limit::perMinute(30)->by('ip|'.$request->ip()));
     }
 }

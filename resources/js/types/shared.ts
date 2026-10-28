@@ -14,6 +14,7 @@ export interface SharedUser {
   name: string;
   email: string;
   initials: string;
+  emailVerified: boolean;
 }
 
 export interface SharedEnvironment {
