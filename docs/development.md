@@ -179,3 +179,16 @@ scripts/dev/e2e-stack.sh down      # removes the container and the database, and
 Specs start from known data. `POST /_testing/reset` rebuilds the database from the demo seed, `POST /_testing/login` signs a seeded person in without the form, `POST /_testing/clock` freezes the server clock and `GET /_testing/clock` reads it, `GET`/`DELETE /_testing/mailpit` read and clear the captured mail, and `/_testing/fail` raises an error to show the 500 page. These routes load only when `TESTING_E2E` is true in the local or testing environment, and every request needs the `X-Testing-Token` header; anything else gets the ordinary 404. In production they do not exist.
 
 Tips: wait for a request with `cy.intercept(...).as(...)` and `cy.wait`, not a fixed delay, before you assert on its result; read the confirmation or reset link from the mail with `cy.latestEmail`; and use `cy.freezeServerClock` to move time, for example past the session limit.
+
+## Demo keys and tokens
+
+`DemoSeeder` also seeds keys and tokens for Acme, with fixed test secrets (see `Database\Seeders\Demo\DemoSecrets::credentials()`): server keys for Checkout API (development and production), a browser key for the Storefront web app, a management key for its release pipeline, a revoked key of a legacy mobile app, and two personal tokens of Maya. Only hashes are stored. The management key and Maya's tokens work against `/api/v1/me`, for example:
+
+```bash
+curl -H "Authorization: Bearer $(sail artisan tinker --execute='echo Database\Seeders\Demo\DemoSecrets::credentials()["release_pipeline"];')" http://localhost/api/v1/me
+```
+
+Project exports are built on the `exports` queue, so Horizon (or `sail artisan queue:work --queue=exports`) must be running for the Export button in a project's Danger zone to finish.
+
+Credential secrets are hashed with a pepper (`BITFLAG_CREDENTIAL_PEPPER_1`, `_2`). `sail artisan credentials:pepper-usage` shows how many working credentials use each, which tells you when an old pepper can be retired.
+
