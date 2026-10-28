@@ -50,4 +50,6 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         ExceptionRenderer::register($exceptions);
+        // A form that fails validation never flashes a secret back into the page.
+        $exceptions->dontFlash(['secret']);
     })->create();

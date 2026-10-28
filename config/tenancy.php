@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Modules\Credentials\Models\Credential;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Modules\Organizations\Models\Invitation;
@@ -28,6 +29,7 @@ return [
         'projects' => Project::class,
         'environments' => Environment::class,
         'environment_policies' => EnvironmentPolicy::class,
+        'credentials' => Credential::class,
         'organization_memberships' => OrganizationMembership::class,
         'project_memberships' => ProjectMembership::class,
         'invitations' => Invitation::class,
