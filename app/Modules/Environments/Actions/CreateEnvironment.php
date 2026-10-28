@@ -10,6 +10,7 @@ use App\Modules\Environments\Domain\EnvironmentKeyRules;
 use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -36,6 +37,7 @@ final class CreateEnvironment
     public function __construct(
         private readonly EnforcePlanLimit $limits,
         private readonly PlanRestrictionGate $restrictions,
+        private readonly ProjectWritability $writability,
         private readonly RenumberEnvironments $renumber,
         private readonly AuditRecorder $audit,
         private readonly Outbox $outbox,
@@ -80,6 +82,7 @@ final class CreateEnvironment
         // The plan checks come first inside the transaction, so concurrent creations at a limit produce one success.
         $this->limits->handle($data->organizationId, LimitKey::EnvironmentsPerProject, $data->projectId);
         $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId);
+        $this->writability->assertWritable($data->projectId);
 
         $active = $this->renumber->activeIds($data->projectId);
 

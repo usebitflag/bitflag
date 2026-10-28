@@ -16,6 +16,7 @@ use App\Shared\Capabilities\Console\GenerateTypesCommand;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Http\TrustedProxies;
 use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
+use App\Shared\Lifecycle\ProjectPurgers;
 use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Outbox\Console\OutboxPruneCommand;
 use App\Shared\Outbox\Console\OutboxReclaimCommand;
@@ -26,8 +27,10 @@ use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
 use App\Shared\Plans\AllFeaturesIncluded;
+use App\Shared\Plans\BillingStatus;
 use App\Shared\Plans\EnforcePlanLimit;
 use App\Shared\Plans\Entitlements;
+use App\Shared\Plans\NoBilling;
 use App\Shared\Plans\NoPlanLimits;
 use App\Shared\Plans\NoPlanRestrictions;
 use App\Shared\Plans\PlanRestrictionGate;
@@ -55,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PortalNavigation::class);
         $this->app->singleton(AuditCatalog::class);
         $this->app->singleton(ConsumerRegistry::class);
+        $this->app->singleton(ProjectPurgers::class);
 
         $this->app->singleton(ClockInterface::class, SystemClock::class);
         $this->app->singleton(SecretHasher::class, static function (): SecretHasher {
@@ -74,6 +78,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(EnforcePlanLimit::class, NoPlanLimits::class);
         $this->app->bind(Entitlements::class, AllFeaturesIncluded::class);
         $this->app->bind(PlanRestrictionGate::class, NoPlanRestrictions::class);
+        $this->app->bind(BillingStatus::class, NoBilling::class);
 
         // Defaults until credentials define scopes. Environment protection is bound by the Environments module.
         $this->app->bind(TokenScopeMap::class, ScopeTokenScopeMap::class);

@@ -9,6 +9,7 @@ use App\Modules\Organizations\Domain\TeamSize;
 use App\Shared\Ids\HasPublicId;
 use App\Shared\Ids\IdPrefix;
 use App\Shared\Persistence\UsesMicrosecondTimestamps;
+use Carbon\CarbonImmutable;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -29,6 +30,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property array<string, mixed> $onboarding
  * @property int $version
  * @property string|null $created_by
+ * @property CarbonImmutable|null $deletion_scheduled_at
+ * @property CarbonImmutable|null $deletion_due_at
+ * @property string|null $deletion_scheduled_by
+ * @property CarbonImmutable|null $deleted_at
  */
 #[UseFactory(OrganizationFactory::class)]
 class Organization extends Model
@@ -59,6 +64,9 @@ class Organization extends Model
             'team_size_hint' => TeamSize::class,
             'onboarding' => 'array',
             'version' => 'integer',
+            'deletion_scheduled_at' => 'immutable_datetime',
+            'deletion_due_at' => 'immutable_datetime',
+            'deleted_at' => 'immutable_datetime',
         ];
     }
 }

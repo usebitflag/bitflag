@@ -33,6 +33,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property CarbonImmutable|null $key_locked_at
  * @property int $version
  * @property string|null $created_by
+ * @property ProjectStatus|null $status_before_deletion
+ * @property CarbonImmutable|null $archived_at
+ * @property string|null $archived_by
+ * @property CarbonImmutable|null $deletion_scheduled_at
+ * @property CarbonImmutable|null $deletion_due_at
+ * @property string|null $deletion_scheduled_by
+ * @property bool $deletion_scheduled_with_org
+ * @property CarbonImmutable|null $deleted_at
  */
 #[UseFactory(ProjectFactory::class)]
 class Project extends Model
@@ -63,6 +71,12 @@ class Project extends Model
             'require_flag_owner' => 'boolean',
             'client_visible_by_default' => 'boolean',
             'key_locked_at' => 'immutable_datetime',
+            'status_before_deletion' => ProjectStatus::class,
+            'archived_at' => 'immutable_datetime',
+            'deletion_scheduled_at' => 'immutable_datetime',
+            'deletion_due_at' => 'immutable_datetime',
+            'deletion_scheduled_with_org' => 'boolean',
+            'deleted_at' => 'immutable_datetime',
             'version' => 'integer',
         ];
     }

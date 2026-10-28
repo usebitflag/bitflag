@@ -80,11 +80,21 @@ describe('the overview page', function () {
         $this->actingAs($this->world['maya'])->get('/nope/storefront/production/overview')->assertNotFound();
     });
 
-    it('is a 404 for an archived environment or project', function () {
+    it('is a 404 for an archived environment', function () {
         archive(Environment::class, $this->world['acme']->id, 'staging');
         $this->actingAs($this->world['maya'])->get('/acme/storefront/staging/overview')->assertNotFound();
+    });
 
+    it('opens an archived project or one waiting to be deleted read-only, and answers 404 once it is deleted', function () {
         archive(Project::class, $this->world['acme']->id, 'checkout-api');
+        $this->actingAs($this->world['maya'])->get('/acme/checkout-api/development/overview')->assertOk()
+            ->assertInertia(fn ($page) => $page->where('scope.project.status', 'archived'));
+
+        Tenancy::crossTenant('inspect', fn () => Project::query()->where('key', 'checkout-api')->update(['status' => 'deletion_scheduled', 'deletion_due_at' => now()->addDays(7)]));
+        $this->actingAs($this->world['maya'])->get('/acme/checkout-api/development/overview')->assertOk()
+            ->assertInertia(fn ($page) => $page->where('scope.project.status', 'deletion_scheduled'));
+
+        Tenancy::crossTenant('inspect', fn () => Project::query()->where('key', 'checkout-api')->update(['status' => 'deleted']));
         $this->actingAs($this->world['maya'])->get('/acme/checkout-api/development/overview')->assertNotFound();
     });
 

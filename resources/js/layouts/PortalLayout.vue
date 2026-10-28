@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import Banner from '../components/ui/Banner.vue';
 import ToastViewport from '../components/ui/ToastViewport.vue';
+import ProjectStatusBanner from '../components/ui/ProjectStatusBanner.vue';
 import VerifyEmailBanner from '../components/ui/VerifyEmailBanner.vue';
 import SessionExpiredDialog from '../features/auth/SessionExpiredDialog.vue';
 import CommandPalette from '../features/shell/CommandPalette.vue';
@@ -135,6 +136,14 @@ watch(
       </TopBar>
       <main id="main" class="flex flex-1 flex-col gap-4 p-6" tabindex="-1">
         <VerifyEmailBanner v-if="page.props.auth.user && !page.props.auth.user.emailVerified" />
+        <ProjectStatusBanner
+          v-if="page.props.scope.project && page.props.scope.project.status !== 'active'"
+          :project-name="page.props.scope.project.name"
+          :status="page.props.scope.project.status"
+          :deletion-due-at="page.props.scope.project.deletionDueAt"
+          :can-restore="page.props.scope.projectRole === 'owner'"
+          :action="`/${page.props.scope.organization?.slug}/${page.props.scope.project.key}/${page.props.scope.environment?.key}/settings/danger`"
+        />
         <Banner v-if="isViewer" tone="neutral" label="Read-only." data-test="viewer-notice">
           You have the Viewer role on this project, so you can look but not change anything.
         </Banner>
