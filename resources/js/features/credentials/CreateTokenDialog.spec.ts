@@ -38,8 +38,8 @@ describe('CreateTokenDialog', () => {
     ]);
     expect(options).toEqual([
       ['Read only', false],
-      ['Read and edit drafts', true],
-      ['Read, edit and publish', true],
+      ['Read & edit drafts', true],
+      ['Read, edit & publish', true],
     ]);
   });
 

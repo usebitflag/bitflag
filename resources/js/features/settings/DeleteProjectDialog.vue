@@ -10,6 +10,7 @@ const props = defineProps<{
   projectKey: string;
   action: string;
   graceDays?: number;
+  environmentCount?: number;
   errors?: Record<string, string | undefined>;
 }>();
 
@@ -31,20 +32,16 @@ function schedule(): void {
 </script>
 
 <template>
-  <Dialog
-    v-model:open="open"
-    title="Delete project"
-    :description="`This applies to ${projectName}.`"
-  >
+  <Dialog v-model:open="open" :title="`Delete ${projectName}?`">
     <div class="flex flex-col gap-3 text-sm" data-test="delete-project">
-      <ul class="text-text/70 list-disc pl-5">
-        <li>
-          It is deleted in {{ graceDays ?? 7 }} days. Until then it is read-only and SDKs keep
-          working.
-        </li>
-        <li>You can restore it any time before then.</li>
-        <li>When it is deleted, every key stops working and its data is removed.</li>
-      </ul>
+      <p>Deletion happens in {{ graceDays ?? 7 }} days. You can restore it until then.</p>
+      <p class="text-text/70">
+        After that, every SDK key stops working and SDKs return your fallback values.
+      </p>
+      <p class="text-text/70">
+        {{ environmentCount ?? 0 }} {{ environmentCount === 1 ? 'environment' : 'environments' }},
+        all flags and segments, and the audit log are removed.
+      </p>
       <p v-if="errors?.project" class="text-danger-text">{{ errors.project }}</p>
       <TypedConfirmField v-model="typed" :expected="projectKey" :error="errors?.confirm" />
     </div>

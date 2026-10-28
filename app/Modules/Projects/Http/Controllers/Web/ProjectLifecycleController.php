@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Projects\Http\Controllers\Web;
 
 use App\Http\Middleware\ResolvePortalScope;
+use App\Modules\Environments\Queries\EnvironmentSettingsList;
 use App\Modules\Projects\Actions\ArchiveProject;
 use App\Modules\Projects\Actions\ExportProject;
 use App\Modules\Projects\Actions\RestoreProject;
@@ -33,7 +34,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 final class ProjectLifecycleController
 {
     /** GET .../settings/danger */
-    public function show(Request $request, ProjectExports $exports): Response
+    public function show(Request $request, ProjectExports $exports, EnvironmentSettingsList $environments): Response
     {
         [$organizationId, $projectId] = $this->project($request);
         $scope = new ProjectScope($organizationId, $projectId);
@@ -41,6 +42,8 @@ final class ProjectLifecycleController
 
         return Inertia::render('project/settings/Danger', [
             'canManage' => Gate::allows(Capability::ProjectManage->value, $scope),
+            'environmentCount' => $environments->count($projectId),
+            'graceDays' => Config::integer('bitflag.lifecycle.project_deletion_grace_days'),
             'exports' => Gate::allows(Capability::ProjectManage->value, $scope)
                 ? array_map(fn (array $export): array => [...$export, 'downloadUrl' => $export['status'] === 'ready' ? $this->downloadUrl($request, $export['id']) : null], $exports->recent($projectId))
                 : [],

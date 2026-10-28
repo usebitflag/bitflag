@@ -95,15 +95,14 @@ function done(): void {
 <template>
   <Dialog
     v-model:open="open"
-    :title="step === 3 ? 'Copy your key' : 'Create a key'"
-    :description="`For ${environmentName}.`"
+    :title="step === 3 ? 'Copy your new key' : 'What will use this key?'"
     :dismissable="step !== 3"
   >
     <div class="flex flex-col gap-4" data-test="create-key-wizard" :data-step="step">
       <ol class="text-text/62 flex gap-3 text-xs" aria-label="Steps">
-        <li :class="step === 1 ? 'text-text font-medium' : ''">1. Type</li>
-        <li :class="step === 2 ? 'text-text font-medium' : ''">2. Details</li>
-        <li :class="step === 3 ? 'text-text font-medium' : ''">3. Copy key</li>
+        <li :class="step === 1 ? 'text-text font-medium' : ''">1 Type</li>
+        <li :class="step === 2 ? 'text-text font-medium' : ''">2 Details</li>
+        <li :class="step === 3 ? 'text-text font-medium' : ''">3 Copy key</li>
       </ol>
 
       <div v-if="step === 1" class="flex flex-col gap-2" role="radiogroup" aria-label="Key type">

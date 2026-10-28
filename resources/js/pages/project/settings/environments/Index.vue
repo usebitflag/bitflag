@@ -16,6 +16,7 @@ const props = defineProps<{
   environments: (EnvironmentRow & { activeKeys: number })[];
   canManage: boolean;
   colors: string[];
+  approvalsAvailable: boolean;
 }>();
 
 const page = usePage<SharedProps>();
@@ -53,7 +54,7 @@ function published(environment: EnvironmentRow): string {
   <ProjectSettingsLayout
     tab="environments"
     title="Environments"
-    description="Where flags are configured and published. Order here is the order everywhere else."
+    description="Each environment has its own rules, published revisions and SDK keys. Order here is the order everywhere in the dashboard."
     :can-manage="canManage"
   >
     <template v-if="canManage" #actions>
@@ -83,6 +84,7 @@ function published(environment: EnvironmentRow): string {
             <th scope="col" class="px-3 py-2 font-medium">Live revision</th>
             <th scope="col" class="px-3 py-2 font-medium">Last publish</th>
             <th scope="col" class="px-3 py-2 font-medium">SDK keys</th>
+            <th scope="col" class="px-3 py-2 font-medium">Delivery</th>
           </tr>
         </thead>
         <tbody>
@@ -111,16 +113,20 @@ function published(environment: EnvironmentRow): string {
               </div>
             </td>
             <td class="px-3 py-2">
-              <Link
-                :href="`${base}/${environment.key}`"
-                class="font-medium hover:underline"
-                data-test="environment-link"
-                >{{ environment.name }}</Link
-              >
-              <code class="text-text/62 ml-2 font-mono text-xs">{{ environment.key }}</code>
+              <div class="flex flex-col">
+                <Link
+                  :href="`${base}/${environment.key}`"
+                  class="font-medium hover:underline"
+                  data-test="environment-link"
+                  >{{ environment.name }}</Link
+                >
+                <code class="text-text/62 font-mono text-xs">{{ environment.key }}</code>
+              </div>
             </td>
             <td class="px-3 py-2">
-              <Tag v-if="environment.isProtected" variant="accent">Protected</Tag>
+              <Tag v-if="environment.isProtected" variant="accent">{{
+                environment.requiredApprovals > 0 ? 'Protected · review required' : 'Protected'
+              }}</Tag>
               <span v-else class="text-text/62">Open</span>
             </td>
             <td class="px-3 py-2">
@@ -130,6 +136,7 @@ function published(environment: EnvironmentRow): string {
             <td class="text-text/62 px-3 py-2" data-test="active-keys">
               {{ environment.activeKeys === 0 ? 'None yet' : `${environment.activeKeys} active` }}
             </td>
+            <td class="text-text/62 px-3 py-2" data-test="delivery">—</td>
           </tr>
           <tr
             v-for="environment in archived"
@@ -144,13 +151,14 @@ function published(environment: EnvironmentRow): string {
               <code class="ml-2 font-mono text-xs">{{ environment.key }}</code>
               <StatusTag status="Archived" class="ml-2" />
             </td>
-            <td colspan="4" />
+            <td colspan="5" />
           </tr>
         </tbody>
       </table>
     </div>
     <p class="text-text/62 text-sm" data-test="environments-explainer">
-      Environments with published revisions or keys can't be deleted. Archive them instead.
+      Environments with published revisions or keys can't be deleted. Archive them instead; their
+      history stays in the audit log.
     </p>
 
     <NewEnvironmentDialog
@@ -165,6 +173,7 @@ function published(environment: EnvironmentRow): string {
       "
       :taken-keys="environments.map((environment) => environment.key)"
       :colors="colors"
+      :approvals-available="approvalsAvailable"
       :errors="errors"
     />
   </ProjectSettingsLayout>

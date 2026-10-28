@@ -38,7 +38,7 @@ const readOnlyText = computed(() => {
   const role = scope.value.projectRole;
   if (role === 'viewer') return "You're a Viewer. Everything here is read-only.";
   const label = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'member';
-  return `You're a ${label}. You can see the settings, but only owners can change them.`;
+  return `You're a ${label}. You can view this, but only owners can change it.`;
 });
 </script>
 

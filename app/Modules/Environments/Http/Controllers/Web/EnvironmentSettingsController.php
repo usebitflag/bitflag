@@ -46,7 +46,7 @@ final class EnvironmentSettingsController
     private const TABS = ['overview', 'keys', 'delivery', 'history', 'settings'];
 
     /** GET .../settings/environments */
-    public function index(Request $request, EnvironmentSettingsList $environments, EnvironmentCredentials $credentials): Response
+    public function index(Request $request, EnvironmentSettingsList $environments, EnvironmentCredentials $credentials, Entitlements $entitlements): Response
     {
         [$organizationId, $projectId] = $this->project($request);
         $scope = new ProjectScope($organizationId, $projectId);
@@ -58,6 +58,7 @@ final class EnvironmentSettingsController
             'environments' => array_map(fn (array $row): array => [...$this->display($row), 'activeKeys' => $counts[$row['id']] ?? 0], $environments->for($projectId)),
             'canManage' => Gate::allows(Capability::EnvironmentManage->value, $scope),
             'colors' => ['slate', 'lilac', 'violet', 'indigo', 'ink'],
+            'approvalsAvailable' => $entitlements->allows($organizationId, Feature::RequiredApprovals),
         ]);
     }
 
@@ -124,6 +125,7 @@ final class EnvironmentSettingsController
             'deleteBlockers' => $tab === 'settings' ? $blockers->for($row['id']) : [],
             'activeEnvironmentCount' => $tab === 'settings' ? count($environments->activeKeysFor($projectId)) : 0,
             'keys' => $tab === 'keys' ? $credentials->for($row['id']) : [],
+            'keyCount' => $credentials->workingCounts($projectId)[$row['id']] ?? 0,
             'canManageKeys' => Gate::allows(Capability::CredentialsManage->value, $scope),
             'allowedOrigins' => $row['allowedOrigins'],
             'defaultMaxSnapshotAgeSeconds' => $row['defaultMaxSnapshotAgeSeconds'],

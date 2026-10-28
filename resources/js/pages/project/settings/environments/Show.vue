@@ -18,6 +18,7 @@ const props = defineProps<{
   tab: 'overview' | 'keys' | 'delivery' | 'history' | 'settings';
   history: HistoryEntry[];
   keys: KeyRow[];
+  keyCount: number;
   canManageKeys: boolean;
   allowedOrigins: string[];
   deleteBlockers: string[];
@@ -38,7 +39,7 @@ const base = computed(() => {
 const tabs = computed(() =>
   [
     { key: 'overview', label: 'Overview' },
-    { key: 'keys', label: 'Keys' },
+    { key: 'keys', label: props.keyCount > 0 ? `Keys ${props.keyCount}` : 'Keys' },
     { key: 'delivery', label: 'Delivery' },
     { key: 'history', label: 'History' },
     { key: 'settings', label: 'Settings' },
@@ -55,7 +56,7 @@ const tabs = computed(() =>
   <ProjectSettingsLayout
     tab="environments"
     :title="environment.name"
-    :description="`The ${environment.key} environment.`"
+    :description="`${environment.key} · ${environment.firstPublishedAt === null ? 'Never published' : 'Published'}`"
     :can-manage="canManage"
   >
     <p class="text-sm">
