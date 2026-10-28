@@ -114,7 +114,7 @@ Cross-event attribution requires a linkable experiment-scoped identifier or anot
 
 Invitations expire and can be revoked; accepting an invite must not grant access to a different organization. Roles, project grants and environment publishing grants are evaluated together. Ownership transfers require an eligible target and preserve at least one owner.
 
-Project archive, scheduled deletion and restore are explicit workflows. A cross-organization transfer would have to migrate ownership-sensitive grants, integration bindings, billing responsibility and cache scope atomically or through a guarded maintenance state; it is not offered. Archived projects keep serving. Deleting a project is scheduled with a grace period, during which it can be restored.
+Project archive, scheduled deletion and restore are explicit workflows. A project cannot be moved to another organization. To move one, export it and recreate it in the target organization; the new project gets new keys and does not carry over audit or revision history. Archived projects keep serving. Deleting a project is scheduled with a grace period, during which it can be restored.
 
 Scheduled deletion and final purge are different states. Final purge revokes online access and follows the agreed retention policy for backups, billing and audit. The UI must explain cached SDK behavior instead of promising immediate fallback everywhere.
 
