@@ -10,9 +10,8 @@ use App\Http\Middleware\ResolvePortalScope;
 use App\Http\Portal\PortalScope;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditCatalog;
+use App\Shared\Capabilities\CapabilityGate;
 use App\Shared\Capabilities\Console\GenerateTypesCommand;
-use App\Shared\Capabilities\EnvironmentProtection;
-use App\Shared\Capabilities\NoEnvironmentProtection;
 use App\Shared\Capabilities\NullTokenScopeMap;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Http\TrustedProxies;
@@ -69,8 +68,7 @@ class AppServiceProvider extends ServiceProvider
         // Billing supplies the real plan limits; until it does, nothing is limited.
         $this->app->bind(EnforcePlanLimit::class, NoPlanLimits::class);
 
-        // Defaults until environments define protection and credentials define scopes.
-        $this->app->bind(EnvironmentProtection::class, NoEnvironmentProtection::class);
+        // Defaults until credentials define scopes. Environment protection is bound by the Environments module.
         $this->app->bind(TokenScopeMap::class, NullTokenScopeMap::class);
 
         // Controllers type-hint Actor to receive the signed-in person. Without a session there is none.
@@ -98,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TenantColumns::register();
+        CapabilityGate::register();
 
         $proxies = Config::get('bitflag.trusted_proxies');
         TrustedProxies::apply(is_string($proxies) ? $proxies : null);

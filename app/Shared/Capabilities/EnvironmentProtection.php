@@ -6,8 +6,7 @@ namespace App\Shared\Capabilities;
 
 /**
  * Whether an environment is protected. Protected environments can be published only by roles that hold
- * environment.publish.protected. The default binding treats every environment as unprotected until protection policies
- * exist.
+ * environment.publish.protected. The Environments module answers from the current version of the environment's policy.
  */
 interface EnvironmentProtection
 {
