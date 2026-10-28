@@ -49,7 +49,7 @@ const removeOpen = computed({
   },
 });
 
-const errors = computed(() => page.props.errors as Record<string, string | undefined>);
+const errors = computed<Record<string, string | undefined>>(() => page.props.errors ?? {});
 const formatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
 function lastActive(seconds: number | null): string {

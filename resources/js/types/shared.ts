@@ -53,6 +53,8 @@ export type SharedProps = {
   can: Partial<Record<CapabilityName, boolean>>;
   flash: { toast: { message: string; tone: ToastTone } | null };
   requestId: string | null;
+  /** Validation errors flashed by the last request, by field. */
+  errors?: Record<string, string>;
   /** Loaded on demand by a partial reload when the switcher opens. */
   switcher?: SwitcherData;
 };

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $user_id
  * @property ProjectRole $role
  * @property string|null $added_by
+ * @property int $version
  */
 #[UseFactory(ProjectMembershipFactory::class)]
 class ProjectMembership extends Model
