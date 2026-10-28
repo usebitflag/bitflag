@@ -24,6 +24,6 @@ final class EnvironmentsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->app->make(AuditCatalog::class)->register('environment.created', 'environment.reordered', 'environment.updated', 'environment.policy_changed');
+        $this->app->make(AuditCatalog::class)->register('environment.created', 'environment.reordered', 'environment.updated', 'environment.policy_changed', 'environment.archived', 'environment.deleted');
     }
 }

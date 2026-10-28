@@ -29,6 +29,16 @@ final class EnvironmentSettingsList
     }
 
     /**
+     * The keys of the project's active environments.
+     *
+     * @return list<string>
+     */
+    public function activeKeysFor(string $projectId): array
+    {
+        return array_values(Environment::query()->where('project_id', $projectId)->where('status', 'active')->get()->map(static fn (Environment $environment): string => $environment->key)->all());
+    }
+
+    /**
      * @return EnvironmentRow|null
      */
     public function byKey(string $projectId, string $key): ?array
