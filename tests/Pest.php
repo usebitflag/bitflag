@@ -11,6 +11,7 @@ use Tests\TestCase;
 require_once __DIR__.'/Support/tenancy.php';
 require_once __DIR__.'/Support/people.php';
 require_once __DIR__.'/Support/two_factor.php';
+require_once __DIR__.'/Support/invitations.php';
 require_once __DIR__.'/Support/portal.php';
 
 pest()->extend(TestCase::class)

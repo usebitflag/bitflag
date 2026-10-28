@@ -145,7 +145,7 @@ it('fails loudly for a template it does not know', function () {
 
 it('is registered for the message type and delivers through the worker', function () {
     expect(array_map(fn ($c) => $c::class, app(ConsumerRegistry::class)->consumersFor('internal.email.requested')))
-        ->toBe([SendAccountEmail::class]);
+        ->toContain(SendAccountEmail::class);
 
     request_email(AccountEmailTemplate::MfaEnabled, $this->user);
     app(Dispatcher::class)->dispatchBatch('test-worker');

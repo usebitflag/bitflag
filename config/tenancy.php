@@ -3,6 +3,8 @@
 declare(strict_types=1);
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
+use App\Modules\Organizations\Models\Invitation;
+use App\Modules\Organizations\Models\InvitationProjectGrant;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Models\ProjectMembership;
 use App\Modules\Projects\Models\Project;
@@ -28,6 +30,8 @@ return [
         'environment_policies' => EnvironmentPolicy::class,
         'organization_memberships' => OrganizationMembership::class,
         'project_memberships' => ProjectMembership::class,
+        'invitations' => Invitation::class,
+        'invitation_project_grants' => InvitationProjectGrant::class,
         'audit_events' => 'App\Shared\Audit\AuditEvent',
         'idempotency_records' => 'App\Shared\Idempotency\IdempotencyRecord',
     ],

@@ -51,6 +51,12 @@ final class SendAccountEmail implements OutboxConsumer
     public function consume(OutboxMessage $message): void
     {
         $name = $message->payload['template'] ?? null;
+
+        // Invitation emails have their own consumer, which knows the invitation.
+        if ($name === 'invitation') {
+            return;
+        }
+
         $template = is_string($name) ? AccountEmailTemplate::tryFrom($name) : null;
 
         if ($template === null) {

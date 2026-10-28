@@ -68,6 +68,8 @@ final class SlugRules
      */
     public static function routePattern(): string
     {
-        return '(?!(?:'.implode('|', array_map('preg_quote', self::RESERVED)).')$)(?!'.self::RESERVED_PREFIX.')[a-z][a-z0-9-]{1,38}';
+        // The word must be followed by a slash or the end of the address, because the pattern is placed inside a longer
+        // address pattern and a bare end-of-string anchor would only ever match single-segment addresses.
+        return '(?!(?:'.implode('|', array_map('preg_quote', self::RESERVED)).')(?:/|$))(?!'.self::RESERVED_PREFIX.')[a-z][a-z0-9-]{1,38}';
     }
 }

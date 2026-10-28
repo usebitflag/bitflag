@@ -99,8 +99,8 @@ it('keeps recovery codes out of the database, the session and the queue', functi
 });
 
 it('has no route to see the codes again', function () {
-    $this->actingAs($this->user)->get('/account/recovery-codes')->assertNotFound();
-    $this->actingAs($this->user)->getJson('/account/two-factor')->assertNotFound();
+    $this->actingAs($this->user)->get('/account/recovery-codes')->assertStatus(405);
+    $this->actingAs($this->user)->getJson('/account/two-factor')->assertStatus(405);
 });
 
 it('does not confirm with a wrong code, or when nothing was started', function () {
