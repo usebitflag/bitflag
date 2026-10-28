@@ -38,6 +38,6 @@ describe('DeleteProjectDialog', () => {
     input.dispatchEvent(new Event('input'));
     await flushPromises();
     expect(confirm.disabled).toBe(false);
-    expect(document.body.textContent).toContain('You can restore it any time before then.');
+    expect(document.body.textContent).toContain('You can restore it until then.');
   });
 });

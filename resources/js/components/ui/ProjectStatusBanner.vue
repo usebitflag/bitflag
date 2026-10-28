@@ -41,7 +41,8 @@ function unarchive(): void {
     data-test="project-status-banner"
     data-status="deletion_scheduled"
   >
-    {{ projectName }} will be deleted on {{ dueDate }}. Until then SDKs keep working.
+    {{ projectName }} will be deleted on {{ dueDate }}. Until then SDKs keep working and you can
+    restore it.
     <Button v-if="canRestore" size="sm" variant="ghost" data-test="project-restore" @click="restore"
       >Restore project</Button
     >

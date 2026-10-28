@@ -15,8 +15,8 @@ const requireOwner = defineModel<boolean>('requireOwner', { required: true });
 const clientVisible = defineModel<boolean>('clientVisible', { required: true });
 
 const formats = [
-  { value: 'kebab', label: 'kebab-case (new-checkout)' },
-  { value: 'snake', label: 'snake_case (new_checkout)' },
+  { value: 'kebab', label: 'kebab-case · new-checkout' },
+  { value: 'snake', label: 'snake_case · new_checkout' },
   { value: 'any', label: 'Any format' },
 ];
 const staleOptions = [14, 30, 60, 90].map((days) => ({
@@ -30,7 +30,7 @@ const staleOptions = [14, 30, 60, 90].map((days) => ({
     <div class="grid grid-cols-2 items-start gap-3.5">
       <Field
         v-slot="{ id, describedBy, invalid }"
-        label="Flag key format"
+        label="Key format"
         :error="errors.flag_key_format"
       >
         <Select
@@ -45,8 +45,8 @@ const staleOptions = [14, 30, 60, 90].map((days) => ({
       </Field>
       <Field
         v-slot="{ id, describedBy, invalid }"
-        label="Stale after"
-        help="Flags nobody checks for this long are marked stale."
+        label="Mark as stale after"
+        help="Stale flags show up in Analytics as safe to clean up."
         :error="errors.stale_after_days"
       >
         <Select
@@ -63,21 +63,21 @@ const staleOptions = [14, 30, 60, 90].map((days) => ({
     <Checkbox
       v-model="requireDescription"
       label="Require a description"
-      help="New flags need a description before they can be created."
+      help="New flags can't be created without one."
       :disabled="disabled"
       data-test="require-description"
     />
     <Checkbox
       v-model="requireOwner"
       label="Require an owner"
-      help="New flags need an owner."
+      help="Every flag names the person responsible for cleaning it up."
       :disabled="disabled"
       data-test="require-owner"
     />
     <Checkbox
       v-model="clientVisible"
       label="Client-visible by default"
-      help="New flags are available to browser keys unless you turn it off."
+      help="Browser keys can only read client-visible flags. Leaving this off is safer."
       :disabled="disabled"
       data-test="client-visible"
     />
