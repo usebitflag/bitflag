@@ -30,7 +30,15 @@ export interface SharedEnvironment {
 
 export interface SharedScope {
   organization: { id: string; slug: string; name: string } | null;
-  project: { id: string; key: string; name: string } | null;
+  project: {
+    id: string;
+    key: string;
+    name: string;
+    /** An archived project, or one waiting to be deleted, is read-only. */
+    status: 'active' | 'archived' | 'deletion_scheduled';
+    /** Unix seconds when a project waiting to be deleted is purged. */
+    deletionDueAt: number | null;
+  } | null;
   environment: SharedEnvironment | null;
   projectRole: ProjectRole | null;
   orgRole: OrgRole | null;

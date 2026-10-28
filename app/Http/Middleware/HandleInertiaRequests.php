@@ -92,6 +92,8 @@ class HandleInertiaRequests extends Middleware
                 'id' => PublicId::encode(IdPrefix::Project, $scope->project->id),
                 'key' => $scope->project->key,
                 'name' => $scope->project->name,
+                'status' => $scope->project->status,
+                'deletionDueAt' => $scope->project->deletionDueAt,
             ],
             'environment' => $scope?->environment === null ? null : $this->environment($scope->environment),
             'projectRole' => $scope?->projectRole?->value,

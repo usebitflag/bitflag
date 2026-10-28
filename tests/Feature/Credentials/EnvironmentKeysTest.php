@@ -15,6 +15,7 @@ use App\Modules\Credentials\Domain\Exceptions\RevokedCredential;
 use App\Modules\Credentials\Models\Credential;
 use App\Modules\Credentials\Queries\CredentialResolver;
 use App\Modules\Credentials\Queries\DueCredentials;
+use App\Modules\Projects\Domain\Exceptions\ProjectNotWritable;
 use App\Modules\Projects\Models\Project;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditCatalog;
@@ -134,7 +135,7 @@ describe('issuing a key', function () {
 
         Tenancy::crossTenant('inspect', fn () => $this->p['environment']->forceFill(['status' => 'active'])->save());
         Tenancy::crossTenant('inspect', fn () => Project::query()->whereKey($this->p['project']->id)->update(['status' => 'archived']));
-        expect(fn () => issue($this->p))->toThrow(ValidationException::class);
+        expect(fn () => issue($this->p))->toThrow(ProjectNotWritable::class);
     });
 
     it('refuses values the form cannot send', function (array $change, string $field) {

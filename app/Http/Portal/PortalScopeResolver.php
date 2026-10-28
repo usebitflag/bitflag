@@ -35,7 +35,7 @@ final class PortalScopeResolver
         $project = $this->projects->byKey($access->organization->id, $projectKey);
         $projectRole = $project === null ? null : $this->memberships->projectRole($userId, $access->organization->id, $project->id);
 
-        if ($project === null || $projectRole === null || ! $project->active) {
+        if ($project === null || $projectRole === null) {
             return null;
         }
 

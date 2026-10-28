@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Environments\Actions;
 
 use App\Modules\Environments\Data\ReorderEnvironmentsData;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -24,6 +25,7 @@ final class ReorderEnvironments
 {
     public function __construct(
         private readonly PlanRestrictionGate $restrictions,
+        private readonly ProjectWritability $writability,
         private readonly RenumberEnvironments $renumber,
         private readonly AuditRecorder $audit,
         private readonly TenantContext $tenant,
@@ -41,6 +43,7 @@ final class ReorderEnvironments
 
         $this->tenant->run($data->organizationId, fn () => DB::transaction(function () use ($actor, $data): void {
             $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId);
+            $this->writability->assertWritable($data->projectId);
 
             $current = $this->renumber->activeIds($data->projectId);
 

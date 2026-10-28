@@ -59,6 +59,21 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deletion grace
+    |--------------------------------------------------------------------------
+    |
+    | A deleted project or organization is scheduled first and can be restored
+    | until this many days have passed. SDK keys keep working until the purge.
+    |
+    */
+
+    'lifecycle' => [
+        'project_deletion_grace_days' => (int) env('BITFLAG_PROJECT_DELETION_GRACE_DAYS', 7),
+        'organization_deletion_grace_days' => (int) env('BITFLAG_ORGANIZATION_DELETION_GRACE_DAYS', 7),
+    ],
+
     'credentials' => [
         'current_pepper_id' => (int) env('BITFLAG_CREDENTIAL_PEPPER_CURRENT', 1),
         'previous_pepper_id' => env('BITFLAG_CREDENTIAL_PEPPER_PREVIOUS') !== null
