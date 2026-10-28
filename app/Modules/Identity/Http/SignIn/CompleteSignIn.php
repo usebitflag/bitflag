@@ -7,6 +7,7 @@ namespace App\Modules\Identity\Http\SignIn;
 use Closure;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 /**
  * The only stage that signs anyone in, reached only when no second factor is owed. There is no "remember me": a session
@@ -22,6 +23,12 @@ final class CompleteSignIn
 
         if ($user !== null) {
             $this->guard->login($user, false);
+
+            $device = SignInStage::deviceToken($request);
+
+            if ($device !== null) {
+                Cookie::queue(SignInCookies::device($request, $device));
+            }
         }
 
         return $next($request);

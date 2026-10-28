@@ -6,8 +6,8 @@ namespace App\Modules\Identity\Http\SignIn;
 
 use App\Modules\Identity\Actions\AttemptSignIn;
 use App\Modules\Identity\Data\AttemptSignInData;
+use App\Modules\Identity\Data\SignInMessages;
 use App\Modules\Identity\Domain\SignInOutcome;
-use App\Modules\Identity\Domain\SignInThrottle;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -19,8 +19,6 @@ use Laravel\Fortify\Fortify;
  */
 final class ValidateCredentials
 {
-    public const FAILED_MESSAGE = "That email and password don't match. Check them and try again.";
-
     public function __construct(private readonly AttemptSignIn $attempt) {}
 
     public function handle(Request $request, Closure $next): mixed
@@ -33,17 +31,24 @@ final class ValidateCredentials
             is_string($password) ? $password : '',
             $request->ip(),
             $request->userAgent(),
+            SignInCookies::read($request, SignInCookies::TRUSTED_BROWSER),
+            SignInCookies::read($request, SignInCookies::DEVICE),
         ));
 
         if ($result->user === null) {
             throw ValidationException::withMessages([
                 Fortify::username() => $result->outcome === SignInOutcome::Locked
-                    ? SignInThrottle::LOCKED_MESSAGE
-                    : self::FAILED_MESSAGE,
+                    ? SignInMessages::LOCKED
+                    : SignInMessages::FAILED,
             ]);
         }
 
         SignInStage::remember($request, $result->user);
+
+        if ($result->deviceToken !== null) {
+            SignInStage::rememberDeviceToken($request, $result->deviceToken);
+        }
+
         $request->attributes->set('bitflag.sign_in.second_factor', $result->outcome === SignInOutcome::TwoFactorRequired);
 
         return $next($request);

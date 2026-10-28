@@ -8,15 +8,15 @@ use App\Modules\Identity\Domain\SignInOutcome;
 use App\Modules\Identity\Models\User;
 
 /**
- * The person is set only when the password was right (`Authenticated` or `TwoFactorRequired`).
+ * The device token is the value for the long-lived device cookie. The person is set only when the password was right (`Authenticated` or `TwoFactorRequired`).
  */
 final readonly class SignInResult
 {
-    private function __construct(public SignInOutcome $outcome, public ?User $user = null) {}
+    private function __construct(public SignInOutcome $outcome, public ?User $user = null, public ?string $deviceToken = null) {}
 
-    public static function authenticated(User $user): self
+    public static function authenticated(User $user, string $deviceToken): self
     {
-        return new self(SignInOutcome::Authenticated, $user);
+        return new self(SignInOutcome::Authenticated, $user, $deviceToken);
     }
 
     public static function twoFactorRequired(User $user): self

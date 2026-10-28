@@ -6,11 +6,13 @@ namespace App\Modules\Identity;
 
 use App\Modules\Identity\Domain\CommonPasswords;
 use App\Modules\Identity\Domain\GeoLocator;
+use App\Modules\Identity\Domain\OrganizationMfaPolicy;
 use App\Modules\Identity\Http\SignIn\CompleteSignIn;
 use App\Modules\Identity\Http\SignIn\RedirectIfTwoFactorRequired;
 use App\Modules\Identity\Http\SignIn\ValidateCredentials;
 use App\Modules\Identity\Jobs\SendAccountEmail;
 use App\Modules\Identity\Support\BundledCommonPasswords;
+use App\Modules\Identity\Support\NoOrganizationMfaPolicy;
 use App\Modules\Identity\Support\NullGeoLocator;
 use App\Modules\Identity\Support\TrackedDatabaseSessionHandler;
 use App\Shared\Outbox\ConsumerRegistry;
@@ -36,6 +38,9 @@ final class IdentityServiceProvider extends ServiceProvider
 
         // No GeoIP source is chosen yet, so sessions show an unknown location.
         $this->app->bind(GeoLocator::class, NullGeoLocator::class);
+
+        // No organization can require two-factor yet.
+        $this->app->bind(OrganizationMfaPolicy::class, NoOrganizationMfaPolicy::class);
 
         $this->app->singleton(CommonPasswords::class, fn (): CommonPasswords => new BundledCommonPasswords(resource_path('security/common-passwords.txt')));
     }
