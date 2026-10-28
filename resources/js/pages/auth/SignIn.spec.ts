@@ -11,7 +11,11 @@ const form = reactive({
   reset: vi.fn(),
 });
 
-vi.mock('@inertiajs/vue3', () => ({ Head: { render: () => null }, useForm: () => form }));
+vi.mock('@inertiajs/vue3', () => ({
+  Head: { render: () => null },
+  Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
+  useForm: () => form,
+}));
 
 import SignIn from './SignIn.vue';
 
@@ -33,6 +37,12 @@ describe('sign-in page', () => {
 
     expect(page.get('[data-test="login-error"]').text()).toContain("don't match");
     expect(page.get('[data-test="login-email"]').attributes('aria-invalid')).toBe('true');
+  });
+
+  it('links to the password reset', () => {
+    expect(mount(SignIn).get('[data-test="login-forgot"]').attributes('href')).toBe(
+      '/forgot-password',
+    );
   });
 
   it('disables the button while the request runs', () => {

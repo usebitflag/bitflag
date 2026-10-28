@@ -77,6 +77,16 @@ final class IdentityServiceProvider extends ServiceProvider
                 Limit::perHour(3)->by('signup-email|'.hash('sha256', mb_strtolower(is_string($email) ? trim($email) : ''))),
             ];
         });
+        // Three reset emails an hour for one address and ten an hour from one network.
+        RateLimiter::for('password-reset', function (Request $request): array {
+            $email = $request->input('email');
+            $email = is_string($email) ? $email : $request->session()->get('reset.email');
+
+            return [
+                Limit::perHour(10)->by('reset-ip|'.$request->ip()),
+                Limit::perHour(3)->by('reset-email|'.hash('sha256', mb_strtolower(is_string($email) ? trim($email) : ''))),
+            ];
+        });
         RateLimiter::for('password-check', fn (Request $request): Limit => Limit::perMinute(60)->by('password-check|'.$request->ip()));
         RateLimiter::for('verification', function (Request $request): Limit {
             $id = $request->user('web')?->getAuthIdentifier();
