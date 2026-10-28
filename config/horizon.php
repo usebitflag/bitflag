@@ -217,7 +217,7 @@ return [
         ],
         'default' => [
             'connection' => 'redis',
-            'queue' => ['default', 'notifications'],
+            'queue' => ['default', 'notifications', 'exports'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 2,

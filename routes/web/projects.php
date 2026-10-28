@@ -47,6 +47,8 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             Route::put('/general', [ProjectSettingsController::class, 'updateGeneral'])->name('project.settings.general.update');
 
             Route::get('/danger', [ProjectLifecycleController::class, 'show'])->name('project.settings.danger');
+            Route::post('/danger/export', [ProjectLifecycleController::class, 'export'])->middleware('throttle:10,1')->name('project.settings.danger.export');
+            Route::get('/danger/exports/{export}/download', [ProjectLifecycleController::class, 'download'])->where('export', '[0-9a-z]{26}')->middleware('signed')->name('project.settings.danger.exports.download');
             Route::post('/danger/archive', [ProjectLifecycleController::class, 'archive'])->name('project.settings.danger.archive');
             Route::post('/danger/unarchive', [ProjectLifecycleController::class, 'unarchive'])->name('project.settings.danger.unarchive');
             Route::post('/danger/delete', [ProjectLifecycleController::class, 'schedule'])->name('project.settings.danger.delete');

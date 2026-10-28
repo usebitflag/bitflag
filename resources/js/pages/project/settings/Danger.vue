@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import Button from '../../../components/ui/Button.vue';
 import Card from '../../../components/ui/Card.vue';
 import InlineNotice from '../../../components/ui/InlineNotice.vue';
@@ -8,7 +8,16 @@ import DeleteProjectDialog from '../../../features/settings/DeleteProjectDialog.
 import ProjectSettingsLayout from '../../../layouts/ProjectSettingsLayout.vue';
 import type { SharedProps } from '../../../types/shared';
 
-defineProps<{ canManage: boolean }>();
+interface ExportRow {
+  id: string;
+  status: 'queued' | 'running' | 'ready' | 'failed' | 'expired';
+  bytes: number | null;
+  createdAt: number;
+  expiresAt: number | null;
+  downloadUrl: string | null;
+}
+
+const props = defineProps<{ canManage: boolean; exports: ExportRow[] }>();
 
 const page = usePage<SharedProps>();
 const project = computed(() => page.props.scope.project);
@@ -19,6 +28,38 @@ const base = computed(() => {
 const status = computed(() => project.value?.status ?? 'active');
 const errors = computed<Record<string, string | undefined>>(() => page.props.errors ?? {});
 const deleting = ref(false);
+
+const busy = computed(() =>
+  props.exports.some((item) => item.status === 'queued' || item.status === 'running'),
+);
+let timer: ReturnType<typeof setInterval> | undefined;
+
+// An export is built in the background: look again every couple of seconds until it is done.
+watch(
+  busy,
+  (isBusy) => {
+    clearInterval(timer);
+    if (isBusy) timer = setInterval(() => router.reload({ only: ['exports'] }), 2000);
+  },
+  { immediate: true },
+);
+onBeforeUnmount(() => clearInterval(timer));
+
+function requestExport(): void {
+  router.post(`${base.value}/export`, {}, { preserveScroll: true });
+}
+
+const exportLabel: Record<ExportRow['status'], string> = {
+  queued: 'Preparing…',
+  running: 'Preparing…',
+  ready: 'Ready',
+  failed: 'Failed',
+  expired: 'Expired',
+};
+
+function size(bytes: number | null): string {
+  return bytes === null ? '' : bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
+}
 
 function archive(): void {
   router.post(`${base.value}/archive`, {}, { preserveScroll: true });
@@ -45,6 +86,35 @@ function restore(): void {
       :title="errors.project"
       data-test="danger-error"
     />
+
+    <Card title="Export project">
+      <p class="text-text/70 mb-3 text-sm">
+        Download the project's settings and environments as JSON. It never includes keys or tokens.
+        The file is kept for 24 hours.
+      </p>
+      <Button :disabled="!canManage || busy" data-test="export-request" @click="requestExport"
+        >Export JSON</Button
+      >
+      <ul v-if="exports.length" class="mt-3 flex flex-col gap-1.5 text-sm" data-test="exports">
+        <li
+          v-for="item in exports"
+          :key="item.id"
+          class="flex items-center gap-3"
+          data-test="export-row"
+        >
+          <span class="text-text/62">{{ new Date(item.createdAt * 1000).toLocaleString() }}</span>
+          <span data-test="export-status">{{ exportLabel[item.status] }}</span>
+          <span class="text-text/62">{{ size(item.bytes) }}</span>
+          <a
+            v-if="item.downloadUrl"
+            :href="item.downloadUrl"
+            class="text-primary-ink hover:underline"
+            data-test="export-download"
+            >Download</a
+          >
+        </li>
+      </ul>
+    </Card>
 
     <Card title="Archive project">
       <p class="text-text/70 mb-3 text-sm">

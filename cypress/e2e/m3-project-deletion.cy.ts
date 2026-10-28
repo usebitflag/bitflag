@@ -33,3 +33,24 @@ describe('project deletion', () => {
     cy.get('[data-test="danger-archive"]').should('be.disabled');
   });
 });
+
+describe('project export', () => {
+  beforeEach(() => cy.resetDemo());
+
+  it('prepares an export and offers a download that holds no credentials', () => {
+    cy.signInAs('maya@acme.dev');
+    cy.visit('/acme/storefront/development/settings/danger');
+
+    cy.get('[data-test="export-request"]').click();
+    cy.get('[data-test="export-download"]', { timeout: 20000 }).should('be.visible');
+    cy.get('[data-test="export-status"]').first().should('contain', 'Ready');
+    cy.get('[data-test="export-download"]')
+      .invoke('attr', 'href')
+      .then((href) => {
+        cy.request(href as string).then((response) => {
+          expect(response.body.project.key).to.eq('storefront');
+          expect(JSON.stringify(response.body)).not.to.match(/bf_(srv|pub|mgt|pat)_/);
+        });
+      });
+  });
+});

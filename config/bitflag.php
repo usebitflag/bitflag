@@ -74,6 +74,20 @@ return [
         'organization_deletion_grace_days' => (int) env('BITFLAG_ORGANIZATION_DELETION_GRACE_DAYS', 7),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Project exports
+    |--------------------------------------------------------------------------
+    |
+    | Export files are written to a private disk and deleted after 24 hours.
+    | Local disk until object storage is chosen.
+    |
+    */
+
+    'exports' => [
+        'disk' => env('BITFLAG_EXPORTS_DISK', 'local'),
+    ],
+
     'credentials' => [
         'current_pepper_id' => (int) env('BITFLAG_CREDENTIAL_PEPPER_CURRENT', 1),
         'previous_pepper_id' => env('BITFLAG_CREDENTIAL_PEPPER_PREVIOUS') !== null
