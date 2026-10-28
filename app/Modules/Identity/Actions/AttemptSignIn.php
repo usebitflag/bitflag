@@ -6,12 +6,15 @@ namespace App\Modules\Identity\Actions;
 
 use App\Modules\Identity\Data\AttemptSignInData;
 use App\Modules\Identity\Data\RecordSecurityEventData;
+use App\Modules\Identity\Data\RequestAccountEmailData;
 use App\Modules\Identity\Data\SignInResult;
+use App\Modules\Identity\Domain\AccountEmailTemplate;
 use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Domain\SecurityEventType;
 use App\Modules\Identity\Domain\SignInThrottle;
 use App\Modules\Identity\Models\MfaFactor;
 use App\Modules\Identity\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Sleep;
 
@@ -21,7 +24,7 @@ use Illuminate\Support\Sleep;
  *
  * A wrong password, an unknown address and a deactivated account end the same way, take about the same time, and count
  * the same toward the lock. A locked address is refused before anything about the account is read. Failures are logged in
- * the security log, not the customer audit.
+ * the security log, not the customer audit, and the person is emailed once when their account locks.
  */
 final class AttemptSignIn
 {
@@ -31,6 +34,7 @@ final class AttemptSignIn
     public function __construct(
         private readonly SignInThrottle $throttle,
         private readonly RecordSecurityEvent $securityLog,
+        private readonly RequestAccountEmail $accountEmail,
     ) {}
 
     public function handle(AttemptSignInData $data): SignInResult
@@ -67,7 +71,14 @@ final class AttemptSignIn
         $this->record(SecurityEventType::SignInFailed, $data, $user?->id, $email);
 
         if ($failures >= SignInThrottle::MAX_FAILURES) {
-            $this->record(SecurityEventType::SignInLocked, $data, $user?->id, $email);
+            // The lock is reached once, so the notice goes out once per lock. An address with no account gets nothing.
+            DB::transaction(function () use ($data, $email, $user): void {
+                $this->record(SecurityEventType::SignInLocked, $data, $user?->id, $email);
+
+                if ($user !== null) {
+                    $this->accountEmail->handle(new RequestAccountEmailData(AccountEmailTemplate::AccountLocked, $user->id));
+                }
+            });
         } elseif ($failures >= self::FIRST_DELAYED_FAILURE) {
             Sleep::for($failures - self::FIRST_DELAYED_FAILURE + 1)->seconds();
         }
