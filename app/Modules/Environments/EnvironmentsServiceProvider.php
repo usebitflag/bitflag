@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Environments;
 
+use App\Modules\Environments\Queries\EnvironmentsExportData;
 use App\Modules\Environments\Queries\PolicyEnvironmentProtection;
 use App\Shared\Audit\AuditCatalog;
 use App\Shared\Capabilities\EnvironmentProtection;
+use App\Shared\Lifecycle\ProjectExportSections;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -24,6 +26,8 @@ final class EnvironmentsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->make(ProjectExportSections::class)->register(EnvironmentsExportData::class);
+
         $this->app->make(AuditCatalog::class)->register('environment.created', 'environment.reordered', 'environment.updated', 'environment.policy_changed', 'environment.archived', 'environment.deleted');
     }
 }

@@ -16,6 +16,7 @@ use App\Shared\Capabilities\Console\GenerateTypesCommand;
 use App\Shared\Capabilities\TokenScopeMap;
 use App\Shared\Http\TrustedProxies;
 use App\Shared\Idempotency\Console\IdempotencyPruneCommand;
+use App\Shared\Lifecycle\ProjectExportSections;
 use App\Shared\Lifecycle\ProjectPurgers;
 use App\Shared\Navigation\PortalNavigation;
 use App\Shared\Outbox\Console\OutboxPruneCommand;
@@ -59,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AuditCatalog::class);
         $this->app->singleton(ConsumerRegistry::class);
         $this->app->singleton(ProjectPurgers::class);
+        $this->app->singleton(ProjectExportSections::class);
 
         $this->app->singleton(ClockInterface::class, SystemClock::class);
         $this->app->singleton(SecretHasher::class, static function (): SecretHasher {

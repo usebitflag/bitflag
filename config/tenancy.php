@@ -9,6 +9,7 @@ use App\Modules\Organizations\Models\InvitationProjectGrant;
 use App\Modules\Organizations\Models\OrganizationMembership;
 use App\Modules\Organizations\Models\ProjectMembership;
 use App\Modules\Projects\Models\Project;
+use App\Modules\Projects\Models\ProjectExport;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,7 @@ return [
         'environments' => Environment::class,
         'environment_policies' => EnvironmentPolicy::class,
         'credentials' => Credential::class,
+        'project_exports' => ProjectExport::class,
         'organization_memberships' => OrganizationMembership::class,
         'project_memberships' => ProjectMembership::class,
         'invitations' => Invitation::class,
