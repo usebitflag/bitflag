@@ -6,6 +6,7 @@ import Tag from '../../../../components/ui/Tag.vue';
 import DeliveryTab from '../../../../features/environments/DeliveryTab.vue';
 import HistoryTab from '../../../../features/environments/HistoryTab.vue';
 import OverviewTab from '../../../../features/environments/OverviewTab.vue';
+import SettingsTab from '../../../../features/environments/SettingsTab.vue';
 import type { EnvironmentRow, HistoryEntry } from '../../../../features/environments/types';
 import SettingsTabs from '../../../../features/shell/SettingsTabs.vue';
 import ProjectSettingsLayout from '../../../../layouts/ProjectSettingsLayout.vue';
@@ -13,9 +14,12 @@ import type { SharedProps } from '../../../../types/shared';
 
 const props = defineProps<{
   environment: EnvironmentRow;
-  tab: 'overview' | 'delivery' | 'history';
+  tab: 'overview' | 'delivery' | 'history' | 'settings';
   history: HistoryEntry[];
   canManage: boolean;
+  approvalsAvailable: boolean;
+  snapshotAges: number[];
+  colors: string[];
 }>();
 
 const page = usePage<SharedProps>();
@@ -29,6 +33,7 @@ const tabs = computed(() =>
     { key: 'overview', label: 'Overview' },
     { key: 'delivery', label: 'Delivery' },
     { key: 'history', label: 'History' },
+    { key: 'settings', label: 'Settings' },
   ].map((item) => ({
     ...item,
     href: `${base.value}/${props.environment.key}/${item.key}`,
@@ -55,6 +60,15 @@ const tabs = computed(() =>
     <SettingsTabs label="Environment" :items="tabs" />
     <OverviewTab v-if="tab === 'overview'" :environment="environment" />
     <DeliveryTab v-else-if="tab === 'delivery'" />
-    <HistoryTab v-else :entries="history" />
+    <HistoryTab v-else-if="tab === 'history'" :entries="history" />
+    <SettingsTab
+      v-else
+      :environment="environment"
+      :action="`${base}/${environment.key}/settings`"
+      :can-manage="canManage"
+      :approvals-available="approvalsAvailable"
+      :colors="colors"
+      :snapshot-ages="snapshotAges"
+    />
   </ProjectSettingsLayout>
 </template>

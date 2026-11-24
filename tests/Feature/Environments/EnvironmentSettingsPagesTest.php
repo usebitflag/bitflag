@@ -18,11 +18,15 @@ beforeEach(function () {
     $this->world = portalWorld();
     $this->page = '/acme/storefront/production/settings/environments';
 
-    // Production is protected, as a project created in the portal has it.
+    // Every environment has a policy, and production is protected, as in a project created in the portal.
     Tenancy::crossTenant('inspect', function () {
-        $production = Environment::query()->where('project_id', Project::query()->where('key', 'storefront')->firstOrFail()->id)->where('key', 'production')->firstOrFail();
-        $policy = EnvironmentPolicy::query()->create(['organization_id' => $production->organization_id, 'project_id' => $production->project_id, 'environment_id' => $production->id, 'version' => 1, 'is_protected' => true, 'require_reason' => true]);
-        $production->forceFill(['current_policy_id' => $policy->id])->save();
+        $environments = Environment::query()->where('project_id', Project::query()->where('key', 'storefront')->firstOrFail()->id)->get();
+
+        foreach ($environments as $environment) {
+            $protected = $environment->key === 'production';
+            $policy = EnvironmentPolicy::query()->create(['organization_id' => $environment->organization_id, 'project_id' => $environment->project_id, 'environment_id' => $environment->id, 'version' => 1, 'is_protected' => $protected, 'require_reason' => $protected]);
+            $environment->forceFill(['current_policy_id' => $policy->id])->save();
+        }
     });
 });
 
@@ -105,5 +109,56 @@ describe('one environment', function () {
         $this->actingAs($this->world['maya'])->get("{$this->page}/nope")->assertNotFound();
         $this->actingAs($this->world['maya'])->get("{$this->page}/production/nope")->assertNotFound();
         $this->actingAs($this->world['maya'])->get('/acme/checkout-api/production/settings/environments/billing')->assertNotFound();
+    });
+});
+
+describe('the Settings tab', function () {
+    function settings_form(array $change = []): array
+    {
+        return [
+            'name' => 'Staging',
+            'key' => 'staging',
+            'color' => 'lilac',
+            'allowed_origins' => [],
+            'max_snapshot_age' => null,
+            'protected' => false,
+            'required_approvals' => 0,
+            'version' => 1,
+            ...$change,
+        ];
+    }
+
+    it('shows the settings, editable to an Owner and read-only to everyone else', function () {
+        $this->actingAs($this->world['maya'])->get("{$this->page}/staging/settings")->assertInertia(fn (Assert $page) => $page
+            ->component('project/settings/environments/Show')->where('tab', 'settings')->where('canManage', true)->where('approvalsAvailable', true)
+            ->where('environment.allowedOrigins', [])->where('environment.version', 1));
+
+        $this->actingAs($this->world['jon'])->get("{$this->page}/staging/settings")->assertInertia(fn (Assert $page) => $page->where('canManage', false));
+    });
+
+    it('lets an Owner save, going to the address of the new key', function () {
+        $this->actingAs($this->world['maya'])->put("{$this->page}/staging/settings", settings_form(['name' => 'Pre-prod', 'key' => 'pre-prod', 'allowed_origins' => ['https://app.example.com'], 'max_snapshot_age' => 3600, 'protected' => true]))
+            ->assertRedirect("{$this->page}/pre-prod/settings");
+
+        $this->actingAs($this->world['maya'])->get("{$this->page}/pre-prod/settings")->assertInertia(fn (Assert $page) => $page
+            ->where('environment.name', 'Pre-prod')->where('environment.isProtected', true)->where('environment.policyVersion', 2)
+            ->where('environment.allowedOrigins', ['https://app.example.com'])->where('environment.defaultMaxSnapshotAgeSeconds', 3600));
+    });
+
+    it('refuses anyone who is not an Owner', function () {
+        foreach (['jon', 'ana'] as $name) {
+            $this->actingAs($this->world[$name])->put("{$this->page}/staging/settings", settings_form(['name' => 'Nope']))->assertForbidden();
+        }
+    });
+
+    it('shows field errors and asks to reload on a stale version', function () {
+        $this->actingAs($this->world['maya'])->put("{$this->page}/staging/settings", settings_form(['allowed_origins' => ['nope']]))->assertSessionHasErrors('allowed_origins');
+
+        $this->actingAs($this->world['maya'])->put("{$this->page}/staging/settings", settings_form(['name' => 'First']));
+        $this->actingAs($this->world['maya'])->put("{$this->page}/staging/settings", settings_form(['name' => 'Second']))->assertSessionHasErrors('version');
+    });
+
+    it('is not found for an environment of another project', function () {
+        $this->actingAs($this->world['maya'])->put('/acme/storefront/production/settings/environments/billing/settings', settings_form())->assertNotFound();
     });
 });

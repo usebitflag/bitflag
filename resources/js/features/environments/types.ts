@@ -10,6 +10,9 @@ export interface EnvironmentRow {
   policyVersion: number;
   /** Unix seconds of the first publication, or null while nothing is published. */
   firstPublishedAt: number | null;
+  allowedOrigins: string[];
+  /** Seconds, or null for no limit. */
+  defaultMaxSnapshotAgeSeconds: number | null;
   version: number;
 }
 

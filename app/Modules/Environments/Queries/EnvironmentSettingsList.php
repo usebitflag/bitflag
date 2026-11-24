@@ -12,10 +12,13 @@ use Illuminate\Support\Collection;
  * A project's environments for the settings pages: the table of every environment (archived ones last) and the detail of one.
  * Runs inside the organization's tenant context.
  */
+/**
+ * @phpstan-type EnvironmentRow array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, allowedOrigins: list<string>, defaultMaxSnapshotAgeSeconds: int|null, version: int}
+ */
 final class EnvironmentSettingsList
 {
     /**
-     * @return list<array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}>
+     * @return list<EnvironmentRow>
      */
     public function for(string $projectId): array
     {
@@ -26,7 +29,7 @@ final class EnvironmentSettingsList
     }
 
     /**
-     * @return array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}|null
+     * @return EnvironmentRow|null
      */
     public function byKey(string $projectId, string $key): ?array
     {
@@ -48,7 +51,7 @@ final class EnvironmentSettingsList
 
     /**
      * @param  Collection<string, EnvironmentPolicy>  $policies
-     * @return array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}
+     * @return EnvironmentRow
      */
     private function row(Environment $environment, Collection $policies): array
     {
@@ -65,6 +68,8 @@ final class EnvironmentSettingsList
             'requiredApprovals' => $policy->required_approvals ?? 0,
             'policyVersion' => $policy->version ?? 1,
             'firstPublishedAt' => $environment->first_published_at?->getTimestamp(),
+            'allowedOrigins' => $environment->allowed_origins,
+            'defaultMaxSnapshotAgeSeconds' => $environment->default_max_snapshot_age_seconds,
             'version' => $environment->version,
         ];
     }
