@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: BitFlag management API
+  version: 0.1.0
+  description: >
+    The management API authenticates a management key or a personal access token sent as a bearer token. SDK keys are refused.
+    Errors use the standard envelope with a request ID.
+servers:
+  - url: /api/v1
+security:
+  - bearer: []
+paths:
+  /me:
+    get:
+      operationId: getMe
+      summary: Describe the presenting token
+      responses:
+        '200':
+          {
+            description: The token,
+            never its secret,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } },
+          }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /me/token:
+    delete:
+      operationId: revokeMyToken
+      summary: Revoke the presenting token (CLI logout)
+      responses:
+        '204': { description: The token is revoked }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+  /projects/{project}:
+    get:
+      operationId: getProject
+      summary: The project with its settings and new-flag defaults
+      description: Needs the flags:read scope. The project is addressed by its prj_ ID or its key and must be the token's own.
+      parameters: [{ $ref: '#/components/parameters/Project' }]
+      responses:
+        '200':
+          {
+            description: The project,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Project' } } },
+          }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { description: The token lacks the scope }
+        '404': { description: Not found }
+  /projects/{project}/environments:
+    get:
+      operationId: listEnvironments
+      summary: The project's environments in display order
+      parameters: [{ $ref: '#/components/parameters/Project' }]
+      responses:
+        '200':
+          {
+            description: The environments,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: object,
+                        properties:
+                          {
+                            data:
+                              { type: array, items: { $ref: '#/components/schemas/Environment' } },
+                          },
+                      },
+                  },
+              },
+          }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '404': { description: Not found }
+  /projects/{project}/environments/{environment}:
+    get:
+      operationId: getEnvironment
+      summary: One environment, addressed by its env_ ID or its key
+      parameters:
+        [
+          { $ref: '#/components/parameters/Project' },
+          { name: environment, in: path, required: true, schema: { type: string } },
+        ]
+      responses:
+        '200':
+          {
+            description: The environment,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Environment' } } },
+          }
+        '404': { description: Not found }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  parameters:
+    Project:
+      {
+        name: project,
+        in: path,
+        required: true,
+        schema: { type: string },
+        description: A prj_ ID or the project key,
+      }
+  responses:
+    AuthenticationError:
+      description: >
+        UNAUTHENTICATED (no token), INVALID_CREDENTIAL (malformed or unknown), CREDENTIAL_REVOKED (revoked, expired or rotated out),
+        WRONG_CREDENTIAL_TYPE (an SDK key) or MFA_REQUIRED (403, personal token of a member who has not set up two-factor)
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    RateLimited:
+      description: 600 requests a minute per credential and 3,000 per organization
+      headers: { Retry-After: { schema: { type: integer } } }
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            {
+              code: { type: string },
+              message: { type: string },
+              request_id: { type: string },
+              details: { type: object },
+            }
+    Me:
+      type: object
+      properties:
+        type: { enum: [management, personal] }
+        id: { type: string }
+        label: { type: string }
+        organization: { type: string }
+        project: { type: string }
+        environment: { type: [string, 'null'] }
+        scopes: { type: array, items: { type: string } }
+        expires_at: { type: [string, 'null'], format: date-time }
+        user: { type: [object, 'null'] }
+    Project:
+      type: object
+      properties:
+        id: { type: string }
+        key: { type: string }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        time_zone: { type: string }
+        status: { type: string }
+        flag_defaults:
+          type: object
+          properties:
+            {
+              key_format: { type: string },
+              stale_after_days: { type: integer },
+              require_description: { type: boolean },
+              require_owner: { type: boolean },
+              client_visible: { type: boolean },
+            }
+    Environment:
+      type: object
+      properties:
+        id: { type: string }
+        key: { type: string }
+        name: { type: string }
+        color: { type: string }
+        status: { type: string }
+        protection:
+          type: object
+          properties:
+            {
+              protected: { type: boolean },
+              required_approvals: { type: integer },
+              policy_version: { type: integer },
+            }

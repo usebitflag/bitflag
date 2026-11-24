@@ -31,7 +31,31 @@ describe('environment keys', () => {
       });
   });
 
-  it('creates a browser key and a management key that works against the API root of the project', () => {
+  it('creates a management key that authenticates against the management API', () => {
+    openKeys();
+    cy.get('[data-test="key-new"]').click();
+    cy.get('[data-test="key-type-management"]').check({ force: true });
+    cy.get('[data-test="key-next"]').click();
+    cy.get('[data-test="key-label"]').type('Release pipeline');
+    cy.get('[data-test="key-create"]').click();
+
+    cy.get('[data-test="secret-value"]')
+      .invoke('text')
+      .then((secret) => {
+        cy.request({ url: '/api/v1/me', headers: { Authorization: `Bearer ${secret}` } })
+          .its('body')
+          .should('include', { type: 'management', label: 'Release pipeline' });
+        cy.request({
+          url: '/api/v1/me',
+          headers: { Authorization: 'Bearer nope' },
+          failOnStatusCode: false,
+        })
+          .its('status')
+          .should('eq', 401);
+      });
+  });
+
+  it('creates a browser key', () => {
     openKeys();
     cy.get('[data-test="key-new"]').click();
     cy.get('[data-test="key-type-browser"]').check({ force: true });

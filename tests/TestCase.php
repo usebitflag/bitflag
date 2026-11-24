@@ -31,6 +31,11 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Tests that flush Redis must never touch the development stack's database 0, and parallel workers must not share one.
+        // Each worker gets its own database from 5 to 14.
+        config(['database.redis.default.database' => 5 + ((int) (getenv('TEST_TOKEN') ?: 0) % 10)]);
+        $this->app->make('redis')->purge();
+
         config([
             'tenancy.global' => [...config('tenancy.global'), ...self::TEST_TABLES],
             'tenancy.tenant' => [...config('tenancy.tenant'), ...self::TEST_TENANT_TABLES],
