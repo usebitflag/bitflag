@@ -21,4 +21,7 @@ Schedule::command('invitations:expire')->everyFifteenMinutes()->withoutOverlappi
 Schedule::command('identity:prune')->dailyAt('03:30')->withoutOverlapping()->onOneServer();
 Schedule::command('outbox:prune')->dailyAt('03:15')->withoutOverlapping()->onOneServer();
 
+// API key usage: copy the last-use times recorded in Redis into the database.
+Schedule::command('credentials:flush-last-used')->everyMinute()->withoutOverlapping();
+
 Schedule::command('horizon:snapshot')->everyFiveMinutes();

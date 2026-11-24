@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Credentials;
 
+use App\Modules\Credentials\Console\FlushCredentialLastUsedCommand;
+use App\Modules\Credentials\Jobs\RepairCredentialCache;
+use App\Modules\Credentials\Support\CredentialCache;
+use App\Shared\Outbox\ConsumerRegistry;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -14,11 +18,15 @@ final class CredentialsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(CredentialCache::class);
     }
 
     public function boot(): void
     {
-        //
+        $this->app->make(ConsumerRegistry::class)->register(RepairCredentialCache::class);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([FlushCredentialLastUsedCommand::class]);
+        }
     }
 }

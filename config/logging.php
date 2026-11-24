@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Support\RedactSecrets;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -62,6 +63,7 @@ return [
 
         'single' => [
             'driver' => 'single',
+            'processors' => [RedactSecrets::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
@@ -69,6 +71,7 @@ return [
 
         'daily' => [
             'driver' => 'daily',
+            'processors' => [RedactSecrets::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'max_files' => env('LOG_DAILY_DAYS', 14),
@@ -77,6 +80,7 @@ return [
 
         'monthly' => [
             'driver' => 'monthly',
+            'processors' => [RedactSecrets::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'max_files' => 3,
@@ -85,6 +89,7 @@ return [
 
         'slack' => [
             'driver' => 'slack',
+            'processors' => [RedactSecrets::class],
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('LOG_SLACK_USERNAME', env('APP_NAME', 'Laravel')),
             'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
@@ -101,7 +106,7 @@ return [
                 'port' => env('PAPERTRAIL_PORT'),
                 'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
             ],
-            'processors' => [PsrLogMessageProcessor::class],
+            'processors' => [PsrLogMessageProcessor::class, RedactSecrets::class],
         ],
 
         'stderr' => [
@@ -112,11 +117,12 @@ return [
                 'stream' => 'php://stderr',
             ],
             'formatter' => env('LOG_STDERR_FORMATTER'),
-            'processors' => [PsrLogMessageProcessor::class],
+            'processors' => [PsrLogMessageProcessor::class, RedactSecrets::class],
         ],
 
         'syslog' => [
             'driver' => 'syslog',
+            'processors' => [RedactSecrets::class],
             'level' => env('LOG_LEVEL', 'debug'),
             'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
             'replace_placeholders' => true,
@@ -124,6 +130,7 @@ return [
 
         'errorlog' => [
             'driver' => 'errorlog',
+            'processors' => [RedactSecrets::class],
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
