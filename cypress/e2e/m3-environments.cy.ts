@@ -78,3 +78,39 @@ describe('environment settings', () => {
     cy.get('[data-test="origin-input"]').should('not.exist');
   });
 });
+
+describe('archiving and deleting an environment', () => {
+  beforeEach(() => cy.resetDemo());
+
+  it('archives with the key typed and the environment leaves the list of active ones', () => {
+    cy.signInAs('maya@acme.dev');
+    cy.visit('/acme/storefront/development/settings/environments/staging/settings');
+
+    cy.get('[data-test="archive-open"]').click();
+    cy.get('[data-test="archive-confirm"]').should('be.disabled');
+    cy.get('[data-test="confirm-input"]').type('staging');
+    cy.get('[data-test="archive-confirm"]').click();
+
+    cy.location('pathname').should('eq', '/acme/storefront/development/settings/environments');
+    cy.get('[data-test="environment-row"]').should('have.length', 2);
+  });
+
+  it('deletes a never-published environment without keys, and lists blockers for a used one', () => {
+    cy.signInAs('maya@acme.dev');
+    cy.visit('/acme/storefront/development/settings/environments');
+    cy.get('[data-test="environment-new"]').click();
+    cy.get('[data-test="environment-name"]').type('Scratch');
+    cy.get('[data-test="environment-create"]').click();
+
+    cy.visit('/acme/storefront/development/settings/environments/scratch/settings');
+    cy.get('[data-test="delete-open"]').click();
+    cy.get('[data-test="confirm-input"]').type('scratch');
+    cy.get('[data-test="delete-confirm"]').click();
+    cy.location('pathname').should('eq', '/acme/storefront/development/settings/environments');
+    cy.contains('Scratch').should('not.exist');
+
+    cy.visit('/acme/storefront/development/settings/environments/production/settings');
+    cy.get('[data-test="delete-open"]').click();
+    cy.get('[data-test="delete-blockers"]').should('contain', 'Published revisions');
+  });
+});

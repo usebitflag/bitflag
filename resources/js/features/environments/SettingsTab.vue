@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Button from '../../components/ui/Button.vue';
 import Card from '../../components/ui/Card.vue';
 import Field from '../../components/ui/Field.vue';
@@ -9,7 +9,9 @@ import Input from '../../components/ui/Input.vue';
 import Select from '../../components/ui/Select.vue';
 import { useDirtyForm } from '../../composables/useDirtyForm';
 import type { SharedProps } from '../../types/shared';
+import ArchiveEnvironmentDialog from './ArchiveEnvironmentDialog.vue';
 import ColorPicker from './ColorPicker.vue';
+import DeleteEnvironmentDialog from './DeleteEnvironmentDialog.vue';
 import OriginListField from './OriginListField.vue';
 import ProtectionToggles from './ProtectionToggles.vue';
 import type { EnvironmentRow } from './types';
@@ -21,7 +23,12 @@ const props = defineProps<{
   approvalsAvailable: boolean;
   colors: string[];
   snapshotAges: number[];
+  deleteBlockers: string[];
+  activeEnvironmentCount: number;
 }>();
+
+const archiving = ref(false);
+const deleting = ref(false);
 
 function values() {
   return {
@@ -181,6 +188,35 @@ function save(): void {
       </Field>
     </Card>
 
+    <Card v-if="canManage && !archived" title="Archive or delete">
+      <div class="flex flex-col gap-3 text-sm">
+        <p class="text-text/70">
+          Environments with published revisions or keys can't be deleted. Archive them instead.
+        </p>
+        <p v-if="activeEnvironmentCount < 2" class="text-text/62" data-test="last-environment">
+          This is the project's last active environment, so it can't be archived or deleted.
+        </p>
+        <div class="flex gap-2">
+          <Button
+            type="button"
+            variant="destructive"
+            :disabled="activeEnvironmentCount < 2"
+            data-test="archive-open"
+            @click="archiving = true"
+            >Archive…</Button
+          >
+          <Button
+            type="button"
+            variant="destructive"
+            :disabled="activeEnvironmentCount < 2"
+            data-test="delete-open"
+            @click="deleting = true"
+            >Delete…</Button
+          >
+        </div>
+      </div>
+    </Card>
+
     <div v-if="!disabled" class="flex items-center gap-3">
       <Button
         type="submit"
@@ -202,5 +238,18 @@ function save(): void {
         >Unsaved changes</span
       >
     </div>
+    <ArchiveEnvironmentDialog
+      v-model:open="archiving"
+      :environment="environment"
+      :action="`${action.replace(/\/settings$/, '')}/archive`"
+      :errors="errors"
+    />
+    <DeleteEnvironmentDialog
+      v-model:open="deleting"
+      :environment="environment"
+      :action="action.replace(/\/settings$/, '')"
+      :blockers="deleteBlockers"
+      :errors="errors"
+    />
   </form>
 </template>

@@ -14,6 +14,7 @@ require_once __DIR__.'/Support/two_factor.php';
 require_once __DIR__.'/Support/invitations.php';
 require_once __DIR__.'/Support/portal.php';
 require_once __DIR__.'/Support/credentials.php';
+require_once __DIR__.'/Support/environments.php';
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)

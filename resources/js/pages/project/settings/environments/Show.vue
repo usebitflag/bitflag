@@ -20,6 +20,8 @@ const props = defineProps<{
   keys: KeyRow[];
   canManageKeys: boolean;
   allowedOrigins: string[];
+  deleteBlockers: string[];
+  activeEnvironmentCount: number;
   defaultMaxSnapshotAgeSeconds: number | null;
   canManage: boolean;
   approvalsAvailable: boolean;
@@ -84,6 +86,8 @@ const tabs = computed(() =>
       :approvals-available="approvalsAvailable"
       :colors="colors"
       :snapshot-ages="snapshotAges"
+      :delete-blockers="deleteBlockers"
+      :active-environment-count="activeEnvironmentCount"
     />
   </ProjectSettingsLayout>
 </template>

@@ -6,15 +6,20 @@ namespace App\Modules\Environments\Http\Controllers\Web;
 
 use App\Http\Middleware\ResolvePortalScope;
 use App\Modules\Credentials\Queries\EnvironmentCredentials;
+use App\Modules\Environments\Actions\ArchiveEnvironment;
 use App\Modules\Environments\Actions\CreateEnvironment;
+use App\Modules\Environments\Actions\DeleteEnvironment;
 use App\Modules\Environments\Actions\ReorderEnvironments;
 use App\Modules\Environments\Actions\UpdateEnvironmentSettings;
+use App\Modules\Environments\Data\ArchiveEnvironmentData;
 use App\Modules\Environments\Data\CreateEnvironmentData;
 use App\Modules\Environments\Data\ReorderEnvironmentsData;
 use App\Modules\Environments\Data\UpdateEnvironmentSettingsData;
 use App\Modules\Environments\Http\Requests\CreateEnvironmentRequest;
 use App\Modules\Environments\Http\Requests\UpdateEnvironmentSettingsRequest;
+use App\Modules\Environments\Queries\EnvironmentDeleteBlockers;
 use App\Modules\Environments\Queries\EnvironmentHistoryQuery;
+use App\Modules\Environments\Queries\EnvironmentLookup;
 use App\Modules\Environments\Queries\EnvironmentSettingsList;
 use App\Shared\Actors\Actor;
 use App\Shared\Capabilities\Capability;
@@ -97,7 +102,7 @@ final class EnvironmentSettingsController
     }
 
     /** GET .../settings/environments/{target}/{tab?} */
-    public function show(Request $request, EnvironmentSettingsList $environments, EnvironmentHistoryQuery $history, Entitlements $entitlements, EnvironmentCredentials $credentials): Response
+    public function show(Request $request, EnvironmentSettingsList $environments, EnvironmentHistoryQuery $history, Entitlements $entitlements, EnvironmentCredentials $credentials, EnvironmentDeleteBlockers $blockers): Response
     {
         // Read by name: route parameters reach controller arguments in route order, and the portal scope comes first.
         $target = $request->route('target');
@@ -116,6 +121,8 @@ final class EnvironmentSettingsController
             'environment' => $this->display($row),
             'tab' => $tab,
             'history' => $tab === 'history' ? $history->for($row['id']) : [],
+            'deleteBlockers' => $tab === 'settings' ? $blockers->for($row['id']) : [],
+            'activeEnvironmentCount' => $tab === 'settings' ? count($environments->activeKeysFor($projectId)) : 0,
             'keys' => $tab === 'keys' ? $credentials->for($row['id']) : [],
             'canManageKeys' => Gate::allows(Capability::CredentialsManage->value, $scope),
             'allowedOrigins' => $row['allowedOrigins'],
@@ -125,6 +132,28 @@ final class EnvironmentSettingsController
             'snapshotAges' => UpdateEnvironmentSettings::SNAPSHOT_AGES,
             'colors' => ['slate', 'lilac', 'violet', 'indigo', 'ink'],
         ]);
+    }
+
+    /** POST .../settings/environments/{target}/archive */
+    public function archive(Request $request, Actor $actor, ArchiveEnvironment $archive, EnvironmentSettingsList $environments): RedirectResponse
+    {
+        [$organizationId, $projectId, $row] = $this->targetRow($request, $environments);
+        $request->validate(['confirm' => ['required', 'string', 'max:40']]);
+
+        $archive->handle($actor, new ArchiveEnvironmentData($organizationId, $projectId, $row['id'], $request->string('confirm')->toString()));
+
+        return $this->afterRemoval($request, $row['key'], 'Environment archived.');
+    }
+
+    /** DELETE .../settings/environments/{target} */
+    public function destroy(Request $request, Actor $actor, DeleteEnvironment $delete, EnvironmentSettingsList $environments): RedirectResponse
+    {
+        [$organizationId, $projectId, $row] = $this->targetRow($request, $environments);
+        $request->validate(['confirm' => ['required', 'string', 'max:40']]);
+
+        $delete->handle($actor, new ArchiveEnvironmentData($organizationId, $projectId, $row['id'], $request->string('confirm')->toString()));
+
+        return $this->afterRemoval($request, $row['key'], 'Environment deleted.');
     }
 
     /** PUT .../settings/environments/{target}/settings */
@@ -160,6 +189,36 @@ final class EnvironmentSettingsController
         // The key is part of the address, so go to the page at its new address.
         return redirect()->route('project.settings.environments.show', [...$this->routeParameters($request), 'target' => strtolower(trim($request->string('key')->toString())), 'tab' => 'settings'])
             ->with('toast', ['message' => 'Environment saved.', 'tone' => 'neutral']);
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: EnvironmentRow}
+     */
+    private function targetRow(Request $request, EnvironmentSettingsList $environments): array
+    {
+        [$organizationId, $projectId] = $this->project($request);
+        $target = $request->route('target');
+        abort_unless(is_string($target), 404);
+        $row = $environments->byKey($projectId, $target);
+        abort_if($row === null, 404);
+
+        return [$organizationId, $projectId, $row];
+    }
+
+    /**
+     * Back to the list. When the environment in the address is the one that went away, the list opens under another one.
+     */
+    private function afterRemoval(Request $request, string $removedKey, string $message): RedirectResponse
+    {
+        $parameters = $this->routeParameters($request);
+
+        if ($parameters['environment'] === $removedKey) {
+            [$organizationId, $projectId] = $this->project($request);
+            $remaining = app(EnvironmentLookup::class)->activeFor($organizationId, $projectId);
+            $parameters['environment'] = $remaining[0]->key ?? $parameters['environment'];
+        }
+
+        return redirect()->route('project.settings.environments', $parameters)->with('toast', ['message' => $message, 'tone' => 'neutral']);
     }
 
     /**

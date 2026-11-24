@@ -81,6 +81,21 @@ final class EnvironmentCredentials
     }
 
     /**
+     * The IDs of the environment's keys that still authenticate (active or rotating).
+     *
+     * @return list<string>
+     */
+    public function workingIds(string $environmentId): array
+    {
+        return array_values(Credential::query()
+            ->where('environment_id', $environmentId)
+            ->whereIn('status', [CredentialStatus::Active->value, CredentialStatus::Rotating->value])
+            ->get(['id'])
+            ->map(static fn (Credential $credential): string => $credential->id)
+            ->all());
+    }
+
+    /**
      * Whether the credential belongs to the environment.
      */
     public function inEnvironment(string $environmentId, string $credentialId): bool
