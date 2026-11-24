@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Support\MaskSecretsInLogs;
 use App\Modules\Credentials\Support\RedactSecrets;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -63,7 +64,7 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
@@ -71,7 +72,7 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'max_files' => env('LOG_DAILY_DAYS', 14),
@@ -80,7 +81,7 @@ return [
 
         'monthly' => [
             'driver' => 'monthly',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'max_files' => 3,
@@ -89,7 +90,7 @@ return [
 
         'slack' => [
             'driver' => 'slack',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('LOG_SLACK_USERNAME', env('APP_NAME', 'Laravel')),
             'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
@@ -122,7 +123,7 @@ return [
 
         'syslog' => [
             'driver' => 'syslog',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'level' => env('LOG_LEVEL', 'debug'),
             'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
             'replace_placeholders' => true,
@@ -130,7 +131,7 @@ return [
 
         'errorlog' => [
             'driver' => 'errorlog',
-            'processors' => [RedactSecrets::class],
+            'tap' => [MaskSecretsInLogs::class],
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],

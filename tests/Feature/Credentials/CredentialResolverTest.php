@@ -12,6 +12,7 @@ use App\Modules\Credentials\Domain\TokenGenerator;
 use App\Modules\Credentials\Jobs\RepairCredentialCache;
 use App\Modules\Credentials\Models\Credential;
 use App\Modules\Credentials\Queries\CredentialResolver;
+use App\Modules\Credentials\Queries\PepperUsage;
 use App\Modules\Credentials\Support\CredentialCache;
 use App\Modules\Credentials\Support\CredentialSummaries;
 use App\Modules\Environments\Models\Environment;
@@ -259,4 +260,14 @@ it('isolates credentials by organization', function () {
 
         return Credential::factory()->create(['environment_id' => $environment->id]);
     });
+});
+
+it('reports how many working credentials use each pepper', function () {
+    make_credential($this->p, ['pepper_id' => 1]);
+    make_credential($this->p, ['pepper_id' => 1]);
+    make_credential($this->p, ['pepper_id' => 2]);
+    make_credential($this->p, ['pepper_id' => 1, 'status' => CredentialStatus::Revoked]);
+
+    expect(app(PepperUsage::class)->counts())->toBe([1 => 2, 2 => 1]);
+    $this->artisan('credentials:pepper-usage')->assertSuccessful();
 });

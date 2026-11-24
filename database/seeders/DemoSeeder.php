@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Database\Seeders\Demo\CredentialsSeeder;
 use Database\Seeders\Demo\EnvironmentsSeeder;
 use Database\Seeders\Demo\InvitationsSeeder;
 use Database\Seeders\Demo\OrganizationsSeeder;
@@ -32,6 +33,7 @@ final class DemoSeeder extends Seeder
             ProjectsSeeder::class,
             EnvironmentsSeeder::class,
             UsersSeeder::class,
+            CredentialsSeeder::class,
             InvitationsSeeder::class,
             StaffSeeder::class,
         ]);

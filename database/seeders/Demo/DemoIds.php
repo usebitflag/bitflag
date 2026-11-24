@@ -28,6 +28,8 @@ final class DemoIds
 
     private const INVITATION = 9;
 
+    private const CREDENTIAL = 10;
+
     public static function organization(int $number): string
     {
         return self::make(self::ORGANIZATION, $number);
@@ -66,6 +68,11 @@ final class DemoIds
     public static function invitation(int $number): string
     {
         return self::make(self::INVITATION, $number);
+    }
+
+    public static function credential(int $number): string
+    {
+        return self::make(self::CREDENTIAL, $number);
     }
 
     public static function staff(int $number): string
