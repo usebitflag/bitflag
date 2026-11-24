@@ -14,7 +14,7 @@ describe('sessions', () => {
     cy.visit('/acme/storefront/development/overview');
     cy.wait('@remember');
     // Eight days later the session is past its seven-day idle limit.
-    cy.freezeServerClock('2026-11-02T12:00:00Z');
+    cy.freezeServerClock(new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString());
     cy.get('[data-test="nav-item"]').first().click();
     cy.contains('Your session ended').should('be.visible');
     cy.freezeServerClock(null);

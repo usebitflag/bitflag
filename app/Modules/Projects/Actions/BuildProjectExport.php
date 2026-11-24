@@ -29,12 +29,12 @@ final class BuildProjectExport
         private readonly ClockInterface $clock,
     ) {}
 
-    public function handle(string $organizationId, string $exportId): void
+    public function handle(string $organizationId, string $exportId, bool $resume = false): void
     {
-        $this->tenant->run($organizationId, function () use ($organizationId, $exportId): void {
+        $this->tenant->run($organizationId, function () use ($organizationId, $exportId, $resume): void {
             $export = ProjectExport::query()->find($exportId);
 
-            if ($export === null || $export->status !== ExportStatus::Queued) {
+            if ($export === null || ($export->status !== ExportStatus::Queued && ! ($resume && $export->status === ExportStatus::Running))) {
                 return;
             }
 

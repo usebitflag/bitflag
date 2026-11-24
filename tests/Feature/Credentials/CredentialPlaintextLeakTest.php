@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Domain\CredentialType;
 use App\Modules\Credentials\Domain\TokenGenerator;
 use App\Modules\Credentials\Queries\CredentialResolver;
 use App\Modules\Credentials\Support\MaskSecretsInLogs;
@@ -40,6 +41,20 @@ beforeEach(function () {
 });
 
 afterEach(fn () => @unlink($this->logFile));
+
+it('masks credentials when Laravel falls back to the emergency logger', function () {
+    $secret = (new TokenGenerator)->generate(CredentialType::Server, 'dev')->secret;
+    config([
+        'logging.channels.emergency.path' => $this->logFile,
+        'logging.channels.broken' => ['driver' => 'does-not-exist'],
+    ]);
+    Log::forgetChannel('broken');
+
+    Log::channel('broken')->error("emergency {$secret}");
+
+    $logs = (string) file_get_contents($this->logFile);
+    expect($logs)->toContain('emergency '.RedactSecrets::MASK)->not->toContain($secret);
+});
 
 /**
  * Every text, JSON and binary column of every table, searched for each needle.

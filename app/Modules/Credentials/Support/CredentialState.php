@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * What every change to a credential's state does once it commits: write the new summary over the cache entry, and leave the
- * outbox message that repeats the write from MySQL if this process dies first. Call `afterChange` inside the transaction that
- * changed the credential; the cache is written after the commit.
+ * outbox message that repeats the write from MySQL if this process dies first. Call `overwriteAfterCommit` inside the
+ * transaction that changed the credential; the cache is written after the commit.
  */
 final class CredentialState
 {

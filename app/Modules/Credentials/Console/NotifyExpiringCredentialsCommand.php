@@ -17,10 +17,16 @@ final class NotifyExpiringCredentialsCommand extends Command
     public function handle(DueCredentials $due, NotifyExpiringCredentials $notify): int
     {
         $count = 0;
+        $afterId = null;
 
-        foreach ($due->expiringWithin(NotifyExpiringCredentials::DAYS_AHEAD) as $row) {
-            $count += $notify->handle($row['organizationId'], $row['credentialId']);
-        }
+        do {
+            $rows = $due->expiringWithin(NotifyExpiringCredentials::DAYS_AHEAD, afterId: $afterId);
+
+            foreach ($rows as $row) {
+                $count += $notify->handle($row['organizationId'], $row['credentialId']);
+                $afterId = $row['credentialId'];
+            }
+        } while ($rows !== []);
 
         $this->info("Announced {$count} expiring credentials.");
 

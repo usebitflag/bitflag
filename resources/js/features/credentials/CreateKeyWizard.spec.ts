@@ -26,8 +26,8 @@ describe('CreateKeyWizard', () => {
 
   it('offers the three key types with their default scopes', () => {
     expect(KEY_KINDS.map((kind) => [kind.type, kind.defaults])).toEqual([
-      ['server', ['snapshot:read']],
-      ['browser', ['snapshot:read']],
+      ['server', ['snapshot:read', 'evaluate']],
+      ['browser', ['snapshot:read', 'events:write']],
       ['management', ['flags:read']],
     ]);
   });
@@ -53,6 +53,7 @@ describe('CreateKeyWizard', () => {
       '[data-test="scope-snapshot:read"] input',
     )!;
     scope.click();
+    body().querySelector<HTMLInputElement>('[data-test="scope-evaluate"] input')!.click();
     await flushPromises();
     expect(create.disabled).toBe(true);
   });

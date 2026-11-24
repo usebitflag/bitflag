@@ -38,9 +38,15 @@ final class DueCredentials
      *
      * @return list<array{organizationId: string, credentialId: string}>
      */
-    public function expiringWithin(int $days, int $limit = 1000): array
+    public function expiringWithin(int $days, int $limit = 1000, ?string $afterId = null): array
     {
-        return $this->rows(fn ($query) => $query->where('status', CredentialStatus::Active->value)->where('expires_at', '>', $this->clock->now())->where('expires_at', '<=', $this->clock->now()->modify("+{$days} days")), $limit);
+        return $this->rows(function (Builder $query) use ($days, $afterId): Builder {
+            $query->where('status', CredentialStatus::Active->value)
+                ->where('expires_at', '>', $this->clock->now())
+                ->where('expires_at', '<=', $this->clock->now()->modify("+{$days} days"));
+
+            return $afterId === null ? $query : $query->where('id', '>', $afterId);
+        }, $limit);
     }
 
     /**

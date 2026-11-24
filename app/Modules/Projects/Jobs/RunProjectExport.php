@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Projects\Jobs;
 
 use App\Modules\Projects\Actions\BuildProjectExport;
+use App\Modules\Projects\Actions\FailProjectExport;
 use App\Shared\Tenancy\RestoreTenantContext;
 use App\Shared\Tenancy\TenantAware;
 use Illuminate\Bus\Queueable;
@@ -12,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Throwable;
 
 /**
  * Builds a requested project export in the background, on the `exports` queue.
@@ -20,9 +22,11 @@ final class RunProjectExport implements ShouldQueue, TenantAware
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
+    public int $tries = 2;
 
     public int $timeout = 300;
+
+    public bool $failOnTimeout = true;
 
     public function __construct(private readonly string $organization, private readonly string $exportId)
     {
@@ -44,6 +48,11 @@ final class RunProjectExport implements ShouldQueue, TenantAware
 
     public function handle(BuildProjectExport $build): void
     {
-        $build->handle($this->organization, $this->exportId);
+        $build->handle($this->organization, $this->exportId, $this->attempts() > 1);
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        app(FailProjectExport::class)->handle($this->organization, $this->exportId);
     }
 }

@@ -31,6 +31,16 @@ final class ProjectPurgers
      */
     public function all(): array
     {
-        return array_map(fn (string $class): ProjectPurger => $this->container->make($class), $this->classes);
+        $purgers = [];
+
+        foreach ($this->classes as $class) {
+            $purger = $this->container->make($class);
+
+            if ($purger instanceof ProjectPurger) {
+                $purgers[] = $purger;
+            }
+        }
+
+        return $purgers;
     }
 }

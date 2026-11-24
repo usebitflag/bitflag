@@ -32,7 +32,7 @@ export const KEY_KINDS: KeyKind[] = [
       },
       { value: 'events:write', label: 'Send events', help: 'Report evaluation summaries.' },
     ],
-    defaults: ['snapshot:read'],
+    defaults: ['snapshot:read', 'evaluate'],
   },
   {
     type: 'browser',
@@ -44,7 +44,7 @@ export const KEY_KINDS: KeyKind[] = [
       { value: 'snapshot:read', label: 'Read snapshots', help: 'Download the public snapshot.' },
       { value: 'events:write', label: 'Send events', help: 'Report evaluation summaries.' },
     ],
-    defaults: ['snapshot:read'],
+    defaults: ['snapshot:read', 'events:write'],
   },
   {
     type: 'management',

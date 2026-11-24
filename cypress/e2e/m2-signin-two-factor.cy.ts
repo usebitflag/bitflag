@@ -3,7 +3,7 @@ import { selectors } from '../support/selectors';
 const { login } = selectors;
 
 describe('two-factor sign-in', () => {
-  before(() => cy.resetDemo());
+  beforeEach(() => cy.resetDemo());
 
   it('turns on two-factor, shows the recovery codes once, and asks for a code at the next sign-in', () => {
     cy.signInAs('priya@acme.dev');

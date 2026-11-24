@@ -19,6 +19,7 @@ use App\Shared\Errors\AuthorizationDenied;
 use App\Shared\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Asks for a JSON export of a project and queues it. The file holds the project's settings and what the modules register,
@@ -29,6 +30,7 @@ final class ExportProject
     public function __construct(
         private readonly AuditRecorder $audit,
         private readonly TenantContext $tenant,
+        private readonly FailProjectExport $fail,
     ) {}
 
     /**
@@ -65,7 +67,15 @@ final class ExportProject
 
             $this->audit->record($actor, 'project.exported', new AuditTarget('project', $project->id, $project->name), ['export_id' => $export->id], projectId: $project->id);
 
-            DB::afterCommit(static fn () => RunProjectExport::dispatch($data->organizationId, $export->id));
+            DB::afterCommit(function () use ($data, $export): void {
+                try {
+                    RunProjectExport::dispatch($data->organizationId, $export->id);
+                } catch (Throwable $exception) {
+                    $this->fail->handle($data->organizationId, $export->id);
+
+                    throw $exception;
+                }
+            });
 
             return $export->id;
         }));

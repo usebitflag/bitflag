@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Credentials\Domain\CredentialType;
 use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Modules\Organizations\Models\Organization;
+use App\Modules\Projects\Actions\BuildProjectExport;
 use App\Modules\Projects\Actions\ExpireProjectExport;
 use App\Modules\Projects\Actions\ExportProject;
 use App\Modules\Projects\Data\ExportProjectData;
@@ -113,6 +114,18 @@ describe('exporting a project', function () {
         $row = export_row(request_export($this->p));
 
         expect($row->status)->toBe(ExportStatus::Failed)->and($row->error_code)->toBe('export_failed')->and($row->file_path)->toBeNull();
+    });
+
+    it('resumes an export left running by an interrupted worker', function () {
+        $export = Tenancy::crossTenant('inspect', fn () => ProjectExport::query()->create([
+            'organization_id' => $this->p['organization']->id,
+            'project_id' => $this->p['project']->id,
+            'status' => ExportStatus::Running,
+        ]));
+
+        app(BuildProjectExport::class)->handle($this->p['organization']->id, $export->id, resume: true);
+
+        expect(export_row($export->id)->status)->toBe(ExportStatus::Ready);
     });
 
     it('deletes the file after 24 hours and marks the export expired', function () {
