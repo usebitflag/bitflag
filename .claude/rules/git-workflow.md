@@ -5,7 +5,7 @@
 - Never commit or push directly to `main`, not even for a one-line fix or a docs edit. Create a branch (`feat/…`, `fix/…`, `chore/…`, `docs/…`), push it, and open a pull request against `main`.
 - One logical change per pull request. Fill in the PR template, including the "Contracts touched" checklist.
 - The checks run on your machine, in the `pre-push` hook, because the organization is on the GitHub Free plan and its Actions minutes are limited. CI (`ci`, `gitleaks`) runs after a merge to `main` and by hand from the Actions tab, not on pull requests. Do not push with `SKIP_CHECKS=1` unless the push is only a draft you will fix. Merge with **squash** so history stays linear; the branch is deleted on merge.
-- Run `git config core.hooksPath .githooks` once per clone. The `pre-push` hook blocks pushes to `main`, then runs `scripts/check.sh` in Sail and a gitleaks scan (documentation-only pushes skip `check.sh`). A red `ci` run on `main` is a mistake to fix at once.
+- Run `git config core.hooksPath .githooks` once per clone. For SSH remotes, also run `git config core.sshCommand 'ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=60'` so the remote connection stays open during the end-to-end suite. The `pre-push` hook blocks pushes to `main`, then mirrors the application, security, production-build and end-to-end checks from Actions before running gitleaks (documentation-only pushes skip the application checks). A red `ci` run on `main` is a mistake to fix at once.
 - Branch protection is not available yet (the organization is on the GitHub Free plan), so nothing on GitHub blocks a direct push. The `main-guard` workflow fails when a commit reaches `main` without a pull request; treat a red `main-guard` as a mistake to fix.
 
 ## Commits

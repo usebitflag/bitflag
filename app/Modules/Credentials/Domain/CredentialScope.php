@@ -39,7 +39,8 @@ enum CredentialScope: string
     public static function defaults(CredentialType $type): array
     {
         return match ($type) {
-            CredentialType::Server, CredentialType::Browser => [self::SnapshotRead],
+            CredentialType::Server => [self::SnapshotRead, self::Evaluate],
+            CredentialType::Browser => [self::SnapshotRead, self::EventsWrite],
             CredentialType::Management => [self::FlagsRead],
             CredentialType::Personal => [self::FlagsRead, self::FlagsWrite],
         };

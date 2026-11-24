@@ -1,5 +1,5 @@
 describe('password reset', () => {
-  before(() => cy.resetDemo());
+  beforeEach(() => cy.resetDemo());
   beforeEach(() => cy.clearMailbox());
 
   it('answers the same for a known and an unknown address', () => {

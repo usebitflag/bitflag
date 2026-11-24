@@ -4,15 +4,15 @@ describe('personal tokens', () => {
   it('makes a token after confirming the password, shows it once and revokes it', () => {
     cy.signInAs('jon@acme.dev');
     cy.visit('/acme/storefront/development/settings/tokens');
-    cy.get('[data-test="no-management-keys"]').should('be.visible');
+    cy.get('[data-test="management-key-row"]').should('contain', 'Release pipeline');
 
     cy.get('[data-test="token-new"]').click();
-    cy.get('[data-test="token-label"]').type('Laptop CLI');
-    cy.get('[data-test="token-password"]').type('wrong password');
+    cy.get('[data-test="token-label"] input').type('Laptop CLI');
+    cy.get('[data-test="token-password"] input').type('wrong password');
     cy.get('[data-test="token-create"]').click();
     cy.contains('That is not your password.').should('be.visible');
 
-    cy.get('[data-test="token-password"]').clear().type('password');
+    cy.get('[data-test="token-password"] input').clear().type('password');
     cy.get('[data-test="token-create"]').click();
     cy.get('[data-test="secret-value"]')
       .invoke('text')

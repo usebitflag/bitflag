@@ -2,7 +2,7 @@ const email = 'nia@startup.dev';
 const password = 'correct horse battery';
 
 describe('sign-up to a first project', () => {
-  before(() => cy.resetDemo());
+  beforeEach(() => cy.resetDemo());
   beforeEach(() => cy.clearMailbox());
 
   it('checks the password as it is typed', () => {

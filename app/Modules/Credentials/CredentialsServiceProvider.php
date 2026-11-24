@@ -12,6 +12,7 @@ use App\Modules\Credentials\Console\PepperUsageCommand;
 use App\Modules\Credentials\Jobs\RepairCredentialCache;
 use App\Modules\Credentials\Listeners\RevokeTokensWhenMemberLeaves;
 use App\Modules\Credentials\Support\CredentialCache;
+use App\Modules\Credentials\Support\CredentialSafeLogManager;
 use App\Modules\Organizations\Events\MemberRemovedFromOrganization;
 use App\Modules\Organizations\Events\MemberRemovedFromProject;
 use App\Shared\Audit\AuditCatalog;
@@ -27,6 +28,7 @@ final class CredentialsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton('log', fn () => new CredentialSafeLogManager($this->app));
         $this->app->singleton(CredentialCache::class);
     }
 

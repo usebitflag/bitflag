@@ -226,6 +226,22 @@ describe('when the person leaves', function () {
 });
 
 describe('expiring credentials', function () {
+    it('paginates past credentials that earlier runs already announced', function () {
+        $p = person(OrgRole::Member, ProjectRole::Owner);
+
+        foreach (range(1, 3) as $number) {
+            make_credential($p, ['label' => "Key {$number}", 'expires_at' => now()->addDays(5)]);
+        }
+
+        $due = app(DueCredentials::class);
+        $first = $due->expiringWithin(7, 2);
+        $second = $due->expiringWithin(7, 2, $first[1]['credentialId']);
+
+        expect($first)->toHaveCount(2)
+            ->and($second)->toHaveCount(1)
+            ->and($second[0]['credentialId'])->not->toBeIn(array_column($first, 'credentialId'));
+    });
+
     it('announces a credential expiring within a week once, and nothing else', function () {
         $p = person(OrgRole::Member, ProjectRole::Owner);
         $soon = issue_token($p, ['ttlDays' => 30]);

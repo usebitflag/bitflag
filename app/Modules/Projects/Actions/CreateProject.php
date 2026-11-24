@@ -81,9 +81,6 @@ final class CreateProject
             throw new AuthorizationDenied('This organization is not active.');
         }
 
-        $this->limits->handle($data->organizationId, LimitKey::Projects);
-        $this->limits->handle($data->organizationId, LimitKey::EnvironmentsPerProject, null, count($environments));
-
         try {
             return $this->tenant->run($data->organizationId, fn (): CreateProjectResult => DB::transaction(
                 fn (): CreateProjectResult => $this->create($actor, $userId, $data, $name, $key, $environments),
@@ -98,6 +95,9 @@ final class CreateProject
      */
     private function create(Actor $actor, string $userId, CreateProjectData $data, string $name, string $key, array $environments): CreateProjectResult
     {
+        $this->limits->handle($data->organizationId, LimitKey::Projects);
+        $this->limits->handle($data->organizationId, LimitKey::EnvironmentsPerProject, null, count($environments));
+
         $project = Project::query()->create([
             'organization_id' => $data->organizationId,
             'name' => $name,

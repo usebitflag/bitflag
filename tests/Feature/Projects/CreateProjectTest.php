@@ -21,6 +21,7 @@ use App\Shared\Plans\LimitKey;
 use App\Shared\Plans\PlanLimitReached;
 use App\Shared\Tenancy\Tenancy;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 function new_project(array $p, array $change = [])
@@ -186,7 +187,7 @@ it('checks the plan limits before it writes anything', function () {
 
         public function handle(string $organizationId, LimitKey $limit, ?string $projectId = null, int $adding = 1): void
         {
-            $this->calls[] = [$limit, $adding];
+            $this->calls[] = [$limit, $adding, DB::transactionLevel() > 0];
 
             if ($limit === LimitKey::EnvironmentsPerProject) {
                 throw new PlanLimitReached($limit);
@@ -195,7 +196,7 @@ it('checks the plan limits before it writes anything', function () {
     });
 
     expect(fn () => new_project($p))->toThrow(PlanLimitReached::class);
-    expect($calls->getArrayCopy())->toBe([[LimitKey::Projects, 1], [LimitKey::EnvironmentsPerProject, 3]])
+    expect($calls->getArrayCopy())->toBe([[LimitKey::Projects, 1, true], [LimitKey::EnvironmentsPerProject, 3, true]])
         ->and(projects_created($p))->toBe(0);
 });
 

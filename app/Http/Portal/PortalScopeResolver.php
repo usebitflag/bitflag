@@ -10,7 +10,8 @@ use App\Modules\Projects\Queries\ProjectLookup;
 
 /**
  * Resolves portal URL segments (organization slug, project key, environment key) to a scope for one person. Returns null
- * when anything is missing, archived, or the person is not a member, so a caller cannot tell those cases apart.
+ * when anything is missing, the environment is archived, or the person is not a member, so a caller cannot tell those cases
+ * apart. Archived and deletion-scheduled projects still resolve so the portal can show them read-only.
  */
 final class PortalScopeResolver
 {

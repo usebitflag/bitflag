@@ -7,12 +7,12 @@ describe('environments', () => {
     cy.get('[data-test="environment-row"]').should('have.length', 3);
 
     cy.get('[data-test="environment-new"]').click();
-    cy.get('[data-test="environment-name"]').type('Pre production');
-    cy.get('[data-test="environment-key"]').should('have.value', 'pre-production');
-    cy.get('[data-test="environment-key"]').clear().type('staging');
+    cy.get('[data-test="environment-name"] input').type('Pre production');
+    cy.get('[data-test="environment-key"] input').should('have.value', 'pre-production');
+    cy.get('[data-test="environment-key"] input').clear().type('staging');
     cy.contains('Already used in this project').should('be.visible');
     cy.get('[data-test="environment-create"]').should('be.disabled');
-    cy.get('[data-test="environment-key"]').clear().type('qa');
+    cy.get('[data-test="environment-key"] input').clear().type('qa');
     cy.get('[data-test="environment-position"]').select('After Staging');
     cy.get('[data-test="color-indigo"]').check({ force: true });
     cy.get('[data-test="environment-create"]').click();
@@ -52,11 +52,11 @@ describe('environment settings', () => {
     cy.visit('/acme/storefront/development/settings/environments/staging/settings');
 
     cy.get('[data-test="origins-empty"]').should('be.visible');
-    cy.get('[data-test="origin-input"]').type('https://app.example.com/path{enter}');
+    cy.get('[data-test="origin-input"] input').type('https://app.example.com/path{enter}');
     cy.get('[data-test="origin-error"]').should('contain', 'scheme://host');
-    cy.get('[data-test="origin-input"]').clear().type('http://example.com{enter}');
+    cy.get('[data-test="origin-input"] input').clear().type('http://example.com{enter}');
     cy.get('[data-test="origin-error"]').should('contain', 'https');
-    cy.get('[data-test="origin-input"]').clear().type('HTTPS://App.Example.com{enter}');
+    cy.get('[data-test="origin-input"] input').clear().type('HTTPS://App.Example.com{enter}');
     cy.get('[data-test="origin-chip"]').should('contain', 'https://app.example.com');
 
     cy.get('[data-test="protection-approval"] [data-test="switch-root"]').should('be.disabled');
@@ -99,7 +99,7 @@ describe('archiving and deleting an environment', () => {
     cy.signInAs('maya@acme.dev');
     cy.visit('/acme/storefront/development/settings/environments');
     cy.get('[data-test="environment-new"]').click();
-    cy.get('[data-test="environment-name"]').type('Scratch');
+    cy.get('[data-test="environment-name"] input').type('Scratch');
     cy.get('[data-test="environment-create"]').click();
 
     cy.visit('/acme/storefront/development/settings/environments/scratch/settings');
@@ -111,6 +111,6 @@ describe('archiving and deleting an environment', () => {
 
     cy.visit('/acme/storefront/development/settings/environments/production/settings');
     cy.get('[data-test="delete-open"]').click();
-    cy.get('[data-test="delete-blockers"]').should('contain', 'Published revisions');
+    cy.get('[data-test="delete-blockers"]').should('contain', '1 active SDK key');
   });
 });
