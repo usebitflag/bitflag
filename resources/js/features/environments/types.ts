@@ -24,3 +24,20 @@ export interface HistoryEntry {
   reason: string | null;
   occurredAt: number;
 }
+
+export interface KeyRow {
+  id: string;
+  type: 'server' | 'browser' | 'management' | 'personal';
+  label: string;
+  masked: string;
+  prefix: string;
+  last4: string;
+  scopes: string[];
+  createdAt: number;
+  createdBy: { name: string | null; formerMember: boolean };
+  lastUsedAt: number | null;
+  lastUsedClient: string | null;
+  expiresAt: number | null;
+  state: 'active' | 'rotating' | 'expired' | 'revoked';
+  overlapEndsAt: number | null;
+}

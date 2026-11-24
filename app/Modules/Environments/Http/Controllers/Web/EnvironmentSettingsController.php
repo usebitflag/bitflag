@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Environments\Http\Controllers\Web;
 
 use App\Http\Middleware\ResolvePortalScope;
+use App\Modules\Credentials\Queries\EnvironmentCredentials;
 use App\Modules\Environments\Actions\CreateEnvironment;
 use App\Modules\Environments\Actions\ReorderEnvironments;
 use App\Modules\Environments\Actions\UpdateEnvironmentSettings;
@@ -37,17 +38,19 @@ use Inertia\Response;
  */
 final class EnvironmentSettingsController
 {
-    private const TABS = ['overview', 'delivery', 'history', 'settings'];
+    private const TABS = ['overview', 'keys', 'delivery', 'history', 'settings'];
 
     /** GET .../settings/environments */
-    public function index(Request $request, EnvironmentSettingsList $environments): Response
+    public function index(Request $request, EnvironmentSettingsList $environments, EnvironmentCredentials $credentials): Response
     {
         [$organizationId, $projectId] = $this->project($request);
         $scope = new ProjectScope($organizationId, $projectId);
         Gate::authorize(Capability::ProjectRead->value, $scope);
 
+        $counts = $credentials->workingCounts($projectId);
+
         return Inertia::render('project/settings/environments/Index', [
-            'environments' => array_map(fn (array $row): array => $this->display($row), $environments->for($projectId)),
+            'environments' => array_map(fn (array $row): array => [...$this->display($row), 'activeKeys' => $counts[$row['id']] ?? 0], $environments->for($projectId)),
             'canManage' => Gate::allows(Capability::EnvironmentManage->value, $scope),
             'colors' => ['slate', 'lilac', 'violet', 'indigo', 'ink'],
         ]);
@@ -94,7 +97,7 @@ final class EnvironmentSettingsController
     }
 
     /** GET .../settings/environments/{target}/{tab?} */
-    public function show(Request $request, EnvironmentSettingsList $environments, EnvironmentHistoryQuery $history, Entitlements $entitlements): Response
+    public function show(Request $request, EnvironmentSettingsList $environments, EnvironmentHistoryQuery $history, Entitlements $entitlements, EnvironmentCredentials $credentials): Response
     {
         // Read by name: route parameters reach controller arguments in route order, and the portal scope comes first.
         $target = $request->route('target');
@@ -113,6 +116,10 @@ final class EnvironmentSettingsController
             'environment' => $this->display($row),
             'tab' => $tab,
             'history' => $tab === 'history' ? $history->for($row['id']) : [],
+            'keys' => $tab === 'keys' ? $credentials->for($row['id']) : [],
+            'canManageKeys' => Gate::allows(Capability::CredentialsManage->value, $scope),
+            'allowedOrigins' => $row['allowedOrigins'],
+            'defaultMaxSnapshotAgeSeconds' => $row['defaultMaxSnapshotAgeSeconds'],
             'canManage' => Gate::allows(Capability::EnvironmentManage->value, $scope),
             'approvalsAvailable' => $entitlements->allows($organizationId, Feature::RequiredApprovals),
             'snapshotAges' => UpdateEnvironmentSettings::SNAPSHOT_AGES,

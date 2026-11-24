@@ -24,4 +24,7 @@ Schedule::command('outbox:prune')->dailyAt('03:15')->withoutOverlapping()->onOne
 // API key usage: copy the last-use times recorded in Redis into the database.
 Schedule::command('credentials:flush-last-used')->everyMinute()->withoutOverlapping();
 
+Schedule::command('credentials:complete-rotations')->everyMinute()->withoutOverlapping();
+Schedule::command('credentials:expire')->everyFiveMinutes()->withoutOverlapping();
+
 Schedule::command('horizon:snapshot')->everyFiveMinutes();

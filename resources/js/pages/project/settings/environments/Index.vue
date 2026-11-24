@@ -13,7 +13,7 @@ import ProjectSettingsLayout from '../../../../layouts/ProjectSettingsLayout.vue
 import type { SharedProps } from '../../../../types/shared';
 
 const props = defineProps<{
-  environments: EnvironmentRow[];
+  environments: (EnvironmentRow & { activeKeys: number })[];
   canManage: boolean;
   colors: string[];
 }>();
@@ -127,7 +127,9 @@ function published(environment: EnvironmentRow): string {
               <span class="text-text/62">Not published</span>
             </td>
             <td class="text-text/62 px-3 py-2">{{ published(environment) }}</td>
-            <td class="text-text/62 px-3 py-2">None yet</td>
+            <td class="text-text/62 px-3 py-2" data-test="active-keys">
+              {{ environment.activeKeys === 0 ? 'None yet' : `${environment.activeKeys} active` }}
+            </td>
           </tr>
           <tr
             v-for="environment in archived"

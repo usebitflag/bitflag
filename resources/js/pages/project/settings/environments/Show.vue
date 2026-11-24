@@ -3,19 +3,24 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import StatusTag from '../../../../components/ui/StatusTag.vue';
 import Tag from '../../../../components/ui/Tag.vue';
+import KeysTab from '../../../../features/credentials/KeysTab.vue';
 import DeliveryTab from '../../../../features/environments/DeliveryTab.vue';
 import HistoryTab from '../../../../features/environments/HistoryTab.vue';
 import OverviewTab from '../../../../features/environments/OverviewTab.vue';
 import SettingsTab from '../../../../features/environments/SettingsTab.vue';
-import type { EnvironmentRow, HistoryEntry } from '../../../../features/environments/types';
+import type { EnvironmentRow, HistoryEntry, KeyRow } from '../../../../features/environments/types';
 import SettingsTabs from '../../../../features/shell/SettingsTabs.vue';
 import ProjectSettingsLayout from '../../../../layouts/ProjectSettingsLayout.vue';
 import type { SharedProps } from '../../../../types/shared';
 
 const props = defineProps<{
   environment: EnvironmentRow;
-  tab: 'overview' | 'delivery' | 'history' | 'settings';
+  tab: 'overview' | 'keys' | 'delivery' | 'history' | 'settings';
   history: HistoryEntry[];
+  keys: KeyRow[];
+  canManageKeys: boolean;
+  allowedOrigins: string[];
+  defaultMaxSnapshotAgeSeconds: number | null;
   canManage: boolean;
   approvalsAvailable: boolean;
   snapshotAges: number[];
@@ -31,6 +36,7 @@ const base = computed(() => {
 const tabs = computed(() =>
   [
     { key: 'overview', label: 'Overview' },
+    { key: 'keys', label: 'Keys' },
     { key: 'delivery', label: 'Delivery' },
     { key: 'history', label: 'History' },
     { key: 'settings', label: 'Settings' },
@@ -59,6 +65,15 @@ const tabs = computed(() =>
     </p>
     <SettingsTabs label="Environment" :items="tabs" />
     <OverviewTab v-if="tab === 'overview'" :environment="environment" />
+    <KeysTab
+      v-else-if="tab === 'keys'"
+      :environment="environment"
+      :keys="keys"
+      :action="`${base}/${environment.key}/keys`"
+      :can-manage="canManageKeys"
+      :allowed-origins="allowedOrigins"
+      :max-snapshot-age-seconds="defaultMaxSnapshotAgeSeconds"
+    />
     <DeliveryTab v-else-if="tab === 'delivery'" />
     <HistoryTab v-else-if="tab === 'history'" :entries="history" />
     <SettingsTab
