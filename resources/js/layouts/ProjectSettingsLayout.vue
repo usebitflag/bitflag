@@ -10,7 +10,7 @@ import PortalLayout from './PortalLayout.vue';
 
 const props = defineProps<{
   /** The tab that is open. */
-  tab: 'general' | 'environments' | 'members';
+  tab: 'general' | 'environments' | 'members' | 'tokens';
   title: string;
   description?: string;
   canManage: boolean;
@@ -28,6 +28,7 @@ const tabs = computed(() =>
     { key: 'general', label: 'General' },
     { key: 'environments', label: 'Environments' },
     { key: 'members', label: 'Members' },
+    { key: 'tokens', label: 'API tokens' },
   ].map((item) => ({ ...item, href: `${base.value}/${item.key}`, active: item.key === props.tab })),
 );
 

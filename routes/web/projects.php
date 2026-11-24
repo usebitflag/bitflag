@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Modules\Credentials\Http\Controllers\Web\AccountTokensController;
 use App\Modules\Credentials\Http\Controllers\Web\EnvironmentKeysController;
+use App\Modules\Credentials\Http\Controllers\Web\ProjectTokensController;
 use App\Modules\Environments\Http\Controllers\Web\EnvironmentSettingsController;
 use App\Modules\Identity\Http\Controllers\Web\NoAccessController;
 use App\Modules\Identity\Http\Controllers\Web\RememberScopeController;
@@ -24,6 +26,8 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
     Route::get('/no-access', [NoAccessController::class, 'show'])->name('account.no-access');
     Route::get('/organizations/choose', [ChooseOrganizationController::class, 'show'])->name('organizations.choose');
     Route::post('/organizations/choose', [ChooseOrganizationController::class, 'store'])->name('organizations.choose.store');
+    Route::get('/account/tokens', [AccountTokensController::class, 'index'])->name('account.tokens');
+    Route::post('/account/tokens/{credential}/revoke', [AccountTokensController::class, 'revoke'])->where('credential', 'key_[0-9a-z]{26}')->name('account.tokens.revoke');
     Route::post('/scope/remember', [RememberScopeController::class, 'store'])->name('scope.remember');
 
     Route::middleware(['portal', 'org.mfa'])->group(function () use ($slug, $key): void {
@@ -40,6 +44,10 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             Route::get('/', [ProjectSettingsController::class, 'index'])->name('project.settings');
             Route::get('/general', [ProjectSettingsController::class, 'general'])->name('project.settings.general');
             Route::put('/general', [ProjectSettingsController::class, 'updateGeneral'])->name('project.settings.general.update');
+
+            Route::get('/tokens', [ProjectTokensController::class, 'index'])->name('project.settings.tokens');
+            Route::post('/tokens', [ProjectTokensController::class, 'store'])->middleware('throttle:10,1')->name('project.settings.tokens.store');
+            Route::post('/tokens/{credential}/revoke', [ProjectTokensController::class, 'revoke'])->where('credential', 'key_[0-9a-z]{26}')->name('project.settings.tokens.revoke');
 
             Route::get('/environments', [EnvironmentSettingsController::class, 'index'])->name('project.settings.environments');
             Route::post('/environments', [EnvironmentSettingsController::class, 'store'])->name('project.settings.environments.store');

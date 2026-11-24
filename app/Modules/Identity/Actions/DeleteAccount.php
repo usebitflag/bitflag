@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Actions;
 
+use App\Modules\Credentials\Actions\RevokeTokensForMember;
 use App\Modules\Identity\Data\DeleteAccountData;
 use App\Modules\Identity\Domain\AccountStatus;
 use App\Modules\Identity\Models\MfaFactor;
@@ -29,7 +30,10 @@ final class DeleteAccount
 {
     public const DELETED_NAME = 'Deleted user';
 
-    public function __construct(private readonly RemoveAccountMemberships $memberships) {}
+    public function __construct(
+        private readonly RemoveAccountMemberships $memberships,
+        private readonly RevokeTokensForMember $tokens,
+    ) {}
 
     /**
      * @throws LastOwner
@@ -48,6 +52,8 @@ final class DeleteAccount
         }
 
         DB::transaction(function () use ($user): void {
+            // Every personal token of theirs goes with the account, in every organization.
+            $this->tokens->whenAccountDeleted($user->id);
             $this->memberships->handle(Actor::user($user->id, $user->name, Channel::Dashboard), $user->id);
 
             DB::table('sessions')->where('user_id', $user->id)->delete();

@@ -9,6 +9,7 @@ const page = usePage();
 const tabs = [
   { key: 'profile', label: 'Profile', href: '/account/profile' },
   { key: 'security', label: 'Security', href: '/account/security' },
+  { key: 'tokens', label: 'API tokens', href: '/account/tokens' },
   { key: 'delete', label: 'Delete account', href: '/account/delete' },
 ];
 </script>

@@ -7,7 +7,7 @@ import Field from '../../components/ui/Field.vue';
 import Input from '../../components/ui/Input.vue';
 import Select from '../../components/ui/Select.vue';
 import { useSecretReveal } from '../../composables/useSecretReveal';
-import { JsonRequestError, postJson } from '../../lib/postJson';
+import { ApiError, sendJson } from '../auth/sendJson';
 import type { KeyRow } from '../environments/types';
 import { EXPIRY_OPTIONS, KEY_KINDS, type EnvironmentKeyType } from './keyKinds';
 import SecretRevealPanel from './SecretRevealPanel.vue';
@@ -62,7 +62,7 @@ async function create(): Promise<void> {
   busy.value = true;
   errors.value = {};
   try {
-    const result = await postJson<{ credential: KeyRow; secret: string }>(props.action, {
+    const result = await sendJson<{ credential: KeyRow; secret: string }>('POST', props.action, {
       type: type.value,
       label: label.value,
       scopes: scopes.value,
@@ -73,8 +73,13 @@ async function create(): Promise<void> {
     step.value = 3;
   } catch (error) {
     errors.value =
-      error instanceof JsonRequestError
-        ? { ...error.errors, form: error.message }
+      error instanceof ApiError
+        ? {
+            ...Object.fromEntries(
+              Object.entries(error.fields).map(([field, messages]) => [field, messages[0] ?? '']),
+            ),
+            form: error.message,
+          }
         : { form: 'Something went wrong. Try again.' };
   } finally {
     busy.value = false;

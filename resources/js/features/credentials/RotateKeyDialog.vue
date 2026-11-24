@@ -4,7 +4,7 @@ import Button from '../../components/ui/Button.vue';
 import Dialog from '../../components/ui/Dialog.vue';
 import Select from '../../components/ui/Select.vue';
 import { useSecretReveal } from '../../composables/useSecretReveal';
-import { JsonRequestError, postJson } from '../../lib/postJson';
+import { ApiError, sendJson } from '../auth/sendJson';
 import type { KeyRow } from '../environments/types';
 import { KEY_KINDS, OVERLAP_OPTIONS } from './keyKinds';
 import SecretRevealPanel from './SecretRevealPanel.vue';
@@ -35,7 +35,8 @@ async function rotate(): Promise<void> {
   busy.value = true;
   error.value = null;
   try {
-    const result = await postJson<{ secret: string; oldStopsAt: number }>(
+    const result = await sendJson<{ secret: string; oldStopsAt: number }>(
+      'POST',
       `${props.action}/${props.credential.id}/rotate`,
       { overlap: Number(overlap.value) },
     );
@@ -43,7 +44,7 @@ async function rotate(): Promise<void> {
     stopsAt.value = result.oldStopsAt;
   } catch (failure) {
     error.value =
-      failure instanceof JsonRequestError ? failure.message : 'Something went wrong. Try again.';
+      failure instanceof ApiError ? failure.message : 'Something went wrong. Try again.';
   } finally {
     busy.value = false;
   }

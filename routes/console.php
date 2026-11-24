@@ -27,4 +27,6 @@ Schedule::command('credentials:flush-last-used')->everyMinute()->withoutOverlapp
 Schedule::command('credentials:complete-rotations')->everyMinute()->withoutOverlapping();
 Schedule::command('credentials:expire')->everyFiveMinutes()->withoutOverlapping();
 
+Schedule::command('credentials:notify-expiring')->dailyAt('08:00')->withoutOverlapping()->onOneServer();
+
 Schedule::command('horizon:snapshot')->everyFiveMinutes();

@@ -6,6 +6,7 @@ namespace App\Modules\Credentials\Support;
 
 use App\Modules\Credentials\Models\Credential;
 use App\Shared\Outbox\OutboxMessage;
+use App\Shared\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,7 +16,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class CredentialState
 {
-    public function __construct(private readonly CredentialCache $cache) {}
+    public function __construct(
+        private readonly CredentialCache $cache,
+        private readonly TenantContext $tenant,
+    ) {}
 
     /**
      * The outbox message that asks the repair consumer to rewrite the cache entry.
@@ -37,9 +41,11 @@ final class CredentialState
     {
         $id = $credential->id;
         $hash = $credential->secret_hash;
+        $organizationId = $credential->organization_id;
 
-        DB::afterCommit(function () use ($id, $hash): void {
-            $fresh = Credential::query()->find($id);
+        // The commit may happen after the tenant context that wrote the change has ended, so set it again.
+        DB::afterCommit(function () use ($id, $hash, $organizationId): void {
+            $fresh = $this->tenant->run($organizationId, fn (): ?Credential => Credential::query()->find($id));
 
             if ($fresh !== null) {
                 $this->cache->overwrite($hash, CredentialSummaries::of($fresh));
