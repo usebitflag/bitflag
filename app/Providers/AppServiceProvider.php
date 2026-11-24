@@ -25,8 +25,12 @@ use App\Shared\Outbox\Console\OutboxStatusCommand;
 use App\Shared\Outbox\Console\OutboxWorkCommand;
 use App\Shared\Outbox\ConsumerRegistry;
 use App\Shared\Persistence\TransactionGuard;
+use App\Shared\Plans\AllFeaturesIncluded;
 use App\Shared\Plans\EnforcePlanLimit;
+use App\Shared\Plans\Entitlements;
 use App\Shared\Plans\NoPlanLimits;
+use App\Shared\Plans\NoPlanRestrictions;
+use App\Shared\Plans\PlanRestrictionGate;
 use App\Shared\Security\SecretHasher;
 use App\Shared\Tenancy\Schema\TenantColumns;
 use App\Shared\Tenancy\TenantContext;
@@ -68,6 +72,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Billing supplies the real plan limits; until it does, nothing is limited.
         $this->app->bind(EnforcePlanLimit::class, NoPlanLimits::class);
+        $this->app->bind(Entitlements::class, AllFeaturesIncluded::class);
+        $this->app->bind(PlanRestrictionGate::class, NoPlanRestrictions::class);
 
         // Defaults until credentials define scopes. Environment protection is bound by the Environments module.
         $this->app->bind(TokenScopeMap::class, NullTokenScopeMap::class);

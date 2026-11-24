@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Environments\Queries;
+
+use App\Modules\Environments\Models\Environment;
+use App\Modules\Environments\Models\EnvironmentPolicy;
+use Illuminate\Support\Collection;
+
+/**
+ * A project's environments for the settings pages: the table of every environment (archived ones last) and the detail of one.
+ * Runs inside the organization's tenant context.
+ */
+final class EnvironmentSettingsList
+{
+    /**
+     * @return list<array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}>
+     */
+    public function for(string $projectId): array
+    {
+        $environments = Environment::query()->where('project_id', $projectId)->orderBy('position')->orderBy('key')->get();
+        $policies = $this->policies($environments);
+
+        return array_values($environments->map(fn (Environment $environment): array => $this->row($environment, $policies))->all());
+    }
+
+    /**
+     * @return array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}|null
+     */
+    public function byKey(string $projectId, string $key): ?array
+    {
+        $environment = Environment::query()->where('project_id', $projectId)->where('key', $key)->first();
+
+        return $environment === null ? null : $this->row($environment, $this->policies(collect([$environment])));
+    }
+
+    /**
+     * @param  Collection<int, Environment>  $environments
+     * @return Collection<string, EnvironmentPolicy>
+     */
+    private function policies(Collection $environments): Collection
+    {
+        $ids = $environments->pluck('current_policy_id')->filter()->all();
+
+        return EnvironmentPolicy::query()->whereIn('id', $ids)->get()->keyBy('id');
+    }
+
+    /**
+     * @param  Collection<string, EnvironmentPolicy>  $policies
+     * @return array{id: string, name: string, key: string, color: string, position: int, status: string, isProtected: bool, requiredApprovals: int, policyVersion: int, firstPublishedAt: int|null, version: int}
+     */
+    private function row(Environment $environment, Collection $policies): array
+    {
+        $policy = $environment->current_policy_id === null ? null : $policies->get($environment->current_policy_id);
+
+        return [
+            'id' => $environment->id,
+            'name' => $environment->name,
+            'key' => $environment->key,
+            'color' => $environment->color->value,
+            'position' => $environment->position,
+            'status' => $environment->status->value,
+            'isProtected' => $policy->is_protected ?? false,
+            'requiredApprovals' => $policy->required_approvals ?? 0,
+            'policyVersion' => $policy->version ?? 1,
+            'firstPublishedAt' => $environment->first_published_at?->getTimestamp(),
+            'version' => $environment->version,
+        ];
+    }
+}
