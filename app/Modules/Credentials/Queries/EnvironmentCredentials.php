@@ -96,6 +96,21 @@ final class EnvironmentCredentials
     }
 
     /**
+     * The IDs of every key and token of the project that still authenticates, for revoking them when it is deleted.
+     *
+     * @return list<string>
+     */
+    public function workingIdsInProject(string $projectId): array
+    {
+        return array_values(Credential::query()
+            ->where('project_id', $projectId)
+            ->whereIn('status', [CredentialStatus::Active->value, CredentialStatus::Rotating->value])
+            ->get(['id'])
+            ->map(static fn (Credential $credential): string => $credential->id)
+            ->all());
+    }
+
+    /**
      * Whether the credential belongs to the environment.
      */
     public function inEnvironment(string $environmentId, string $credentialId): bool

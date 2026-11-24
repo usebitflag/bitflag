@@ -14,6 +14,12 @@ final readonly class RevokeCredentialData
         return new self($organizationId, $credentialId, RevokeReason::EnvironmentArchived);
     }
 
+    /** The project was deleted, so everything that authenticated for it goes. */
+    public static function projectDeleted(string $organizationId, string $credentialId): self
+    {
+        return new self($organizationId, $credentialId, RevokeReason::ProjectDeleted);
+    }
+
     public function __construct(
         public string $organizationId,
         public string $credentialId,

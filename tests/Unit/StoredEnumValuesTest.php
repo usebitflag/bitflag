@@ -17,7 +17,7 @@ use App\Shared\Idempotency\IdempotencyStatus;
 it('keeps the stored values of status and color enums', function (string $enum, array $values) {
     expect(array_map(static fn (BackedEnum $case): string|int => $case->value, $enum::cases()))->toBe($values);
 })->with([
-    'organization status' => [OrganizationStatus::class, ['active', 'suspended', 'deletion_scheduled']],
+    'organization status' => [OrganizationStatus::class, ['active', 'suspended', 'deletion_scheduled', 'deleted']],
     'project status' => [ProjectStatus::class, ['active', 'archived', 'deletion_scheduled', 'deleted']],
     'environment status' => [EnvironmentStatus::class, ['active', 'archived']],
     'environment color' => [EnvironmentColor::class, ['slate', 'lilac', 'violet', 'indigo', 'ink']],

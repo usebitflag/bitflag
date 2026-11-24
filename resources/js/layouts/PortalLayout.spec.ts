@@ -43,7 +43,13 @@ function setProps(
     },
     scope: {
       organization: { id: 'org_1', slug: 'acme', name: 'Acme' },
-      project: { id: 'prj_1', key: 'storefront', name: 'Storefront' },
+      project: {
+        id: 'prj_1',
+        key: 'storefront',
+        name: 'Storefront',
+        status: 'active',
+        deletionDueAt: null,
+      },
       environment: {
         id: 'env_1',
         key: 'production',

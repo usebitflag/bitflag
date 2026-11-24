@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Projects\Actions\LockProjectKey;
 use App\Modules\Projects\Actions\UpdateProjectSettings;
-use App\Modules\Projects\Data\UpdateProjectSettingsData;
 use App\Modules\Projects\Domain\FlagKeyFormat;
 use App\Modules\Projects\Models\Project;
 use App\Shared\Audit\AuditCatalog;
@@ -18,25 +17,6 @@ use App\Shared\Errors\AuthorizationDenied;
 use App\Shared\Tenancy\Tenancy;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-
-function settings_data(array $p, array $change = []): UpdateProjectSettingsData
-{
-    return new UpdateProjectSettingsData(...[
-        'organizationId' => $p['organization']->id,
-        'projectId' => $p['project']->id,
-        'name' => 'Storefront',
-        'key' => $p['project']->key,
-        'description' => null,
-        'timeZone' => 'UTC',
-        'flagKeyFormat' => 'kebab',
-        'staleAfterDays' => 30,
-        'requireFlagDescription' => true,
-        'requireFlagOwner' => true,
-        'clientVisibleByDefault' => false,
-        'expectedVersion' => 1,
-        ...$change,
-    ]);
-}
 
 function project_now(array $p): Project
 {

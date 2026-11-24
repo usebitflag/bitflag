@@ -18,6 +18,7 @@ use App\Modules\Environments\Queries\EnvironmentLookup;
 use App\Modules\Identity\Queries\EmailVerification;
 use App\Modules\Projects\Actions\LockProjectKey;
 use App\Modules\Projects\Queries\ProjectLookup;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -45,6 +46,7 @@ final class IssueCredential
         private readonly SecretHasher $hasher,
         private readonly EnvironmentLookup $environments,
         private readonly ProjectLookup $projects,
+        private readonly ProjectWritability $writability,
         private readonly EmailVerification $verification,
         private readonly LockProjectKey $lockProjectKey,
         private readonly AuditRecorder $audit,
@@ -92,9 +94,7 @@ final class IssueCredential
             throw new AuthorizationDenied;
         }
 
-        if (! $project->active) {
-            throw ValidationException::withMessages(['environment' => 'This project is read-only, so it cannot get new keys.']);
-        }
+        $this->tenant->run($data->organizationId, fn () => $this->writability->assertWritable($data->projectId));
 
         if (! $environment->active) {
             throw ValidationException::withMessages(['environment' => 'An archived environment cannot get new keys.']);

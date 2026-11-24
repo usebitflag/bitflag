@@ -9,6 +9,7 @@ use App\Modules\Environments\Domain\EnvironmentStatus;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
 use App\Modules\Environments\Queries\EnvironmentDeleteBlockers;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -29,6 +30,7 @@ final class DeleteEnvironment
 {
     public function __construct(
         private readonly PlanRestrictionGate $restrictions,
+        private readonly ProjectWritability $writability,
         private readonly RenumberEnvironments $renumber,
         private readonly EnvironmentDeleteBlockers $blockers,
         private readonly AuditRecorder $audit,
@@ -48,6 +50,7 @@ final class DeleteEnvironment
 
         $this->tenant->run($data->organizationId, fn () => DB::transaction(function () use ($actor, $data): void {
             $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId, $data->environmentId);
+            $this->writability->assertWritable($data->projectId);
 
             $activeIds = $this->renumber->activeIds($data->projectId);
             $environment = Environment::query()->where('project_id', $data->projectId)->lockForUpdate()->find($data->environmentId);

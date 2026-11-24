@@ -17,6 +17,7 @@ use App\Modules\Credentials\Models\Credential;
 use App\Modules\Identity\Queries\EmailVerification;
 use App\Modules\Projects\Actions\LockProjectKey;
 use App\Modules\Projects\Queries\ProjectLookup;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Actors\ActorType;
 use App\Shared\Audit\AuditRecorder;
@@ -46,6 +47,7 @@ final class IssuePersonalAccessToken
         private readonly TokenGenerator $generator,
         private readonly SecretHasher $hasher,
         private readonly ProjectLookup $projects,
+        private readonly ProjectWritability $writability,
         private readonly EmailVerification $verification,
         private readonly LockProjectKey $lockProjectKey,
         private readonly AuditRecorder $audit,
@@ -92,9 +94,11 @@ final class IssuePersonalAccessToken
 
         $project = $this->projects->byId($data->organizationId, $data->projectId);
 
-        if ($project === null || ! $project->active) {
-            throw ValidationException::withMessages(['access' => 'This project is read-only, so it cannot get new tokens.']);
+        if ($project === null) {
+            throw new AuthorizationDenied;
         }
+
+        $this->tenant->run($data->organizationId, fn () => $this->writability->assertWritable($data->projectId));
 
         $scopes = array_map(static fn (CredentialScope $item): string => $item->value, ($level ?? PersonalAccessLevel::Read)->scopes());
         $generated = $this->generator->generate(CredentialType::Personal);

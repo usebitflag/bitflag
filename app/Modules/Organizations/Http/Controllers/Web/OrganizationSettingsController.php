@@ -7,8 +7,11 @@ namespace App\Modules\Organizations\Http\Controllers\Web;
 use App\Http\Middleware\ResolveActor;
 use App\Http\Middleware\ResolvePortalScope;
 use App\Modules\Organizations\Actions\AddSelfToProject;
+use App\Modules\Organizations\Actions\CancelOrganizationDeletion;
+use App\Modules\Organizations\Actions\ScheduleOrganizationDeletion;
 use App\Modules\Organizations\Actions\UpdateOrganization;
 use App\Modules\Organizations\Actions\UpdateOrganizationSecurity;
+use App\Modules\Organizations\Data\OrganizationDeletionData;
 use App\Modules\Organizations\Data\UpdateOrganizationData;
 use App\Modules\Organizations\Data\UpdateOrganizationSecurityData;
 use App\Modules\Organizations\Http\Requests\UpdateOrganizationRequest;
@@ -71,6 +74,26 @@ final class OrganizationSettingsController
         // The URL name may have changed, so go to the page at its new address.
         return redirect()->route('organization.settings.general', ['organization' => strtolower(trim($request->string('slug')->toString()))])
             ->with('toast', ['message' => 'Organization saved.', 'tone' => 'neutral']);
+    }
+
+    /** POST /{organization}/settings/general/delete */
+    public function scheduleDeletion(Request $request, Actor $actor, ScheduleOrganizationDeletion $schedule): RedirectResponse
+    {
+        $organization = $this->scope($request);
+        $request->validate(['confirm' => ['required', 'string', 'max:40']]);
+
+        $schedule->handle($actor, new OrganizationDeletionData($organization['id'], $request->string('confirm')->toString()));
+
+        return back()->with('toast', ['message' => 'Deletion scheduled. You can restore the organization until it is deleted.', 'tone' => 'neutral']);
+    }
+
+    /** POST /{organization}/settings/general/restore */
+    public function cancelDeletion(Request $request, Actor $actor, CancelOrganizationDeletion $cancel): RedirectResponse
+    {
+        $organization = $this->scope($request);
+        $left = $cancel->handle($actor, new OrganizationDeletionData($organization['id']));
+
+        return back()->with('toast', ['message' => $left === [] ? 'Organization restored.' : 'Organization restored. Some projects stayed scheduled because of the plan limit.', 'tone' => 'neutral']);
     }
 
     /** GET /{organization}/settings/security */

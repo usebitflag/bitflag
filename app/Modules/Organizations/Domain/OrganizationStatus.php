@@ -12,4 +12,5 @@ enum OrganizationStatus: string
     case Active = 'active';
     case Suspended = 'suspended';
     case DeletionScheduled = 'deletion_scheduled';
+    case Deleted = 'deleted';
 }

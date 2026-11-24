@@ -9,6 +9,7 @@ use App\Modules\Projects\Domain\FlagKeyFormat;
 use App\Modules\Projects\Domain\ProjectKeyRules;
 use App\Modules\Projects\Domain\ProjectSettingsRules;
 use App\Modules\Projects\Models\Project;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -30,6 +31,7 @@ final class UpdateProjectSettings
 {
     public function __construct(
         private readonly PlanRestrictionGate $restrictions,
+        private readonly ProjectWritability $writability,
         private readonly AuditRecorder $audit,
         private readonly TenantContext $tenant,
     ) {}
@@ -74,6 +76,7 @@ final class UpdateProjectSettings
     private function save(Actor $actor, UpdateProjectSettingsData $data, string $name, string $key, ?string $description, FlagKeyFormat $flagKeyFormat): int
     {
         $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId);
+        $this->writability->assertWritable($data->projectId);
 
         $project = Project::query()->lockForUpdate()->findOrFail($data->projectId);
 

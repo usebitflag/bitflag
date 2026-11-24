@@ -7,9 +7,17 @@ import Field from '../../components/ui/Field.vue';
 import InlineNotice from '../../components/ui/InlineNotice.vue';
 import Input from '../../components/ui/Input.vue';
 import OrgSettingsLayout from '../../layouts/OrgSettingsLayout.vue';
+import DeleteOrganizationSection from '../../features/settings/DeleteOrganizationSection.vue';
 
 const props = defineProps<{
-  settings: { name: string; slug: string; version: number };
+  settings: {
+    name: string;
+    slug: string;
+    version: number;
+    status: string;
+    deletionDueAt: number | null;
+    paidSubscription: boolean;
+  };
   canManage: boolean;
 }>();
 
@@ -80,5 +88,13 @@ function save(): void {
         </div>
       </Card>
     </form>
+    <DeleteOrganizationSection
+      v-if="canManage"
+      :slug="settings.slug"
+      :name="settings.name"
+      :status="settings.status"
+      :deletion-due-at="settings.deletionDueAt"
+      :paid-subscription="settings.paidSubscription"
+    />
   </OrgSettingsLayout>
 </template>

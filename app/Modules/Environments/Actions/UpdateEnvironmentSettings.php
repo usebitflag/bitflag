@@ -13,6 +13,7 @@ use App\Modules\Environments\Domain\PolicyChange;
 use App\Modules\Environments\Events\EnvironmentPolicyUpdated;
 use App\Modules\Environments\Models\Environment;
 use App\Modules\Environments\Models\EnvironmentPolicy;
+use App\Modules\Projects\Queries\ProjectWritability;
 use App\Shared\Actors\Actor;
 use App\Shared\Audit\AuditRecorder;
 use App\Shared\Audit\AuditTarget;
@@ -43,6 +44,7 @@ final class UpdateEnvironmentSettings
 
     public function __construct(
         private readonly PlanRestrictionGate $restrictions,
+        private readonly ProjectWritability $writability,
         private readonly Entitlements $entitlements,
         private readonly AuditRecorder $audit,
         private readonly Outbox $outbox,
@@ -94,6 +96,7 @@ final class UpdateEnvironmentSettings
     private function save(Actor $actor, UpdateEnvironmentSettingsData $data, string $name, string $key, EnvironmentColor $color, array $origins, PolicyChange $policy): int
     {
         $this->restrictions->assertConfigWritable($data->organizationId, $data->projectId, $data->environmentId);
+        $this->writability->assertWritable($data->projectId);
 
         $environment = Environment::query()->where('project_id', $data->projectId)->lockForUpdate()->findOrFail($data->environmentId);
 

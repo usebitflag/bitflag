@@ -7,6 +7,7 @@ namespace App\Modules\Organizations;
 use App\Modules\Identity\Events\EmailVerified;
 use App\Modules\Organizations\Actions\ReleaseQueuedInvitations;
 use App\Modules\Organizations\Console\ExpireInvitationsCommand;
+use App\Modules\Organizations\Console\PurgeDueOrganizationsCommand;
 use App\Modules\Organizations\Jobs\SendInvitationEmail;
 use App\Modules\Organizations\Queries\MembershipCapabilityResolver;
 use App\Shared\Audit\AuditCatalog;
@@ -33,7 +34,7 @@ final class OrganizationsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ConsumerRegistry::class)->register(SendInvitationEmail::class);
-        $this->commands([ExpireInvitationsCommand::class]);
+        $this->commands([ExpireInvitationsCommand::class, PurgeDueOrganizationsCommand::class]);
 
         // Project members are managed from the project's own settings.
         $this->app->make(PortalNavigation::class)->register(
@@ -48,6 +49,9 @@ final class OrganizationsServiceProvider extends ServiceProvider
         $this->app->make(AuditCatalog::class)->register(
             'organization.created',
             'organization.updated',
+            'organization.deletion_scheduled',
+            'organization.deletion_cancelled',
+            'organization.deleted',
             'organization.security_changed',
             'invitation.created',
             'invitation.resent',

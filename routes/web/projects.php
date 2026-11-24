@@ -12,6 +12,7 @@ use App\Modules\Organizations\Http\Controllers\Web\ChooseOrganizationController;
 use App\Modules\Organizations\Queries\OrganizationSlugs;
 use App\Modules\Projects\Http\Controllers\Web\HomeController;
 use App\Modules\Projects\Http\Controllers\Web\OverviewController;
+use App\Modules\Projects\Http\Controllers\Web\ProjectLifecycleController;
 use App\Modules\Projects\Http\Controllers\Web\ProjectSettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,12 @@ Route::middleware('auth:web')->group(function () use ($slug, $key): void {
             Route::get('/', [ProjectSettingsController::class, 'index'])->name('project.settings');
             Route::get('/general', [ProjectSettingsController::class, 'general'])->name('project.settings.general');
             Route::put('/general', [ProjectSettingsController::class, 'updateGeneral'])->name('project.settings.general.update');
+
+            Route::get('/danger', [ProjectLifecycleController::class, 'show'])->name('project.settings.danger');
+            Route::post('/danger/archive', [ProjectLifecycleController::class, 'archive'])->name('project.settings.danger.archive');
+            Route::post('/danger/unarchive', [ProjectLifecycleController::class, 'unarchive'])->name('project.settings.danger.unarchive');
+            Route::post('/danger/delete', [ProjectLifecycleController::class, 'schedule'])->name('project.settings.danger.delete');
+            Route::post('/danger/restore', [ProjectLifecycleController::class, 'restore'])->name('project.settings.danger.restore');
 
             Route::get('/tokens', [ProjectTokensController::class, 'index'])->name('project.settings.tokens');
             Route::post('/tokens', [ProjectTokensController::class, 'store'])->middleware('throttle:10,1')->name('project.settings.tokens.store');

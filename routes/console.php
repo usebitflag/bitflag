@@ -29,4 +29,8 @@ Schedule::command('credentials:expire')->everyFiveMinutes()->withoutOverlapping(
 
 Schedule::command('credentials:notify-expiring')->dailyAt('08:00')->withoutOverlapping()->onOneServer();
 
+// Projects and organizations whose deletion grace period has ended are purged.
+Schedule::command('projects:purge-due')->hourly()->withoutOverlapping()->onOneServer();
+Schedule::command('organizations:purge-due')->hourly()->withoutOverlapping()->onOneServer();
+
 Schedule::command('horizon:snapshot')->everyFiveMinutes();

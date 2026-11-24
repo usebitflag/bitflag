@@ -75,7 +75,7 @@ final class ProjectLookup
     private function first(string $organizationId, callable $narrow): ?ProjectSummary
     {
         return Tenancy::crossTenant('project lookup resolves the portal scope', function () use ($organizationId, $narrow): ?ProjectSummary {
-            $project = $narrow(Project::query()->where('organization_id', $organizationId))->first();
+            $project = $narrow(Project::query()->where('organization_id', $organizationId)->where('status', '!=', ProjectStatus::Deleted->value))->first();
 
             return $project === null ? null : $this->summary($project);
         });
@@ -83,6 +83,6 @@ final class ProjectLookup
 
     private function summary(Project $project): ProjectSummary
     {
-        return new ProjectSummary($project->id, $project->organization_id, $project->key, $project->name, $project->status === ProjectStatus::Active);
+        return new ProjectSummary($project->id, $project->organization_id, $project->key, $project->name, $project->status === ProjectStatus::Active, $project->status->value, $project->deletion_due_at?->getTimestamp());
     }
 }

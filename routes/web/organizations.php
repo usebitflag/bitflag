@@ -25,6 +25,8 @@ Route::middleware(['auth:web', 'portal', 'org.mfa'])->prefix('{organization}/set
     Route::get('/', [OrganizationSettingsController::class, 'index'])->name('organization.settings');
     Route::get('/general', [OrganizationSettingsController::class, 'general'])->name('organization.settings.general');
     Route::put('/general', [OrganizationSettingsController::class, 'updateGeneral'])->name('organization.settings.general.update');
+    Route::post('/general/delete', [OrganizationSettingsController::class, 'scheduleDeletion'])->name('organization.settings.general.delete');
+    Route::post('/general/restore', [OrganizationSettingsController::class, 'cancelDeletion'])->name('organization.settings.general.restore');
     Route::get('/security', [OrganizationSettingsController::class, 'security'])->name('organization.settings.security');
     Route::put('/security', [OrganizationSettingsController::class, 'updateSecurity'])->name('organization.settings.security.update');
     Route::get('/projects', [OrganizationSettingsController::class, 'projects'])->name('organization.settings.projects');
