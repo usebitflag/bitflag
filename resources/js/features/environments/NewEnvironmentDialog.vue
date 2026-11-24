@@ -22,6 +22,8 @@ const props = defineProps<{
   environments: EnvironmentOption[];
   takenKeys: readonly string[];
   colors: string[];
+  /** False when the plan does not include required approvals, so protection promises no second reviewer. */
+  approvalsAvailable: boolean;
   errors?: Record<string, string | undefined>;
 }>();
 
@@ -84,11 +86,7 @@ function submit(): void {
 </script>
 
 <template>
-  <Dialog
-    v-model:open="open"
-    title="New environment"
-    description="Every flag starts disabled here. The key can be changed until the first publish."
-  >
+  <Dialog v-model:open="open" title="New environment">
     <form
       class="flex flex-col gap-4"
       novalidate
@@ -129,10 +127,17 @@ function submit(): void {
       </div>
       <Switch
         v-model="isProtected"
-        label="Protected"
-        help="Publishing needs a reason, and only Owners and Publishers can publish."
+        label="Protected environment"
+        :help="
+          approvalsAvailable
+            ? 'Publishing needs a reason and a second reviewer, and only publishers can publish.'
+            : 'Publishing needs a reason, and only Owners and Publishers can publish.'
+        "
         data-test="environment-protected"
       />
+      <p class="text-text/62 text-xs" data-test="environment-note">
+        Every flag starts disabled here. The key can be changed until the first publish.
+      </p>
     </form>
     <template #footer>
       <Button variant="ghost" type="button" @click="open = false">Cancel</Button>

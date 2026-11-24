@@ -7,7 +7,6 @@ import Field from '../../../components/ui/Field.vue';
 import InlineNotice from '../../../components/ui/InlineNotice.vue';
 import Input from '../../../components/ui/Input.vue';
 import Select from '../../../components/ui/Select.vue';
-import Textarea from '../../../components/ui/Textarea.vue';
 import { useDirtyForm } from '../../../composables/useDirtyForm';
 import NewFlagDefaults from '../../../features/settings/NewFlagDefaults.vue';
 import ProjectKeyField from '../../../features/settings/ProjectKeyField.vue';
@@ -64,7 +63,22 @@ watch(
   () => form.defaults(values()).reset(),
 );
 
-const zones = computed(() => props.timeZones.map((zone) => ({ value: zone, label: zone })));
+// "Asia/Manila (UTC+8)": the offset the zone has today, so the list reads like the rest of the product.
+function zoneLabel(zone: string): string {
+  if (zone === 'UTC') return 'UTC';
+  try {
+    const part = new Intl.DateTimeFormat('en', { timeZone: zone, timeZoneName: 'shortOffset' })
+      .formatToParts(new Date())
+      .find((item) => item.type === 'timeZoneName')?.value;
+    return part ? `${zone} (${part.replace('GMT', 'UTC')})` : zone;
+  } catch {
+    return zone;
+  }
+}
+
+const zones = computed(() =>
+  props.timeZones.map((zone) => ({ value: zone, label: zoneLabel(zone) })),
+);
 
 function save(): void {
   form
@@ -78,7 +92,7 @@ function save(): void {
   <ProjectSettingsLayout
     tab="general"
     title="General"
-    description="The project's name, key and the defaults every new flag starts with."
+    description="Project details, and the defaults every new flag starts with."
     :can-manage="canManage"
   >
     <form class="flex max-w-[820px] flex-col gap-4" novalidate @submit.prevent="save">
@@ -103,8 +117,7 @@ function save(): void {
             </Field>
             <Field
               v-slot="{ id, describedBy, invalid }"
-              label="Project key"
-              help="Used by SDKs and the CLI."
+              label="Project key · used by SDKs and the CLI"
               :error="errors.key"
             >
               <ProjectKeyField
@@ -120,13 +133,11 @@ function save(): void {
           <Field
             v-slot="{ id, describedBy, invalid }"
             label="Description"
-            help="Shown in the project switcher."
             :error="errors.description"
           >
-            <Textarea
+            <Input
               :id="id"
               v-model="form.description"
-              :rows="2"
               :disabled="!canManage"
               :invalid="invalid"
               :described-by="describedBy"
@@ -136,7 +147,7 @@ function save(): void {
           <Field
             v-slot="{ id, describedBy, invalid }"
             label="Time zone"
-            help="Used for scheduled rollouts and how audit times are shown."
+            help="Used for scheduled rollouts and times in the audit log."
             :error="errors.time_zone"
           >
             <Select
@@ -152,7 +163,7 @@ function save(): void {
         </div>
       </Card>
 
-      <Card title="New flag defaults">
+      <Card title="New flags">
         <NewFlagDefaults
           v-model:flag-key-format="form.flag_key_format"
           v-model:stale-after-days="form.stale_after_days"
@@ -171,7 +182,7 @@ function save(): void {
           :loading="form.processing"
           :disabled="!dirty"
           data-test="general-save"
-          >Save</Button
+          >Save changes</Button
         >
         <Button
           type="button"

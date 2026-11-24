@@ -40,6 +40,10 @@ const base = computed(() => {
 const hasPassword = computed(() => page.props.auth.user?.hasPassword !== false);
 const projectName = computed(() => page.props.scope.project?.name ?? 'this project');
 
+const role = computed(() => page.props.scope.projectRole);
+const roleLabel = computed(() =>
+  role.value ? role.value.charAt(0).toUpperCase() + role.value.slice(1) : undefined,
+);
 const creating = ref(false);
 const revoking = ref<TokenRow | null>(null);
 const revokeOpen = computed({
@@ -76,28 +80,28 @@ const stateLabel = {
   <ProjectSettingsLayout
     tab="tokens"
     title="API tokens"
-    description="Tokens for the CLI and scripts. A personal token acts as you; a management key belongs to the project."
+    description="Personal tokens let the CLI and your scripts act as you, with your role. For SDKs, use the keys on each environment instead."
     :can-manage="true"
   >
     <template #actions>
       <Button variant="primary" data-test="token-new" @click="creating = true">
         <template #icon><PhPlus :size="16" aria-hidden="true" /></template>
-        New token
+        Create token
       </Button>
     </template>
 
-    <section class="flex flex-col gap-3" aria-labelledby="personal-heading">
-      <h2 id="personal-heading" class="font-heading text-lg">Personal tokens</h2>
-      <p class="text-text/70 text-sm">
-        A token can never do more than your role allows. Protected environments still need a review.
-      </p>
-      <EmptyState
-        v-if="tokens.length === 0"
-        title="No personal tokens yet"
-        message="Make one to use the CLI or scripts as yourself in this project."
-      />
-      <TokenTable v-else :tokens="tokens" @revoke="revoking = $event" />
-    </section>
+    <EmptyState
+      v-if="tokens.length === 0"
+      title="No tokens"
+      message="Create one to use the CLI in scripts, or run bitflag login to sign in with your browser instead."
+    >
+      <template #actions>
+        <Button variant="primary" data-test="token-new-empty" @click="creating = true"
+          >Create token</Button
+        >
+      </template>
+    </EmptyState>
+    <TokenTable v-else :tokens="tokens" @revoke="revoking = $event" />
 
     <section class="flex flex-col gap-3" aria-labelledby="management-heading">
       <h2 id="management-heading" class="font-heading text-lg">Project management keys</h2>
@@ -159,6 +163,7 @@ const stateLabel = {
       :can-draft="canDraft"
       :can-publish="canPublish"
       :has-password="hasPassword"
+      :role="roleLabel"
       @created="refresh"
     />
     <ConfirmDialog

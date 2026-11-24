@@ -4,6 +4,8 @@ export interface KeyKind {
   type: EnvironmentKeyType;
   title: string;
   help: string;
+  /** The line under the keys table that says what the kind is for. */
+  note: string;
   variable: string;
   scopes: { value: string; label: string; help: string }[];
   defaults: string[];
@@ -14,7 +16,8 @@ export const KEY_KINDS: KeyKind[] = [
   {
     type: 'server',
     title: 'Server SDK',
-    help: 'For your backend. Reads the full snapshot, so keep it secret.',
+    help: 'Backend services. Secret; keep it out of browsers and mobile apps.',
+    note: 'Secret. For backend SDKs (Node, PHP, Laravel). Reads every flag and can call remote evaluation.',
     variable: 'BITFLAG_SERVER_KEY',
     scopes: [
       {
@@ -34,7 +37,8 @@ export const KEY_KINDS: KeyKind[] = [
   {
     type: 'browser',
     title: 'Browser SDK',
-    help: 'For web pages. Sees only flags marked client-visible. Safe to ship in a bundle, limited to the allowed origins.',
+    help: 'Web apps. Public; limited to client-visible flags and allowed origins.',
+    note: 'Public. For web apps. Only fetches client-visible flags, from allowed origins.',
     variable: 'BITFLAG_CLIENT_KEY',
     scopes: [
       { value: 'snapshot:read', label: 'Read snapshots', help: 'Download the public snapshot.' },
@@ -45,7 +49,8 @@ export const KEY_KINDS: KeyKind[] = [
   {
     type: 'management',
     title: 'CLI, CI or API',
-    help: 'For the CLI and automation. Works in this environment only and belongs to the project.',
+    help: 'Scripts that read flags or publish. Secret, scoped to this environment.',
+    note: 'Secret. For CI and scripts using the CLI or API. Scoped to this environment.',
     variable: 'BITFLAG_API_KEY',
     scopes: [
       { value: 'flags:read', label: 'Read flags', help: 'Read project and flag data.' },

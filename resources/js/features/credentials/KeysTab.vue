@@ -7,10 +7,12 @@ import DropdownMenu from '../../components/ui/DropdownMenu.vue';
 import EmptyState from '../../components/ui/EmptyState.vue';
 import IconButton from '../../components/ui/IconButton.vue';
 import StatusTag from '../../components/ui/StatusTag.vue';
+import { ago, shortDate } from '../../lib/dates';
 import type { EnvironmentRow, KeyRow } from '../environments/types';
 import CreateKeyWizard from './CreateKeyWizard.vue';
 import RevokeKeyDialog from './RevokeKeyDialog.vue';
 import RotateKeyDialog from './RotateKeyDialog.vue';
+import { KEY_KINDS } from './keyKinds';
 import ScopeChips from './ScopeChips.vue';
 
 const props = defineProps<{
@@ -41,11 +43,16 @@ const revokeOpen = computed({
 });
 
 const typeLabel: Record<string, string> = {
-  server: 'Server SDK',
-  browser: 'Browser SDK',
-  management: 'CLI, CI or API',
+  server: 'Server',
+  browser: 'Browser',
+  management: 'Management',
   personal: 'Personal token',
 };
+const kindTitle = {
+  server: 'Server key',
+  browser: 'Browser key',
+  management: 'Management key',
+} as const;
 const stateLabel: Record<KeyRow['state'], string> = {
   active: 'Active',
   rotating: 'Rotating',
@@ -54,7 +61,7 @@ const stateLabel: Record<KeyRow['state'], string> = {
 };
 
 function when(seconds: number | null, empty: string): string {
-  return seconds === null ? empty : new Date(seconds * 1000).toLocaleDateString();
+  return seconds === null ? empty : shortDate(seconds);
 }
 
 function menuItems(key: KeyRow) {
@@ -91,8 +98,8 @@ function refresh(): void {
   <div class="flex flex-col gap-4" data-test="environment-keys">
     <div class="flex items-center justify-between gap-3">
       <p class="text-text/70 max-w-[60ch] text-sm">
-        Keys let SDKs, the CLI and automation reach this environment. A key is shown once when you
-        create it.
+        Keys are shown once when created and stored hashed. You can't view a key again; rotate it to
+        get a new one.
       </p>
       <Button v-if="canManage" variant="primary" data-test="key-new" @click="creating = true">
         <template #icon><PhPlus :size="16" aria-hidden="true" /></template>
@@ -103,8 +110,14 @@ function refresh(): void {
     <EmptyState
       v-if="keys.length === 0"
       title="No keys yet"
-      message="SDKs using this environment's keys get an empty snapshot and return your fallback values until something is published."
-    />
+      message="Create a server key for backend SDKs or a browser key for web apps. Until something is published here, SDKs using these keys get an empty snapshot and return your fallback values."
+    >
+      <template v-if="canManage" #actions>
+        <Button variant="primary" data-test="key-new-empty" @click="creating = true"
+          >Create key</Button
+        >
+      </template>
+    </EmptyState>
     <div v-else class="border-divider overflow-x-auto rounded-lg border">
       <table class="w-full text-left text-sm" data-test="keys-table">
         <caption class="sr-only">
@@ -145,13 +158,14 @@ function refresh(): void {
             <td class="px-3 py-2"><ScopeChips :scopes="key.scopes" /></td>
             <td class="text-text/62 px-3 py-2">
               {{ when(key.createdAt, '—') }}
-              <div class="text-xs" data-test="key-creator">
+              <span class="text-xs" data-test="key-creator">
+                ·
                 <template v-if="key.createdBy.formerMember">created by a former member</template>
                 <template v-else>{{ key.createdBy.name }}</template>
-              </div>
+              </span>
             </td>
             <td class="text-text/62 px-3 py-2">
-              {{ when(key.lastUsedAt, 'Never') }}
+              {{ key.lastUsedAt === null ? 'Never' : ago(key.lastUsedAt) }}
               <div v-if="key.lastUsedClient" class="font-mono text-xs">
                 {{ key.lastUsedClient }}
               </div>
@@ -180,6 +194,13 @@ function refresh(): void {
         </tbody>
       </table>
     </div>
+
+    <ul class="grid gap-3 sm:grid-cols-3" data-test="key-kinds">
+      <li v-for="kind in KEY_KINDS" :key="kind.type" class="border-divider rounded-lg border p-3">
+        <p class="text-sm font-medium">{{ kindTitle[kind.type] }}</p>
+        <p class="text-text/65 mt-1 text-xs">{{ kind.note }}</p>
+      </li>
+    </ul>
 
     <CreateKeyWizard
       v-model:open="creating"

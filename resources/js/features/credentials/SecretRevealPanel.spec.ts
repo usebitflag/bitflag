@@ -32,8 +32,11 @@ describe('SecretRevealPanel', () => {
   it('shows the key and the environment variable line', () => {
     const wrapper = render();
     expect(wrapper.get('[data-test="secret-value"]').text()).toBe(secret);
-    expect(wrapper.text()).toContain(`BITFLAG_SERVER_KEY=${secret}`);
-    expect(wrapper.text()).toContain("You won't be able to see it again");
+    expect(wrapper.text()).toContain('Env variable');
+    expect(wrapper.text()).toContain('BITFLAG_SERVER_KEY');
+    expect(wrapper.get('[data-test="secret-warning"]').text()).toBe(
+      "This is the only time it will be shown. We store a hash, so we can't show it again.",
+    );
   });
 });
 

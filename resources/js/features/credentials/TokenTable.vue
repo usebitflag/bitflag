@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from '../../components/ui/Button.vue';
-import StatusTag from '../../components/ui/StatusTag.vue';
+import { ago, shortDate } from '../../lib/dates';
 
 export interface TokenRow {
   id: string;
@@ -20,18 +20,12 @@ const emit = defineEmits<{ revoke: [TokenRow] }>();
 
 const accessLabel = {
   read: 'Read only',
-  draft: 'Read and edit drafts',
-  publish: 'Read, edit and publish',
-} as const;
-const stateLabel = {
-  active: 'Active',
-  rotating: 'Active',
-  expired: 'Expired',
-  revoked: 'Revoked',
+  draft: 'Read & edit drafts',
+  publish: 'Read, edit & publish',
 } as const;
 
 function when(seconds: number | null, empty: string): string {
-  return seconds === null ? empty : new Date(seconds * 1000).toLocaleDateString();
+  return seconds === null ? empty : shortDate(seconds);
 }
 </script>
 
@@ -43,13 +37,12 @@ function when(seconds: number | null, empty: string): string {
       </caption>
       <thead class="text-text/62 border-divider border-b text-xs">
         <tr>
-          <th scope="col" class="px-3 py-2 font-medium">Name</th>
+          <th scope="col" class="px-3 py-2 font-medium">Token</th>
           <th v-if="showProject" scope="col" class="px-3 py-2 font-medium">Project</th>
           <th scope="col" class="px-3 py-2 font-medium">Access</th>
           <th scope="col" class="px-3 py-2 font-medium">Created</th>
           <th scope="col" class="px-3 py-2 font-medium">Last used</th>
           <th scope="col" class="px-3 py-2 font-medium">Expires</th>
-          <th scope="col" class="px-3 py-2 font-medium">State</th>
           <th scope="col" class="px-3 py-2"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
@@ -70,12 +63,17 @@ function when(seconds: number | null, empty: string): string {
           </td>
           <td class="px-3 py-2">{{ accessLabel[token.access] }}</td>
           <td class="text-text/62 px-3 py-2">{{ when(token.createdAt, '—') }}</td>
-          <td class="text-text/62 px-3 py-2">{{ when(token.lastUsedAt, 'Never') }}</td>
+          <td class="text-text/62 px-3 py-2">
+            {{ token.lastUsedAt === null ? 'Never' : ago(token.lastUsedAt) }}
+          </td>
           <td class="text-text/62 px-3 py-2">{{ when(token.expiresAt, 'Never') }}</td>
-          <td class="px-3 py-2"><StatusTag :status="stateLabel[token.state]" /></td>
           <td class="px-3 py-2 text-right">
+            <span v-if="token.state === 'revoked'" class="text-text/62" data-test="token-revoked"
+              >Revoked</span
+            >
+            <span v-else-if="token.state === 'expired'" class="text-text/62">Expired</span>
             <Button
-              v-if="token.state === 'active' || token.state === 'rotating'"
+              v-else
               size="sm"
               variant="secondary"
               data-test="token-revoke"

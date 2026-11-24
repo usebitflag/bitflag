@@ -16,11 +16,16 @@ const props = defineProps<{
   canPublish: boolean;
   /** False for a person who signed up with a provider and has not set a password. */
   hasPassword: boolean;
+  /** The person's role, named in the help text, for example "Owner". */
+  role?: string;
 }>();
+
+const roleName = computed(() => (props.role ? ` (${props.role})` : ''));
 
 const open = defineModel<boolean>('open', { default: false });
 const emit = defineEmits<{ created: [] }>();
 
+const SNIPPET = 'export BITFLAG_TOKEN=<your token>\nbitflag flags list --env staging';
 const label = ref('');
 const access = ref('draft');
 const ttl = ref('90');
@@ -31,13 +36,13 @@ const reveal = useSecretReveal();
 
 const accessOptions = computed(() => [
   { value: 'read', label: 'Read only' },
-  { value: 'draft', label: 'Read and edit drafts', disabled: !props.canDraft },
-  { value: 'publish', label: 'Read, edit and publish', disabled: !props.canPublish },
+  { value: 'draft', label: 'Read & edit drafts', disabled: !props.canDraft },
+  { value: 'publish', label: 'Read, edit & publish', disabled: !props.canPublish },
 ]);
 const expiryOptions = [
-  { value: '30', label: '30 days' },
-  { value: '90', label: '90 days' },
-  { value: '365', label: '1 year' },
+  { value: '30', label: 'In 30 days' },
+  { value: '90', label: 'In 90 days' },
+  { value: '365', label: 'In 1 year' },
   { value: '', label: 'Never' },
 ];
 
@@ -90,8 +95,7 @@ function done(): void {
 <template>
   <Dialog
     v-model:open="open"
-    :title="reveal.secret.value === null ? 'New personal token' : 'Copy your token'"
-    description="A token can never do more than your role allows. Protected environments still need a review."
+    :title="reveal.secret.value === null ? 'Create a personal token' : 'Copy your token'"
     :dismissable="reveal.secret.value === null"
   >
     <div v-if="reveal.secret.value === null" class="flex flex-col gap-4" data-test="create-token">
@@ -120,7 +124,7 @@ function done(): void {
         v-slot="{ id, describedBy }"
         label="Access"
         :error="errors.access"
-        :help="`For ${projectName} only.`"
+        :help="`A token can never do more than your role${roleName} allows. Protected environments still need a review.`"
       >
         <Select
           :id="id"
@@ -159,9 +163,8 @@ function done(): void {
       v-else
       v-model:acknowledged="reveal.acknowledged.value"
       :secret="reveal.secret.value"
-      variable="BITFLAG_API_KEY"
-      :environment-name="projectName"
-      note="Use it with the CLI: bitflag login --token."
+      noun="token"
+      :snippet="SNIPPET"
       @done="done"
     />
     <template v-if="reveal.secret.value === null" #footer>

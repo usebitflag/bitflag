@@ -12,7 +12,7 @@ describe('project deletion', () => {
 
     cy.get('[data-test="project-status-banner"]')
       .should('contain', 'Storefront will be deleted on')
-      .and('contain', 'Until then SDKs keep working.');
+      .and('contain', 'Until then SDKs keep working and you can restore it.');
     cy.get('[data-test="project-restore"]').click();
     cy.get('[data-test="project-status-banner"]').should('not.exist');
   });

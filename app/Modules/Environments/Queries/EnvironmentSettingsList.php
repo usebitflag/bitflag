@@ -29,6 +29,14 @@ final class EnvironmentSettingsList
     }
 
     /**
+     * How many environments the project has, archived ones included.
+     */
+    public function count(string $projectId): int
+    {
+        return Environment::query()->where('project_id', $projectId)->count();
+    }
+
+    /**
      * The keys of the project's active environments.
      *
      * @return list<string>

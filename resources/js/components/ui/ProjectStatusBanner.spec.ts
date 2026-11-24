@@ -18,7 +18,7 @@ describe('ProjectStatusBanner', () => {
     });
     expect(wrapper.text()).toContain('Storefront will be deleted on');
     expect(wrapper.text()).toContain('2026');
-    expect(wrapper.text()).toContain('Until then SDKs keep working.');
+    expect(wrapper.text()).toContain('Until then SDKs keep working and you can restore it.');
     expect(wrapper.find('[data-test="project-restore"]').exists()).toBe(true);
   });
 

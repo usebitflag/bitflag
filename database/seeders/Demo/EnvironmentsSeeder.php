@@ -42,7 +42,7 @@ final class EnvironmentsSeeder extends Seeder
                         'id' => $id,
                         'organization_id' => $organizationId,
                         'project_id' => DemoIds::project($project),
-                        'name' => $key,
+                        'name' => ucfirst($key),
                         'key' => $key,
                         'color' => $color,
                         'position' => $position,
