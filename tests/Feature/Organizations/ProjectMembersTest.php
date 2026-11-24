@@ -205,9 +205,9 @@ describe('the Members tab', function () {
             ->has('invitations', 1)->where('invitations.0.email', 'here@x.dev')->where('invitations.0.role', 'developer')->where('invitations.0.status', 'pending'));
     });
 
-    it('appears in the sidebar for people who can open the project', function () {
+    it('is reached from the Settings entry in the sidebar', function () {
         $this->actingAs($this->maya)->get('/acme/storefront/production/overview')->assertInertia(fn (Assert $page) => $page
-            ->where('navigation', fn ($navigation) => collect($navigation)->contains(fn ($item) => $item['key'] === 'settings' && $item['href'] === '/acme/storefront/production/settings/members' && $item['group'] === 'Administration')));
+            ->where('navigation', fn ($navigation) => collect($navigation)->contains(fn ($item) => $item['key'] === 'settings' && $item['href'] === '/acme/storefront/production/settings/general' && $item['group'] === 'Administration')));
     });
 });
 

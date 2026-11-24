@@ -23,7 +23,7 @@ final class ProjectsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->app->make(AuditCatalog::class)->register('project.created');
+        $this->app->make(AuditCatalog::class)->register('project.created', 'project.updated');
 
         // The Overview is the first page of every project.
         $this->app->make(PortalNavigation::class)->register(

@@ -114,6 +114,8 @@ Cross-event attribution requires a linkable experiment-scoped identifier or anot
 
 Invitations expire and can be revoked; accepting an invite must not grant access to a different organization. Roles, project grants and environment publishing grants are evaluated together. Ownership transfers require an eligible target and preserve at least one owner.
 
+A project has settings that only its Owners change: name, key, description, time zone, and the defaults every new flag starts with (key format, days without checks before a flag counts as stale, whether a description or an owner is required, and whether flags are client-visible). The settings form carries a `version`, so a save based on stale data fails instead of overwriting another person's edit. The project key is part of every address and is named by SDKs and the CLI, so it can change only until the first credential is issued or the first revision is published; after that it is fixed.
+
 Project archive, scheduled deletion and restore are explicit workflows. A cross-organization transfer would have to migrate ownership-sensitive grants, integration bindings, billing responsibility and cache scope atomically or through a guarded maintenance state; it is not offered. Archived projects keep serving. Deleting a project is scheduled with a grace period, during which it can be restored.
 
 Scheduled deletion and final purge are different states. Final purge revokes online access and follows the agreed retention policy for backups, billing and audit. The UI must explain cached SDK behavior instead of promising immediate fallback everywhere.
