@@ -117,6 +117,7 @@ request ──► outbox_messages (same transaction) ──► outbox worker ─
 Pull requests do not run GitHub Actions: the organization is on the Free plan and its minutes are limited. The checks run on your machine instead, in the `pre-push` hook, and CI runs after a merge to `main` (and by hand from the Actions tab, with "Run workflow").
 
 - Turn the hook on once per clone: `git config core.hooksPath .githooks`.
+- If the clone pushes over SSH, keep that connection alive while the end-to-end suite runs: `git config core.sshCommand 'ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=60'`.
 - On every push of a branch it runs `scripts/check.sh` in Sail, the production npm audit and build checks, the isolated Cypress suite, and a gitleaks scan of the repository. Together these mirror the `ci`, `security` and `gitleaks` workflows. It stops at the first failure. Sail must be running (`sail up -d`), and Cypress needs host Node 22 and Chrome.
 - A push that only changes `docs/`, `.github/` or Markdown files skips the application, build and end-to-end checks and still runs the secret scan.
 - `SKIP_CHECKS=1 git push` skips the local checks. Use it rarely, and never as the normal way around a failure.

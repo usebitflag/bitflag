@@ -7,6 +7,7 @@
 #    are only documentation or GitHub settings skips the application checks.
 #
 # Enable once per clone:       git config core.hooksPath .githooks
+# Keep SSH alive during E2E:    git config core.sshCommand 'ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=60'
 # Skip the checks:             SKIP_CHECKS=1 git push
 # Emergency push to main:      ALLOW_MAIN_PUSH=1 git push
 set -euo pipefail
