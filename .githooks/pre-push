@@ -2,9 +2,9 @@
 # Runs before every push.
 #
 # 1. Blocks direct pushes to main. Every change goes through a pull request.
-# 2. Runs what CI runs, on your machine, because CI only runs after a merge to main:
-#    scripts/check.sh inside Sail (PHP style, static analysis, tests, architecture canaries, frontend checks) and a
-#    gitleaks scan. A push whose changes are only documentation or GitHub settings skips scripts/check.sh.
+# 2. Runs what CI and security run, on your machine, because Actions only runs after a merge to main:
+#    scripts/check.sh, the production build checks, the isolated Cypress suite and a gitleaks scan. A push whose changes
+#    are only documentation or GitHub settings skips the application checks.
 #
 # Enable once per clone:       git config core.hooksPath .githooks
 # Skip the checks:             SKIP_CHECKS=1 git push
@@ -51,6 +51,28 @@ if [ "$needs_full" = "1" ]; then
 
   echo "pre-push: running scripts/check.sh (SKIP_CHECKS=1 skips it)"
   ./vendor/bin/sail bash scripts/check.sh
+
+  echo "pre-push: auditing production npm dependencies"
+  ./vendor/bin/sail npm audit --omit=dev --audit-level=high
+
+  echo "pre-push: checking the production build"
+  ./vendor/bin/sail npm run build
+  ./vendor/bin/sail node scripts/ci/scan-bundle-secrets.mjs
+  bash scripts/ci/clean-tree.sh tracked-ignored
+  bash scripts/ci/clean-tree.sh clean
+
+  echo "pre-push: running Cypress end to end"
+  scripts/dev/e2e-stack.sh up
+  set +e
+  CYPRESS_BASE_URL=http://localhost:8081 ./node_modules/.bin/cypress run \
+    --browser "${CYPRESS_BROWSER:-chrome}" \
+    --expose ADMIN_ORIGIN=http://admin.localhost:8081
+  e2e_status=$?
+  set -e
+  scripts/dev/e2e-stack.sh down
+  if [ "$e2e_status" -ne 0 ]; then
+    exit "$e2e_status"
+  fi
 fi
 
 if command -v docker >/dev/null 2>&1; then

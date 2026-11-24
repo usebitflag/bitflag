@@ -9,7 +9,7 @@
 # The Feature tests need the PHP version of the containers, so on a host with an older PHP run the backend part in
 # Sail: sail bash scripts/check.sh backend. The pinned protocol release must be fetched first (see
 # docs/development.md). The end-to-end specs, the production build checks and the security audits are separate CI
-# jobs and are not run here; `composer audit` is included because new advisories fail CI without any code change.
+# jobs and are not run here; `composer audit --locked` is included because new advisories fail CI without any code change.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -27,7 +27,7 @@ step() {
 
 if [[ "$part" != frontend ]]; then
   step composer validate --strict
-  step composer audit
+  step composer audit --locked
   step vendor/bin/pint --test
   step vendor/bin/phpstan analyse --memory-limit=1G
   step php scripts/ci/no-path-repositories.php

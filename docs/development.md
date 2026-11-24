@@ -61,7 +61,7 @@ The portal is served on `APP_HOST` (default `localhost`) and the admin console o
 | Task | Command |
 | --- | --- |
 | Start and stop | `sail up -d`, `sail down` |
-| Everything CI runs before pushing | `sail bash scripts/check.sh` (`backend` or `frontend` for one half; skips end-to-end, the production build checks and the security audit job) |
+| Everything Actions checks before pushing | `git push` through the enabled pre-push hook; use `sail bash scripts/check.sh` for the fast non-E2E checks |
 | Run tests | `sail bin pest` (`--parallel`, `--group=arch`) |
 | PHP style and static analysis | `sail bin pint --test`, `sail bin phpstan analyse` |
 | Regenerate the theme | `sail npm run tokens` (`tokens:check` verifies it) |
@@ -117,9 +117,10 @@ request ──► outbox_messages (same transaction) ──► outbox worker ─
 Pull requests do not run GitHub Actions: the organization is on the Free plan and its minutes are limited. The checks run on your machine instead, in the `pre-push` hook, and CI runs after a merge to `main` (and by hand from the Actions tab, with "Run workflow").
 
 - Turn the hook on once per clone: `git config core.hooksPath .githooks`.
-- On every push of a branch it runs `scripts/check.sh` in Sail (what the `backend-lint`, `backend-test`, `arch-canary` and `frontend` jobs run: Composer audit, Pint, PHPStan, Pest, architecture canaries, theme and type checks, ESLint, Prettier, Stylelint, Vitest with coverage) and a gitleaks scan of the repository. It stops at the first failure. Sail must be running (`sail up -d`).
-- A push that only changes `docs/`, `.github/` or Markdown files skips `check.sh` and still runs the secret scan.
-- `SKIP_CHECKS=1 git push` skips both. Use it rarely. The end-to-end specs, the production build checks and the weekly security audit are not part of the hook; they run in CI after the merge.
+- On every push of a branch it runs `scripts/check.sh` in Sail, the production npm audit and build checks, the isolated Cypress suite, and a gitleaks scan of the repository. Together these mirror the `ci`, `security` and `gitleaks` workflows. It stops at the first failure. Sail must be running (`sail up -d`), and Cypress needs host Node 22 and Chrome.
+- A push that only changes `docs/`, `.github/` or Markdown files skips the application, build and end-to-end checks and still runs the secret scan.
+- `SKIP_CHECKS=1 git push` skips the local checks. Use it rarely, and never as the normal way around a failure.
+- If the installed Chrome version is temporarily incompatible with Cypress, `CYPRESS_BROWSER=electron git push` runs the same full E2E suite in Cypress's bundled browser instead of skipping it.
 - The hook also blocks pushes to `main`.
 
 ## The evaluator package
