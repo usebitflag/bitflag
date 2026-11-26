@@ -177,7 +177,7 @@ jobs:
           key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npm ci
       - run: npx cypress install
-      - uses: cypress-io/github-action@v6
+      - uses: cypress-io/github-action@v7
         with:
           install: false
           browser: chrome
